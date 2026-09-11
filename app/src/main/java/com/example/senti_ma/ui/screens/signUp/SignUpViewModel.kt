@@ -1,0 +1,125 @@
+package com.example.senti_ma.ui.screens.signUp
+
+import android.app.Activity
+import android.content.Context
+import android.os.Bundle
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.senti_ma.R
+import com.example.senti_ma.domain.model.AuthResult
+import com.example.senti_ma.domain.usecase.AuthUseCases
+import com.example.senti_ma.ui.screens.signUp.events.SignUpUiEvent
+import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/**
+ * ViewModel responsible for handling sign-up logic and UI state.
+ */
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    @ApplicationContext val context: Context,
+    private val firebaseAnalytics: FirebaseAnalytics,
+    private val authUseCases: AuthUseCases
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<SignUpUiState>(SignUpUiState.Idle)
+    val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
+
+    var userName by mutableStateOf("")
+        private set
+
+    var userEmail by mutableStateOf("")
+        private set
+
+    var userPassword by mutableStateOf("")
+        private set
+
+    var userPasswordConfirmation by mutableStateOf("")
+        private set
+
+    fun onEvent(event: SignUpUiEvent) {
+        when (event) {
+            is SignUpUiEvent.ClearState -> clearState()
+            is SignUpUiEvent.CreateUserWithEmailAndPassword -> createUserWithEmailAndPassword(event.activity)
+            is SignUpUiEvent.UpdateUserName -> updateUserName(event.newUserName)
+            is SignUpUiEvent.UpdateUserEmail -> updateUserEmail(event.newUserEmail)
+            is SignUpUiEvent.UpdateUserPassword -> updateUserPassword(event.newUserPassword)
+            is SignUpUiEvent.UpdateUserPasswordConfirmation -> updateUserPasswordConfirmation(event.newUserPasswordConfirmation)
+        }
+    }
+
+    private fun clearState() {
+        _uiState.value = SignUpUiState.Idle
+        userPasswordConfirmation = ""
+        userPassword = ""
+        userEmail = ""
+        userName = ""
+    }
+
+    private fun createUserWithEmailAndPassword(activity: Activity) {
+        _uiState.value = SignUpUiState.Loading
+
+        if (userName.isEmpty() || userEmail.isEmpty() ||
+            userPassword.isEmpty() || userPasswordConfirmation.isEmpty()
+        ) {
+            _uiState.value = SignUpUiState.Error(context.getString(R.string.text_error_required_fields_are_null))
+            return
+        }
+
+        if (userPassword != userPasswordConfirmation) {
+            _uiState.value = SignUpUiState.Error(context.getString(R.string.text_error_passwords_fields_not_match))
+            return
+        }
+
+        if (userPassword.length < 8) {
+            _uiState.value = SignUpUiState.Error(context.getString(R.string.text_error_invalid_password_length))
+            return
+        }
+
+        viewModelScope.launch {
+            when (val result = authUseCases.createUserWithEmailAndPassword(userName, userEmail, userPassword, activity)) {
+                is AuthResult.Success -> {
+                    _uiState.value = SignUpUiState.Success
+                }
+                is AuthResult.Error -> {
+                    _uiState.value = SignUpUiState.Error(result.errorMessage)
+                    userPassword = ""
+                    userEmail = ""
+                }
+            }
+        }
+    }
+
+    private fun updateUserName(newUserName: String) {
+        _uiState.value = SignUpUiState.Idle
+        userName = newUserName
+    }
+
+    private fun updateUserEmail(newUserEmail: String) {
+        _uiState.value = SignUpUiState.Idle
+        userEmail = newUserEmail
+    }
+
+    private fun updateUserPassword(newUserPassword: String) {
+        _uiState.value = SignUpUiState.Idle
+        userPassword = newUserPassword
+    }
+
+    private fun updateUserPasswordConfirmation(newUserPasswordConfirmation: String) {
+        _uiState.value = SignUpUiState.Idle
+        userPasswordConfirmation = newUserPasswordConfirmation
+    }
+
+    fun logEvent(eventName: String, params: Bundle) {
+        firebaseAnalytics.logEvent(eventName, params)
+    }
+}

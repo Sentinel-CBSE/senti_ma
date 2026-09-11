@@ -1,0 +1,27 @@
+package com.example.senti_ma.data.repository
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import com.example.senti_ma.domain.repository.SettingsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+
+class SettingsRepositoryImpl @Inject constructor(
+    private val dataStore: DataStore<Preferences>
+) : SettingsRepository {
+
+    private val darkThemeKey = booleanPreferencesKey("is_dark_theme")
+
+    override val isDarkTheme: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[darkThemeKey] ?: false
+    }
+
+    override suspend fun setDarkTheme(enabled: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[darkThemeKey] = enabled
+        }
+    }
+}
