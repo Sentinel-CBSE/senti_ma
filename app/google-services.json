@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "18125175753",
+    "project_id": "sentinel-cbse",
+    "storage_bucket": "sentinel-cbse.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18125175753:android:cab6e5174e19bbb02dc618",
+        "android_client_info": {
+          "package_name": "com.example.senti_ma"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5KIk5M4fkerYEy5aDz3xKPUsE26y4rMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

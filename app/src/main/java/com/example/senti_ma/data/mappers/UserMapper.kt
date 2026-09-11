@@ -7,7 +7,7 @@ fun FirebaseUser.toDomain(): User = User(
     uid = uid,
     displayName = displayName,
     email = email,
-    photoUrl = photoUrl?.toString(),
+    photoUrl = photoUrl,
     isAnonymous = isAnonymous,
     isEmailVerified = isEmailVerified
 )

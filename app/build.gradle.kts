@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
     //alias(libs.plugins.google.services)
+    id("com.google.gms.google-services")
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
@@ -89,7 +90,7 @@ dependencies {
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.material.icons.extended)
 
-    implementation(platform(libs.com.firebase.bom))
+    implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
     implementation(libs.com.firebase.firestore)
     implementation(libs.com.firebase.analytics)
     implementation(libs.com.firebase.auth)

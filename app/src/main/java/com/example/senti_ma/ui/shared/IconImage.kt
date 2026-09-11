@@ -41,7 +41,7 @@ fun IconImage(
             )
     ) {
         Image(
-            painter = painterResource(id = R.drawable.icono_con_fondo_ensenas),
+            painter = painterResource(id = R.drawable.ic_launcher_background),
             contentDescription = stringResource(R.string.description_app_icon),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
