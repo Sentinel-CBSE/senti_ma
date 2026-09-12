@@ -1,7 +1,6 @@
 package com.example.senti_ma.ui
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -16,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -70,8 +68,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                when (val state = loginUiState) {
-                    is LoginUiState.Loading -> {
+                when {
+                    mainUiState.isLoading -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -79,49 +77,52 @@ class MainActivity : ComponentActivity() {
                             CircularProgressIndicator()
                         }
                     }
-                    is LoginUiState.Error -> {
-                        Toast.makeText(
-                            LocalContext.current,
-                            state.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    else -> {}
-                }
+                    else -> {
+                        Scaffold(
+                            bottomBar = {
+                                if (mainUiState.user != null) {
+                                    val currentBackStack by navController.currentBackStackEntryAsState()
+                                    val currentRoute = currentBackStack?.destination?.route
 
-                if (mainUiState.user != null) {
-                    Scaffold(
-                        bottomBar = {
-                            val currentBackStack by navController.currentBackStackEntryAsState()
-                            val currentRoute = currentBackStack?.destination?.route
-
-                            if (tabBarScreens.any { it.route == currentRoute }) {
-                                val currentTabBarScreen = tabBarScreens.first { it.route == currentRoute }
-                                AppBottomBar(
-                                    allScreens = tabBarScreens,
-                                    onTabSelected = { newScreen ->
-                                        navController.navigateSingleTopTo(newScreen.route)
-                                    },
-                                    currentScreen = currentTabBarScreen
-                                )
+                                    if (tabBarScreens.any { it.route == currentRoute }) {
+                                        val currentTabBarScreen =
+                                            tabBarScreens.first { it.route == currentRoute }
+                                        AppBottomBar(
+                                            allScreens = tabBarScreens,
+                                            onTabSelected = { newScreen ->
+                                                navController.navigateSingleTopTo(newScreen.route)
+                                            },
+                                            currentScreen = currentTabBarScreen
+                                        )
+                                    }
+                                }
+                            },
+                            topBar = {
+                                if (mainUiState.user != null) {
+                                    AppTopBar(
+                                        avatarUrl = mainUiState.user!!.photoUrl,
+                                        onAvatarClick = { navController.navigateSingleTopTo(Profile.route) },
+                                        onHomeClick = { navController.navigateSingleTopTo(RobberyMap.route) },
+                                        modifier = Modifier.background(colorScheme.surfaceVariant)
+                                    )
+                                }
                             }
-                        },
-                        topBar = {
-                            AppTopBar(
-                                avatarUrl = mainUiState.user!!.photoUrl,
-                                onAvatarClick = { navController.navigateSingleTopTo(Profile.route) },
-                                onHomeClick = { navController.navigateSingleTopTo(RobberyMap.route) },
-                                modifier = Modifier.background(colorScheme.surfaceVariant)
+                        ) { innerPadding ->
+                            AppNavHost(
+                                user = mainUiState.user,
+                                onSignOut = {
+                                    mainViewModel.signOut()
+                                    navController.navigate("auth") {
+                                        popUpTo(0) {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+                                loginViewModel = loginViewModel,
+                                navController = navController,
+                                modifier = Modifier.padding(innerPadding)
                             )
                         }
-                    ) { innerPadding ->
-                        AppNavHost(
-                            user = mainUiState.user,
-                            onSignOut = { mainViewModel.signOut() },
-                            loginViewModel = loginViewModel,
-                            navController = navController,
-                            modifier = Modifier.padding(innerPadding)
-                        )
                     }
                 }
             }

@@ -19,6 +19,7 @@
     <string name="title_sign_up">Registrar usuario</string>
     <string name="text_field_user_name">Nombre de usuario</string>
     <string name="text_field_user_password">Contraseña</string>
+    <string name="text_field_user_password_confirmation">Repetir contraseña</string>
     <string name="text_button_sign_up">Registrar usuario</string>
     <string name="text_success_sign_up">Usuario creado con exito: verifique su correo</string>
     <string name="text_error_passwords_fields_not_match">Las contraseñas no coinciden</string>

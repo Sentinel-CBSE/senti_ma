@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
  */
 @Composable
 fun RobberySearchScreen(
-    onRobberyClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRobberyClick: (String) -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxSize(),

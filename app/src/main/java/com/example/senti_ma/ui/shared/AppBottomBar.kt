@@ -21,10 +21,10 @@ import com.example.senti_ma.navigation.TabBarDestination
  */
 @Composable
 fun AppBottomBar(
+    modifier: Modifier = Modifier,
     allScreens: List<TabBarDestination>,
     onTabSelected: (TabBarDestination) -> Unit,
-    currentScreen: TabBarDestination,
-    modifier: Modifier = Modifier
+    currentScreen: TabBarDestination
 ) {
     NavigationBar(
         tonalElevation = 2.dp,

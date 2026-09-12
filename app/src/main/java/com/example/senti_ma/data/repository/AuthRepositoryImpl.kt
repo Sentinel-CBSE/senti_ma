@@ -127,7 +127,7 @@ class AuthRepositoryImpl @Inject constructor(
         val getPasswordOption = GetPasswordOption()
         val getGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(true)
-            .setServerClientId("564883312389-bb3ndirhbd87ca0v6p2g4jte52pll6b1.apps.googleusercontent.com")
+            .setServerClientId("18125175753-rrju41lblttrndipuqa7gea1cp9gmv5g.apps.googleusercontent.com")
             .setAutoSelectEnabled(true)
             .setNonce(UUID.randomUUID().toString())
             .build()
@@ -141,7 +141,7 @@ class AuthRepositoryImpl @Inject constructor(
     private fun getGoogleRequest(): GetCredentialRequest {
         val signInRequestOptions = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
-            .setServerClientId("564883312389-bb3ndirhbd87ca0v6p2g4jte52pll6b1.apps.googleusercontent.com")
+            .setServerClientId("18125175753-rrju41lblttrndipuqa7gea1cp9gmv5g.apps.googleusercontent.com")
             .setAutoSelectEnabled(false)
             .setNonce(UUID.randomUUID().toString())
             .build()

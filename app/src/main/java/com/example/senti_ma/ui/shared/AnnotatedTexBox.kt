@@ -16,9 +16,9 @@ import androidx.compose.ui.text.withStyle
 @Composable
 fun AnnotatedTextBox(
     modifier: Modifier = Modifier,
-    text: String = "",
     textClickable: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    text: String = ""
 ){
     Box(modifier = modifier) {
         val annotatedText = buildAnnotatedString {

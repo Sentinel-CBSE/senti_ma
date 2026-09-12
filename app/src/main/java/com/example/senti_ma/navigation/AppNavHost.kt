@@ -19,11 +19,11 @@ import com.example.senti_ma.utils.navigateSingleTopTo
 
 @Composable
 fun AppNavHost(
-    user: User?,
-    onSignOut: () -> Unit,
-    loginViewModel: LoginViewModel,
+    modifier: Modifier = Modifier,
     navController: NavHostController,
-    modifier: Modifier = Modifier
+    loginViewModel: LoginViewModel,
+    onSignOut: () -> Unit,
+    user: User?
 ) {
     NavHost(
         navController = navController,
@@ -73,10 +73,11 @@ fun AppNavHost(
                 arguments = RobberyDetail.arguments
             ) { backStackEntry ->
                 val robberyId = backStackEntry.arguments?.getString(RobberyDetail.ID_ARG)
-
-                RobberyDetailScreen(
-                    robberyId = robberyId!!
-                )
+                if (robberyId != null) {
+                    RobberyDetailScreen(
+                        robberyId = robberyId
+                    )
+                }
             }
 
             composable(route = Profile.route) {

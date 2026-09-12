@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,8 +52,22 @@ fun ForgotPasswordScreen(
     onBackPressed: () -> Unit,
     onSignUpClick: () -> Unit
 ) {
-    val uiState by forgetPasswordViewModel.uiState.collectAsState()
+    val forgotPasswordUiState by forgetPasswordViewModel.uiState.collectAsState()
+
     val context = LocalContext.current
+    val successMessage = stringResource(R.string.text_success_send_email)
+
+    LaunchedEffect(forgotPasswordUiState) {
+        when (val state = forgotPasswordUiState) {
+            is ForgotPasswordUiState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            }
+            is ForgotPasswordUiState.Success -> {
+                Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
+        }
+    }
 
     Scaffold(topBar = {
         AuthTopBar(
@@ -97,7 +112,7 @@ fun ForgotPasswordScreen(
                     value = forgetPasswordViewModel.userEmail,
                     singleLine = true,
                     shape = shapes.large,
-                    isError = uiState is ForgotPasswordUiState.Error,
+                    isError = forgotPasswordUiState is ForgotPasswordUiState.Error,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     label = {
                         Text(text = stringResource(R.string.text_field_user_email))
@@ -135,28 +150,11 @@ fun ForgotPasswordScreen(
                     Text(text = stringResource(R.string.text_button_send_email))
                 }
 
-                when (val state = uiState) {
-                    is ForgotPasswordUiState.Loading -> {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        CircularProgressIndicator(
-                            modifier = modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
-                    is ForgotPasswordUiState.Error -> {
-                        Toast.makeText(
-                            context,
-                            state.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    is ForgotPasswordUiState.Success -> {
-                        Toast.makeText(
-                            context,
-                            stringResource(R.string.text_success_send_email),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    else -> {}
+                if (forgotPasswordUiState is ForgotPasswordUiState.Loading) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator(
+                        modifier = modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }

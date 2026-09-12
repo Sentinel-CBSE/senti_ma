@@ -50,13 +50,12 @@ class ForgetPasswordViewModel @Inject constructor(
     }
 
     private fun sendPasswordResetEmail() {
-        _uiState.value = ForgotPasswordUiState.Loading
-
-        if (userEmail.isEmpty()) {
+        if (userEmail.isBlank()) {
             _uiState.value = ForgotPasswordUiState.Error(context.getString(R.string.text_error_required_fields_are_null))
             return
         }
 
+        _uiState.value = ForgotPasswordUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.sendPasswordResetEmail(userEmail)) {
                 is AuthResult.Success -> {

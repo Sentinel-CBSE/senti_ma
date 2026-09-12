@@ -13,9 +13,9 @@ import com.example.senti_ma.domain.model.User
  */
 @Composable
 fun ProfileScreen(
-    user: User,
+    modifier: Modifier = Modifier,
     onSignOut: () -> Unit,
-    modifier: Modifier = Modifier
+    user: User
 ) {
     Box(
         modifier = modifier.fillMaxSize(),

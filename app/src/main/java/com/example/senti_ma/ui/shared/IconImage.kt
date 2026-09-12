@@ -23,8 +23,8 @@ import com.example.senti_ma.R
  */
 @Composable
 fun IconImage(
-    size: Dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    size: Dp
 ){
     Box(
         contentAlignment = Alignment.Center,

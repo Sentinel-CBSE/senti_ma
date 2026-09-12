@@ -68,6 +68,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun onSignInWithSavedCredentials(activity: Activity) {
+        _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInWithSavedCredentials(activity)) {
                 is AuthResult.Success -> _uiState.value = LoginUiState.Success
@@ -99,13 +100,12 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun onSignInWithEmailAndPassword() {
-        _uiState.value = LoginUiState.Loading
-
-        if (userEmail.isEmpty() || userPassword.isEmpty()) {
+        if (userEmail.isBlank() || userPassword.isBlank()) {
             _uiState.value = LoginUiState.Error(context.getString(R.string.text_error_required_fields_are_null))
             return
         }
 
+        _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInWithEmailAndPassword(userEmail, userPassword)) {
                 is AuthResult.Success -> _uiState.value = LoginUiState.Success

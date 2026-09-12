@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
  */
 @Composable
 fun RobberyDetailScreen(
-    robberyId: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    robberyId: String
 ) {
     Box(
         modifier = modifier.fillMaxSize(),

@@ -12,7 +12,7 @@ class MainApplication : Application() {
         super.onCreate()
 
         // initialize firebase
-        //FirebaseApp.initializeApp(this)
+        FirebaseApp.initializeApp(this)
 
         try {
             ProviderInstaller.installIfNeeded(this@MainApplication)

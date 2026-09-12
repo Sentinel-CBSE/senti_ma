@@ -12,7 +12,20 @@
           "package_name": "com.example.senti_ma"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "18125175753-budsqfhfq77pg4dsv0nb4e7si0aar2j2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.senti_ma",
+            "certificate_hash": "bbb363295c1169be5165174b90b973a640ab34b3"
+          }
+        },
+        {
+          "client_id": "18125175753-rrju41lblttrndipuqa7gea1cp9gmv5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD5KIk5M4fkerYEy5aDz3xKPUsE26y4rMk"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "18125175753-rrju41lblttrndipuqa7gea1cp9gmv5g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

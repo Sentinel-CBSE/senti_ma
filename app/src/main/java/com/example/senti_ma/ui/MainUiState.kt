@@ -7,4 +7,5 @@ import com.example.senti_ma.domain.model.User
  */
 data class MainUiState(
     val user: User? = null,
+    val isLoading: Boolean = true
 )

@@ -29,10 +29,10 @@ import com.example.senti_ma.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
-    avatarUrl: Uri?,
+    modifier: Modifier = Modifier,
     onAvatarClick: () -> Unit,
     onHomeClick: () -> Unit,
-    modifier: Modifier = Modifier
+    avatarUrl: Uri?
 ){
     TopAppBar(
         navigationIcon = {

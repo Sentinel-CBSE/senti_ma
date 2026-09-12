@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,12 +60,27 @@ fun SignUpScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel(),
     handleLoginNavigation: () -> Unit
 ) {
-    val uiState by signUpViewModel.uiState.collectAsState()
+    val signUpUiState by signUpViewModel.uiState.collectAsState()
     var isUserPasswordVisible by rememberSaveable { mutableStateOf(false) }
     var isUserPasswordConfirmationVisible by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
     val activity = context as? Activity
+    val successMessage = stringResource(R.string.text_success_sign_up)
+
+    LaunchedEffect(signUpUiState) {
+        when (val state = signUpUiState) {
+            is SignUpUiState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            }
+            is SignUpUiState.Success -> {
+                Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+                signUpViewModel.onEvent(SignUpUiEvent.ClearState)
+                handleLoginNavigation()
+            }
+            else -> {}
+        }
+    }
 
     Scaffold(topBar = {
         AuthTopBar(
@@ -101,7 +117,7 @@ fun SignUpScreen(
                     value = signUpViewModel.userName,
                     singleLine = true,
                     shape = shapes.large,
-                    isError = uiState is SignUpUiState.Error,
+                    isError = signUpUiState is SignUpUiState.Error,
                     label = { Text(text = stringResource(R.string.text_field_user_name)) },
                     onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserName(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -122,7 +138,7 @@ fun SignUpScreen(
                     value = signUpViewModel.userEmail,
                     singleLine = true,
                     shape = shapes.large,
-                    isError = uiState is SignUpUiState.Error,
+                    isError = signUpUiState is SignUpUiState.Error,
                     label = { Text(text = stringResource(R.string.text_field_user_email)) },
                     onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserEmail(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -143,7 +159,7 @@ fun SignUpScreen(
                     value = signUpViewModel.userPassword,
                     singleLine = true,
                     shape = shapes.large,
-                    isError = uiState is SignUpUiState.Error,
+                    isError = signUpUiState is SignUpUiState.Error,
                     label = { Text(text = stringResource(R.string.text_field_user_password)) },
                     onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserPassword(it)) },
                     visualTransformation = if (isUserPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -173,11 +189,11 @@ fun SignUpScreen(
                     value = signUpViewModel.userPasswordConfirmation,
                     singleLine = true,
                     shape = shapes.large,
-                    isError = uiState is SignUpUiState.Error,
-                    label = { Text(text = stringResource(R.string.text_field_user_password)) },
+                    isError = signUpUiState is SignUpUiState.Error,
+                    label = { Text(text = stringResource(R.string.text_field_user_password_confirmation)) },
                     onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserPasswordConfirmation(it)) },
                     visualTransformation = if (isUserPasswordConfirmationVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         IconButton(onClick = { isUserPasswordConfirmationVisible = !isUserPasswordConfirmationVisible }) {
                             Icon(
@@ -218,30 +234,11 @@ fun SignUpScreen(
                     Text(text = stringResource(R.string.text_button_sign_up))
                 }
 
-                when (val state = uiState) {
-                    is SignUpUiState.Loading -> {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        CircularProgressIndicator(
-                            modifier = modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
-                    is SignUpUiState.Error -> {
-                        Toast.makeText(
-                            context,
-                            state.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    is SignUpUiState.Success -> {
-                        Toast.makeText(
-                            context,
-                            stringResource(R.string.text_success_sign_up),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        signUpViewModel.onEvent(SignUpUiEvent.ClearState)
-                        handleLoginNavigation()
-                    }
-                    else -> {}
+                if (signUpUiState is SignUpUiState.Loading) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    CircularProgressIndicator(
+                        modifier = modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }

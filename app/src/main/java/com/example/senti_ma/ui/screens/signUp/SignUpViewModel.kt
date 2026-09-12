@@ -66,10 +66,8 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun createUserWithEmailAndPassword(activity: Activity) {
-        _uiState.value = SignUpUiState.Loading
-
-        if (userName.isEmpty() || userEmail.isEmpty() ||
-            userPassword.isEmpty() || userPasswordConfirmation.isEmpty()
+        if (userName.isBlank() || userEmail.isBlank() ||
+            userPassword.isBlank() || userPasswordConfirmation.isBlank()
         ) {
             _uiState.value = SignUpUiState.Error(context.getString(R.string.text_error_required_fields_are_null))
             return
@@ -85,6 +83,7 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
+        _uiState.value = SignUpUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.createUserWithEmailAndPassword(userName, userEmail, userPassword, activity)) {
                 is AuthResult.Success -> {

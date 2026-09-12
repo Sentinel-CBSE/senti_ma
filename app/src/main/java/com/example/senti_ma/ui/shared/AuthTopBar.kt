@@ -18,9 +18,9 @@ import com.example.senti_ma.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthTopBar(
-    title: String,
+    modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
-    modifier: Modifier = Modifier
+    title: String
 ){
     TopAppBar(
         title = { Text(text = title) },

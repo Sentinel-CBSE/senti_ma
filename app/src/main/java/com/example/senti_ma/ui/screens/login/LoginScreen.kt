@@ -1,6 +1,7 @@
 package com.example.senti_ma.ui.screens.login
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -26,6 +28,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -58,6 +61,7 @@ fun LoginScreen(
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit
 ) {
+    val loginUiState by loginViewModel.uiState.collectAsState()
     var isUserPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -67,6 +71,23 @@ fun LoginScreen(
         activity?.let {
             loginViewModel.onEvent(LoginUiEvent.SignInWithSavedCredentials(it))
         }
+    }
+
+    LaunchedEffect(loginUiState) {
+        val state = loginUiState
+        if (state is LoginUiState.Error) {
+            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    if (loginUiState is LoginUiState.Loading) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
     }
 
     Box(
