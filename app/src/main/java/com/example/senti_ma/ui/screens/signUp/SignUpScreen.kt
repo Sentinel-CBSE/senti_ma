@@ -24,10 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -103,7 +103,7 @@ fun SignUpScreen(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .clip(shapes.medium)
-                    .background(colorScheme.inverseSurface)
+                    .background(colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(30.dp)
             ) {
@@ -112,58 +112,48 @@ fun SignUpScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
+                Spacer(modifier = Modifier.height(100.dp))
+                TextField(
                     value = signUpViewModel.userName,
-                    singleLine = true,
-                    shape = shapes.large,
                     isError = signUpUiState is SignUpUiState.Error,
-                    label = { Text(text = stringResource(R.string.text_field_user_name)) },
-                    onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserName(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.primary,
-                        focusedTextColor = colorScheme.inverseOnSurface,
-                        unfocusedTextColor = colorScheme.inverseOnSurface,
-                        errorTextColor = colorScheme.inverseOnSurface,
-                        focusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedBorderColor = colorScheme.inverseOnSurface.copy(alpha = 0.5f),
+                    onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserName(it)) },
+                    label = { Text(text = stringResource(R.string.text_field_user_name)) },
+                    colors = TextFieldDefaults.colors(
+                        cursorColor = colorScheme.primary,
+                        focusedLabelColor = colorScheme.primaryContainer,
+                        unfocusedLabelColor = colorScheme.onSurface,
+                        focusedIndicatorColor = colorScheme.primary,
+                        unfocusedIndicatorColor = colorScheme.onSurfaceVariant,
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
+                TextField(
                     value = signUpViewModel.userEmail,
-                    singleLine = true,
-                    shape = shapes.large,
                     isError = signUpUiState is SignUpUiState.Error,
-                    label = { Text(text = stringResource(R.string.text_field_user_email)) },
-                    onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserEmail(it)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.primary,
-                        focusedTextColor = colorScheme.inverseOnSurface,
-                        unfocusedTextColor = colorScheme.inverseOnSurface,
-                        errorTextColor = colorScheme.inverseOnSurface,
-                        focusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedBorderColor = colorScheme.inverseOnSurface.copy(alpha = 0.5f),
+                    onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserEmail(it)) },
+                    label = { Text(text = stringResource(R.string.text_field_user_email)) },
+                    colors = TextFieldDefaults.colors(
+                        cursorColor = colorScheme.primary,
+                        focusedLabelColor = colorScheme.primaryContainer,
+                        unfocusedLabelColor = colorScheme.onSurface,
+                        focusedIndicatorColor = colorScheme.primary,
+                        unfocusedIndicatorColor = colorScheme.onSurfaceVariant,
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
+                TextField(
                     value = signUpViewModel.userPassword,
-                    singleLine = true,
-                    shape = shapes.large,
                     isError = signUpUiState is SignUpUiState.Error,
-                    label = { Text(text = stringResource(R.string.text_field_user_password)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserPassword(it)) },
                     visualTransformation = if (isUserPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    label = { Text(text = stringResource(R.string.text_field_user_password)) },
                     trailingIcon = {
                         IconButton(onClick = { isUserPasswordVisible = !isUserPasswordVisible }) {
                             Icon(
@@ -172,28 +162,24 @@ fun SignUpScreen(
                             )
                         }
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.primary,
-                        focusedTextColor = colorScheme.inverseOnSurface,
-                        unfocusedTextColor = colorScheme.inverseOnSurface,
-                        errorTextColor = colorScheme.inverseOnSurface,
-                        focusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedBorderColor = colorScheme.inverseOnSurface.copy(alpha = 0.5f),
+                    colors = TextFieldDefaults.colors(
+                        cursorColor = colorScheme.primary,
+                        focusedLabelColor = colorScheme.primaryContainer,
+                        unfocusedLabelColor = colorScheme.onSurface,
+                        focusedIndicatorColor = colorScheme.primary,
+                        unfocusedIndicatorColor = colorScheme.onSurfaceVariant,
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
+                TextField(
                     value = signUpViewModel.userPasswordConfirmation,
-                    singleLine = true,
-                    shape = shapes.large,
                     isError = signUpUiState is SignUpUiState.Error,
-                    label = { Text(text = stringResource(R.string.text_field_user_password_confirmation)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     onValueChange = { signUpViewModel.onEvent(SignUpUiEvent.UpdateUserPasswordConfirmation(it)) },
                     visualTransformation = if (isUserPasswordConfirmationVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    label = { Text(text = stringResource(R.string.text_field_user_password_confirmation)) },
                     trailingIcon = {
                         IconButton(onClick = { isUserPasswordConfirmationVisible = !isUserPasswordConfirmationVisible }) {
                             Icon(
@@ -202,34 +188,26 @@ fun SignUpScreen(
                             )
                         }
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.primary,
-                        focusedTextColor = colorScheme.inverseOnSurface,
-                        unfocusedTextColor = colorScheme.inverseOnSurface,
-                        errorTextColor = colorScheme.inverseOnSurface,
-                        focusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedBorderColor = colorScheme.inverseOnSurface.copy(alpha = 0.5f),
+                    colors = TextFieldDefaults.colors(
+                        cursorColor = colorScheme.primary,
+                        focusedLabelColor = colorScheme.primaryContainer,
+                        unfocusedLabelColor = colorScheme.onSurface,
+                        focusedIndicatorColor = colorScheme.primary,
+                        unfocusedIndicatorColor = colorScheme.onSurfaceVariant,
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 Button(
-                    onClick = {
-                        activity?.let {
-                            signUpViewModel.onEvent(SignUpUiEvent.CreateUserWithEmailAndPassword(it))
-                        }
-                    },
+                    onClick = { activity?.let { signUpViewModel.onEvent(SignUpUiEvent.CreateUserWithEmailAndPassword(it)) } },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorScheme.primary,
                         contentColor = colorScheme.onPrimary
                     ),
-                    shape = shapes.large,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .shadow(30.dp, shapes.large)
                 ) {
                     Text(text = stringResource(R.string.text_button_sign_up))
                 }

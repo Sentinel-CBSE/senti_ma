@@ -19,10 +19,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.senti_ma.R
 import com.example.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordUiEvent
-import com.example.senti_ma.ui.shared.AuthTopBar
 import com.example.senti_ma.ui.shared.AnnotatedTextBox
+import com.example.senti_ma.ui.shared.AuthTopBar
 import com.example.senti_ma.ui.shared.IconImage
 
 /**
@@ -90,7 +89,7 @@ fun ForgotPasswordScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .clip(shapes.medium)
-                    .background(colorScheme.inverseSurface)
+                    .background(colorScheme.surface)
                     .verticalScroll(rememberScrollState())
                     .padding(30.dp)
             ) {
@@ -99,53 +98,41 @@ fun ForgotPasswordScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(48.dp))
                 Text(
                     text = stringResource(R.string.text_message_enter_email),
                     style = typography.bodyMedium,
-                    color = colorScheme.inverseOnSurface,
+                    color = colorScheme.onSurface,
                     modifier = Modifier
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
+                TextField(
                     value = forgetPasswordViewModel.userEmail,
-                    singleLine = true,
-                    shape = shapes.large,
                     isError = forgotPasswordUiState is ForgotPasswordUiState.Error,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    label = {
-                        Text(text = stringResource(R.string.text_field_user_email))
-                    },
-                    onValueChange = {
-                        forgetPasswordViewModel.onEvent(
-                            ForgotPasswordUiEvent.UpdateUserEmail(it)
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorScheme.primary,
-                        focusedTextColor = colorScheme.inverseOnSurface,
-                        focusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedLabelColor = colorScheme.inverseOnSurface,
-                        unfocusedBorderColor = colorScheme.inverseOnSurface.copy(alpha = 0.5f),
+                    onValueChange = { forgetPasswordViewModel.onEvent(ForgotPasswordUiEvent.UpdateUserEmail(it)) },
+                    label = { Text(text = stringResource(R.string.text_field_user_email)) },
+                    colors = TextFieldDefaults.colors(
+                        cursorColor = colorScheme.primary,
+                        focusedLabelColor = colorScheme.primaryContainer,
+                        unfocusedLabelColor = colorScheme.onSurface,
+                        focusedIndicatorColor = colorScheme.primary,
+                        unfocusedIndicatorColor = colorScheme.onSurfaceVariant,
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 Button(
-                    onClick = {
-                        forgetPasswordViewModel.onEvent(ForgotPasswordUiEvent.SendPasswordResetEmail)
-                    },
+                    onClick = { forgetPasswordViewModel.onEvent(ForgotPasswordUiEvent.SendPasswordResetEmail) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorScheme.primary,
                         contentColor = colorScheme.onPrimary
                     ),
-                    shape = shapes.large,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp)
-                        .shadow(30.dp, shapes.large)
                 ) {
                     Text(text = stringResource(R.string.text_button_send_email))
                 }
