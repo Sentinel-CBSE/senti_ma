@@ -4,6 +4,7 @@ import android.app.Activity
 import com.example.senti_ma.domain.model.AuthResult
 import com.example.senti_ma.domain.model.User
 import com.example.senti_ma.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,6 +17,8 @@ import javax.inject.Singleton
 class AuthUseCases @Inject constructor(
     private val authRepository: AuthRepository
 ) {
+
+    val authState: Flow<User?> = authRepository.authState
 
     fun getCurrentUser(): User? =
         authRepository.getCurrentUser()

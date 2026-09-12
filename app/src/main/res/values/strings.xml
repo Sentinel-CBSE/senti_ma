@@ -1,10 +1,8 @@
 <resources>
-    <string name="app_name">En-señas</string>
-    <string name="label_signs_bot">ChatBot</string>
-    <string name="label_cards">Cartas</string>
-    <string name="label_forum">Foro</string>
-    <string name="label_camera">Camara</string>
-    <string name="label_settings">Opciones</string>
+    <string name="app_name">Sentinel</string>
+    <string name="label_profile">Perfil</string>
+    <string name="label_robbery_map">Mapa</string>
+    <string name="label_robbery_search">Eventos</string>
 
     <string name="title_forgot_password">Cambio de contraseña</string>
     <string name="text_message_enter_email">Ingrese un correo electrónico:</string>

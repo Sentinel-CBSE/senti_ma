@@ -68,7 +68,6 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun onSignInWithSavedCredentials(activity: Activity) {
-        _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInWithSavedCredentials(activity)) {
                 is AuthResult.Success -> _uiState.value = LoginUiState.Success
@@ -84,7 +83,6 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun onSignInWithGoogle(activity: Activity) {
-        _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInWithGoogle(activity)) {
                 is AuthResult.Success -> _uiState.value = LoginUiState.Success

@@ -1,15 +1,15 @@
 package com.example.senti_ma.ui.shared
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -19,33 +19,32 @@ import androidx.compose.ui.unit.dp
 import com.example.senti_ma.R
 
 /**
- * Displays a circular icon with a shadow and border.
+ * Displays the app icon with rounded corners and a subtle raised effect.
  */
 @Composable
 fun IconImage(
     modifier: Modifier = Modifier,
     size: Dp
-){
+) {
+    val shape = RoundedCornerShape(14.dp)
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(size)
-            .border(
-                width = 2.dp,
-                color = colorScheme.background,
-                shape = CircleShape
-            )
             .shadow(
-                elevation = 16.dp,
-                shape = CircleShape
+                elevation = 8.dp,
+                shape = shape
             )
+            .clip(shape)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
-            contentDescription = stringResource(R.string.description_app_icon),
+            painter = painterResource(id = R.drawable.fond),
+            contentDescription = stringResource(
+                R.string.description_app_icon
+            ),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
     }
-
 }

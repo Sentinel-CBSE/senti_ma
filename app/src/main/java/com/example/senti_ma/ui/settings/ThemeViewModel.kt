@@ -15,11 +15,11 @@ class ThemeViewModel @Inject constructor(
     private val settingsUseCases: SettingsUseCases
 ) : ViewModel() {
 
-    val isDarkTheme: StateFlow<Boolean> = settingsUseCases.observeDarkTheme()
+    val isDarkTheme: StateFlow<Boolean?> = settingsUseCases.observeDarkTheme()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
+            initialValue = null
         )
 
     fun setDarkTheme(enabled: Boolean) {

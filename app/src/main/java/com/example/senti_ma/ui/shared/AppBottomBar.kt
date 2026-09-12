@@ -39,11 +39,9 @@ fun AppBottomBar(
                 onClick = { onTabSelected(screen) },
                 label = { Text(
                     text = when (screen.route) {
-                        "signs_bot" -> stringResource(R.string.label_signs_bot)
-                        "cards" -> stringResource(R.string.label_cards)
-                        "forum" -> stringResource(R.string.label_forum)
-                        "camera" -> stringResource(R.string.label_camera)
-                        else -> stringResource(R.string.label_settings)
+                        "profile" -> stringResource(R.string.label_profile)
+                        "robbery_map" -> stringResource(R.string.label_robbery_map)
+                        else -> stringResource(R.string.label_robbery_search)
                     },
                     style = typography.bodySmall,
                 )},
