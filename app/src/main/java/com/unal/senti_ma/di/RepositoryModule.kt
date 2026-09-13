@@ -1,0 +1,32 @@
+package com.unal.senti_ma.di
+
+import com.unal.senti_ma.data.repository.AuthRepositoryImpl
+import com.unal.senti_ma.data.repository.RobberyRepositoryImpl
+import com.unal.senti_ma.data.repository.SettingsRepositoryImpl
+import com.unal.senti_ma.domain.repository.AuthRepository
+import com.unal.senti_ma.domain.repository.RobberyRepository
+import com.unal.senti_ma.domain.repository.SettingsRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+
+    @Binds
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRobberyRepository(
+        impl: RobberyRepositoryImpl
+    ): RobberyRepository
+
+}

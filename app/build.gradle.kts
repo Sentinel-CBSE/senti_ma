@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.senti_ma"
+    namespace = "com.unal.senti_ma"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.example.senti_ma"
+        applicationId = "com.unal.senti_ma"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

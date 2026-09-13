@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:18125175753:android:cab6e5174e19bbb02dc618",
+        "mobilesdk_app_id": "1:18125175753:android:c84b653f7e6f537b2dc618",
         "android_client_info": {
-          "package_name": "com.example.senti_ma"
+          "package_name": "com.unal.senti_ma"
         }
       },
       "oauth_client": [
         {
-          "client_id": "18125175753-budsqfhfq77pg4dsv0nb4e7si0aar2j2.apps.googleusercontent.com",
+          "client_id": "18125175753-06htek21t3od5i586jb69omgjjiqi4ir.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.senti_ma",
+            "package_name": "com.unal.senti_ma",
             "certificate_hash": "bbb363295c1169be5165174b90b973a640ab34b3"
           }
         },
