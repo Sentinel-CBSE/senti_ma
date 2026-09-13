@@ -41,9 +41,6 @@ import com.example.senti_ma.ui.shared.AnnotatedTextBox
 import com.example.senti_ma.ui.shared.AuthTopBar
 import com.example.senti_ma.ui.shared.IconImage
 
-/**
- * Forgot password screen.
- */
 @Composable
 fun ForgotPasswordScreen(
     modifier: Modifier = Modifier,
@@ -139,9 +136,7 @@ fun ForgotPasswordScreen(
 
                 if (forgotPasswordUiState is ForgotPasswordUiState.Loading) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    CircularProgressIndicator(
-                        modifier = modifier.align(Alignment.CenterHorizontally)
-                    )
+                    CircularProgressIndicator(modifier = modifier.align(Alignment.CenterHorizontally))
                 }
             }
         }

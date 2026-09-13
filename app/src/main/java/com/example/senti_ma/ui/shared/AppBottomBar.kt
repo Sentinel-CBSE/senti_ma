@@ -16,9 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.example.senti_ma.R
 import com.example.senti_ma.navigation.TabBarDestination
 
-/**
- * Displays the bottom navigation bar with tab items.
- */
 @Composable
 fun AppBottomBar(
     modifier: Modifier = Modifier,

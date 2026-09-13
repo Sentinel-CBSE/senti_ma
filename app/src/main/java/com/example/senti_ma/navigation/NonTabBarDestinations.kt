@@ -3,10 +3,6 @@ package com.example.senti_ma.navigation
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
-/**
- * Screen not included in the app's bottom navigation tab bar.
- */
-
 sealed interface NonTabBarDestination {
     val route: String
 }

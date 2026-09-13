@@ -1,6 +1,5 @@
 package com.example.senti_ma.ui.screens.signUp
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.getValue
@@ -9,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.senti_ma.R
-import com.example.senti_ma.domain.model.AuthResult
+import com.example.senti_ma.domain.model.AppResult
 import com.example.senti_ma.domain.usecase.AuthUseCases
 import com.example.senti_ma.ui.screens.signUp.events.SignUpUiEvent
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,9 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel responsible for handling sign-up logic and UI state.
- */
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     @ApplicationContext val context: Context,
@@ -49,11 +45,11 @@ class SignUpViewModel @Inject constructor(
     fun onEvent(event: SignUpUiEvent) {
         when (event) {
             is SignUpUiEvent.ClearState -> clearState()
-            is SignUpUiEvent.CreateUserWithEmailAndPassword -> createUserWithEmailAndPassword(event.activity)
-            is SignUpUiEvent.UpdateUserName -> updateUserName(event.newUserName)
-            is SignUpUiEvent.UpdateUserEmail -> updateUserEmail(event.newUserEmail)
-            is SignUpUiEvent.UpdateUserPassword -> updateUserPassword(event.newUserPassword)
-            is SignUpUiEvent.UpdateUserPasswordConfirmation -> updateUserPasswordConfirmation(event.newUserPasswordConfirmation)
+            is SignUpUiEvent.CreateUserWithEmailAndPassword -> createUserWithEmailAndPassword(event)
+            is SignUpUiEvent.UpdateUserName -> updateUserName(event)
+            is SignUpUiEvent.UpdateUserEmail -> updateUserEmail(event)
+            is SignUpUiEvent.UpdateUserPassword -> updateUserPassword(event)
+            is SignUpUiEvent.UpdateUserPasswordConfirmation -> updateUserPasswordConfirmation(event)
         }
     }
 
@@ -65,7 +61,7 @@ class SignUpViewModel @Inject constructor(
         userName = ""
     }
 
-    private fun createUserWithEmailAndPassword(activity: Activity) {
+    private fun createUserWithEmailAndPassword(event: SignUpUiEvent.CreateUserWithEmailAndPassword) {
         if (userName.isBlank() || userEmail.isBlank() ||
             userPassword.isBlank() || userPasswordConfirmation.isBlank()
         ) {
@@ -85,11 +81,9 @@ class SignUpViewModel @Inject constructor(
 
         _uiState.value = SignUpUiState.Loading
         viewModelScope.launch {
-            when (val result = authUseCases.createUserWithEmailAndPassword(userName, userEmail, userPassword, activity)) {
-                is AuthResult.Success -> {
-                    _uiState.value = SignUpUiState.Success
-                }
-                is AuthResult.Error -> {
+            when (val result = authUseCases.createUserWithEmailAndPassword(userName, userEmail, userPassword, event.activity)) {
+                is AppResult.Success -> { _uiState.value = SignUpUiState.Success }
+                is AppResult.Error -> {
                     _uiState.value = SignUpUiState.Error(result.errorMessage)
                     userPassword = ""
                     userEmail = ""
@@ -98,27 +92,28 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private fun updateUserName(newUserName: String) {
+    private fun updateUserName(event: SignUpUiEvent.UpdateUserName) {
         _uiState.value = SignUpUiState.Idle
-        userName = newUserName
+        userName = event.newUserName
     }
 
-    private fun updateUserEmail(newUserEmail: String) {
+    private fun updateUserEmail(event: SignUpUiEvent.UpdateUserEmail) {
         _uiState.value = SignUpUiState.Idle
-        userEmail = newUserEmail
+        userEmail = event.newUserEmail
     }
 
-    private fun updateUserPassword(newUserPassword: String) {
+    private fun updateUserPassword(event: SignUpUiEvent.UpdateUserPassword) {
         _uiState.value = SignUpUiState.Idle
-        userPassword = newUserPassword
+        userPassword = event.newUserPassword
     }
 
-    private fun updateUserPasswordConfirmation(newUserPasswordConfirmation: String) {
+    private fun updateUserPasswordConfirmation(event: SignUpUiEvent.UpdateUserPasswordConfirmation) {
         _uiState.value = SignUpUiState.Idle
-        userPasswordConfirmation = newUserPasswordConfirmation
+        userPasswordConfirmation = event.newUserPasswordConfirmation
     }
 
     fun logEvent(eventName: String, params: Bundle) {
         firebaseAnalytics.logEvent(eventName, params)
     }
+
 }

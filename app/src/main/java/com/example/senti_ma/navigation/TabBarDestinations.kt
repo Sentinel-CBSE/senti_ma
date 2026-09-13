@@ -9,10 +9,6 @@ import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
-/**
- * Screen in the app's bottom navigation tab bar.
- */
-
 sealed interface TabBarDestination {
     val route: String
     val selectedIcon: ImageVector

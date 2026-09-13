@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,9 +50,6 @@ import com.example.senti_ma.ui.screens.signUp.events.SignUpUiEvent
 import com.example.senti_ma.ui.shared.AuthTopBar
 import com.example.senti_ma.ui.shared.IconImage
 
-/**
- * Composable for the sign-up screen, handling user input and account creation.
- */
 @Composable
 fun SignUpScreen(
     modifier: Modifier = Modifier,

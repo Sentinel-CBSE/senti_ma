@@ -14,7 +14,7 @@ import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import com.example.senti_ma.R
 import com.example.senti_ma.data.mappers.toDomain
-import com.example.senti_ma.domain.model.AuthResult
+import com.example.senti_ma.domain.model.AppResult
 import com.example.senti_ma.domain.model.User
 import com.example.senti_ma.domain.repository.AuthRepository
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -32,10 +32,6 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Firebase-backed implementation of [AuthRepository].
- * This is the only place in the app that knows about Firebase or CredentialManager.
- */
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -60,12 +56,12 @@ class AuthRepositoryImpl @Inject constructor(
         credentialManager.clearCredentialState(ClearCredentialStateRequest())
     }
 
-    override suspend fun sendPasswordResetEmail(email: String): AuthResult<Unit> {
+    override suspend fun sendPasswordResetEmail(email: String): AppResult<Unit> {
         return try {
             firebaseAuth.sendPasswordResetEmail(email).await()
-            AuthResult.Success(Unit)
-        } catch (e: Exception) {
-            AuthResult.Error(context.getString(R.string.text_error_send_email))
+            AppResult.Success(Unit)
+        } catch (_: Exception) {
+            AppResult.Error(context.getString(R.string.text_error_send_email))
         }
     }
 
@@ -74,7 +70,7 @@ class AuthRepositoryImpl @Inject constructor(
         email: String,
         password: String,
         activity: Activity
-    ): AuthResult<User> {
+    ): AppResult<User> {
         return try {
             val firebaseUser = firebaseAuth.createUserWithEmailAndPassword(email, password).await().user!!
             firebaseUser.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(name).build()).await()
@@ -86,51 +82,51 @@ class AuthRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 Log.d("Dev", context.getString(R.string.text_error_smart_lock) + "${e.message}")
             }
-            AuthResult.Success(firebaseUser.toDomain())
-        } catch (e: FirebaseAuthUserCollisionException) {
-            AuthResult.Error(context.getString(R.string.text_error_email_already_exists))
-        } catch (e: Exception) {
-            AuthResult.Error(context.getString(R.string.text_error_sign_up))
+            AppResult.Success(firebaseUser.toDomain())
+        } catch (_: FirebaseAuthUserCollisionException) {
+            AppResult.Error(context.getString(R.string.text_error_email_already_exists))
+        } catch (_: Exception) {
+            AppResult.Error(context.getString(R.string.text_error_sign_up))
         }
     }
 
-    override suspend fun signInWithEmailAndPassword(email: String, password: String): AuthResult<User> {
+    override suspend fun signInWithEmailAndPassword(email: String, password: String): AppResult<User> {
         return try {
             val firebaseUser = firebaseAuth.signInWithEmailAndPassword(email, password).await().user!!
 
-            if (firebaseUser.isEmailVerified) AuthResult.Success(firebaseUser.toDomain())
-            else AuthResult.Error(context.getString(R.string.text_error_email_not_verified))
+            if (firebaseUser.isEmailVerified) AppResult.Success(firebaseUser.toDomain())
+            else AppResult.Error(context.getString(R.string.text_error_email_not_verified))
         } catch (e: Exception) {
-            AuthResult.Error(context.getString(R.string.text_error_sign_in) + e.message)
+            AppResult.Error(context.getString(R.string.text_error_sign_in) + e.message)
         }
     }
 
-    override suspend fun signInWithSavedCredentials(activity: Activity): AuthResult<User> {
+    override suspend fun signInWithSavedCredentials(activity: Activity): AppResult<User> {
         return try {
             val request = getSignInRequest()
             val result = credentialManager.getCredential(request = request, context = activity)
             handleAuthResult(result)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: context.getString(R.string.text_error_sign_in))
+            AppResult.Error(e.message ?: context.getString(R.string.text_error_sign_in))
         }
     }
 
-    override suspend fun signInWithGoogle(activity: Activity): AuthResult<User> {
+    override suspend fun signInWithGoogle(activity: Activity): AppResult<User> {
         return try {
             val request = getGoogleRequest()
             val result = credentialManager.getCredential(request = request, context = activity)
             handleAuthResult(result)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: context.getString(R.string.text_error_sign_in))
+            AppResult.Error(e.message ?: context.getString(R.string.text_error_sign_in))
         }
     }
 
-    override suspend fun signInAnonymously(): AuthResult<User> {
+    override suspend fun signInAnonymously(): AppResult<User> {
         return try {
             val firebaseUser = firebaseAuth.signInAnonymously().await().user!!
-            AuthResult.Success(firebaseUser.toDomain())
-        } catch (e: Exception) {
-            AuthResult.Error(context.getString(R.string.text_error_sign_in))
+            AppResult.Success(firebaseUser.toDomain())
+        } catch (_: Exception) {
+            AppResult.Error(context.getString(R.string.text_error_sign_in))
         }
     }
 
@@ -161,7 +157,7 @@ class AuthRepositoryImpl @Inject constructor(
             .build()
     }
 
-    private suspend fun handleAuthResult(result: GetCredentialResponse): AuthResult<User> {
+    private suspend fun handleAuthResult(result: GetCredentialResponse): AppResult<User> {
         return try {
             when (val credential = result.credential) {
                 is CustomCredential -> {
@@ -169,18 +165,18 @@ class AuthRepositoryImpl @Inject constructor(
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                         val googleCredentials = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
                         val firebaseUser = firebaseAuth.signInWithCredential(googleCredentials).await().user!!
-                        AuthResult.Success(firebaseUser.toDomain())
+                        AppResult.Success(firebaseUser.toDomain())
                     } else {
-                        AuthResult.Error(context.getString(R.string.text_error_sign_in))
+                        AppResult.Error(context.getString(R.string.text_error_sign_in))
                     }
                 }
                 is PasswordCredential -> {
                     signInWithEmailAndPassword(credential.id, credential.password)
                 }
-                else -> AuthResult.Error(context.getString(R.string.text_error_sign_in))
+                else -> AppResult.Error(context.getString(R.string.text_error_sign_in))
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: context.getString(R.string.text_error_sign_in))
+            AppResult.Error(e.message ?: context.getString(R.string.text_error_sign_in))
         }
     }
 }

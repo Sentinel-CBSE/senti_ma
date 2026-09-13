@@ -7,9 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
-/**
- * Composable for the robbery detail screen.
- */
 @Composable
 fun RobberyDetailScreen(
     modifier: Modifier = Modifier,

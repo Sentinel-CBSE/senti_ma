@@ -10,9 +10,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 
-/**
- * Displays a clickable annotated text box.
- */
 @Composable
 fun AnnotatedTextBox(
     modifier: Modifier = Modifier,
@@ -40,14 +37,13 @@ fun AnnotatedTextBox(
 
         Text(
             text = annotatedText,
-            modifier = Modifier
-                .clickable {
-                    annotatedText.getStringAnnotations(
-                        tag = "CLICKABLE_TAG",
-                        start = 0,
-                        end = annotatedText.length
-                    ).firstOrNull()?.let { onClick() }
-                }
+            modifier = Modifier.clickable {
+                annotatedText.getStringAnnotations(
+                    tag = "CLICKABLE_TAG",
+                    start = 0,
+                    end = annotatedText.length
+                ).firstOrNull()?.let { onClick() }
+            }
         )
     }
 }

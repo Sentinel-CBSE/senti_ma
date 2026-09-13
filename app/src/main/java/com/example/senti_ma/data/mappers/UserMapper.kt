@@ -5,9 +5,9 @@ import com.google.firebase.auth.FirebaseUser
 
 fun FirebaseUser.toDomain(): User = User(
     uid = uid,
-    displayName = displayName,
     email = email,
     photoUrl = photoUrl,
+    displayName = displayName,
     isAnonymous = isAnonymous,
     isEmailVerified = isEmailVerified
 )

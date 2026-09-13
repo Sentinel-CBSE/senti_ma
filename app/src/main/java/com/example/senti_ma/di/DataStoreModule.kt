@@ -11,9 +11,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * Dagger module that provides a DataStore for user preferences.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object DataStoreModule {
@@ -23,4 +20,5 @@ object DataStoreModule {
     fun providePreferencesDataStore(
         @ApplicationContext context: Context
     ): DataStore<Preferences> = context.dataStore
+
 }

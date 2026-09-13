@@ -18,9 +18,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.senti_ma.R
 
-/**
- * Displays the app icon with rounded corners and a subtle raised effect.
- */
 @Composable
 fun IconImage(
     modifier: Modifier = Modifier,

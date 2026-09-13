@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.senti_ma.R
-import com.example.senti_ma.domain.model.AuthResult
+import com.example.senti_ma.domain.model.AppResult
 import com.example.senti_ma.domain.usecase.AuthUseCases
 import com.example.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordUiEvent
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -20,9 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel to manage the state and events of the Forgot Password screen.
- */
 @HiltViewModel
 class ForgetPasswordViewModel @Inject constructor(
     @ApplicationContext val context: Context,
@@ -40,7 +37,7 @@ class ForgetPasswordViewModel @Inject constructor(
         when (event) {
             is ForgotPasswordUiEvent.ClearState -> clearState()
             is ForgotPasswordUiEvent.SendPasswordResetEmail -> sendPasswordResetEmail()
-            is ForgotPasswordUiEvent.UpdateUserEmail -> updateUserEmail(event.newUserEmail)
+            is ForgotPasswordUiEvent.UpdateUserEmail -> updateUserEmail(event)
         }
     }
 
@@ -58,10 +55,10 @@ class ForgetPasswordViewModel @Inject constructor(
         _uiState.value = ForgotPasswordUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.sendPasswordResetEmail(userEmail)) {
-                is AuthResult.Success -> {
+                is AppResult.Success -> {
                     _uiState.value = ForgotPasswordUiState.Success
                 }
-                is AuthResult.Error -> {
+                is AppResult.Error -> {
                     _uiState.value = ForgotPasswordUiState.Error(result.errorMessage)
                     userEmail = ""
                 }
@@ -69,12 +66,13 @@ class ForgetPasswordViewModel @Inject constructor(
         }
     }
 
-    private fun updateUserEmail(newUserEmail: String) {
+    private fun updateUserEmail(event: ForgotPasswordUiEvent.UpdateUserEmail) {
         _uiState.value = ForgotPasswordUiState.Idle
-        userEmail = newUserEmail
+        userEmail = event.newUserEmail
     }
 
     fun logEvent(eventName: String, params: Bundle) {
         firebaseAnalytics.logEvent(eventName, params)
     }
+
 }

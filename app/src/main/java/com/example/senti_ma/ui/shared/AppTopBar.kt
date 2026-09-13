@@ -23,9 +23,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.example.senti_ma.R
 
-/**
- * Top app bar for the forum screen with a clickable circular avatar.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
@@ -64,5 +61,4 @@ fun AppTopBar(
         },
         modifier = modifier
     )
-
 }

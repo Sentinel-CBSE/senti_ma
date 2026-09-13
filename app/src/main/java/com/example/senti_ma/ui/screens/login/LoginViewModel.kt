@@ -1,6 +1,5 @@
 package com.example.senti_ma.ui.screens.login
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.getValue
@@ -9,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.senti_ma.R
-import com.example.senti_ma.domain.model.AuthResult
+import com.example.senti_ma.domain.model.AppResult
 import com.example.senti_ma.domain.usecase.AuthUseCases
 import com.example.senti_ma.ui.screens.login.events.LoginUiEvent
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -20,9 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel responsible for handling login logic and UI state.
- */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -44,10 +40,10 @@ class LoginViewModel @Inject constructor(
             is LoginUiEvent.ClearState -> clearState()
             is LoginUiEvent.SignInAnonymously -> onSignInAnonymously()
             is LoginUiEvent.SignInWithEmailAndPassword -> onSignInWithEmailAndPassword()
-            is LoginUiEvent.SignInWithSavedCredentials -> onSignInWithSavedCredentials(event.activity)
-            is LoginUiEvent.SignInWithGoogle -> onSignInWithGoogle(event.activity)
-            is LoginUiEvent.UpdateUserEmail -> updateUserEmail(event.newUserEmail)
-            is LoginUiEvent.UpdateUserPassword -> updateUserPassword(event.newUserPassword)
+            is LoginUiEvent.SignInWithSavedCredentials -> onSignInWithSavedCredentials(event)
+            is LoginUiEvent.SignInWithGoogle -> onSignInWithGoogle(event)
+            is LoginUiEvent.UpdateUserEmail -> updateUserEmail(event)
+            is LoginUiEvent.UpdateUserPassword -> updateUserPassword(event)
         }
     }
 
@@ -61,17 +57,17 @@ class LoginViewModel @Inject constructor(
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInAnonymously()) {
-                is AuthResult.Success -> _uiState.value = LoginUiState.Success
-                is AuthResult.Error -> _uiState.value = LoginUiState.Error(result.errorMessage)
+                is AppResult.Success -> _uiState.value = LoginUiState.Success
+                is AppResult.Error -> _uiState.value = LoginUiState.Error(result.errorMessage)
             }
         }
     }
 
-    private fun onSignInWithSavedCredentials(activity: Activity) {
+    private fun onSignInWithSavedCredentials(event: LoginUiEvent.SignInWithSavedCredentials) {
         viewModelScope.launch {
-            when (val result = authUseCases.signInWithSavedCredentials(activity)) {
-                is AuthResult.Success -> _uiState.value = LoginUiState.Success
-                is AuthResult.Error -> {
+            when (val result = authUseCases.signInWithSavedCredentials(event.activity)) {
+                is AppResult.Success -> _uiState.value = LoginUiState.Success
+                is AppResult.Error -> {
                     if (result.errorMessage != "activity is cancelled by the user.") {
                         _uiState.value = LoginUiState.Error(result.errorMessage)
                     } else {
@@ -82,11 +78,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun onSignInWithGoogle(activity: Activity) {
+    private fun onSignInWithGoogle(event: LoginUiEvent.SignInWithGoogle) {
         viewModelScope.launch {
-            when (val result = authUseCases.signInWithGoogle(activity)) {
-                is AuthResult.Success -> _uiState.value = LoginUiState.Success
-                is AuthResult.Error -> {
+            when (val result = authUseCases.signInWithGoogle(event.activity)) {
+                is AppResult.Success -> _uiState.value = LoginUiState.Success
+                is AppResult.Error -> {
                     if (result.errorMessage != "activity is cancelled by the user.") {
                         _uiState.value = LoginUiState.Error(result.errorMessage)
                     } else {
@@ -106,8 +102,8 @@ class LoginViewModel @Inject constructor(
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInWithEmailAndPassword(userEmail, userPassword)) {
-                is AuthResult.Success -> _uiState.value = LoginUiState.Success
-                is AuthResult.Error -> {
+                is AppResult.Success -> _uiState.value = LoginUiState.Success
+                is AppResult.Error -> {
                     _uiState.value = LoginUiState.Error(result.errorMessage)
                     userPassword = ""
                     userEmail = ""
@@ -116,17 +112,18 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun updateUserEmail(newUserEmail: String) {
+    private fun updateUserEmail(event: LoginUiEvent.UpdateUserEmail) {
         _uiState.value = LoginUiState.Idle
-        userEmail = newUserEmail
+        userEmail = event.newUserEmail
     }
 
-    private fun updateUserPassword(newUserPassword: String) {
+    private fun updateUserPassword(event: LoginUiEvent.UpdateUserPassword) {
         _uiState.value = LoginUiState.Idle
-        userPassword = newUserPassword
+        userPassword = event.newUserPassword
     }
 
     fun logEvent(eventName: String, params: Bundle) {
         firebaseAnalytics.logEvent(eventName, params)
     }
+
 }

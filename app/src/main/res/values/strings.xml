@@ -79,6 +79,19 @@
     <string name="text_dark_theme">Tema oscuro</string>
     <string name="text_sign_out">Cerrar sesión</string>
 
+    <string name="text_error_get_heatmap">No se pudo obtener el mapa de calor</string>
+    <string name="text_robbery_date_range_title">Selecciona un rango de fechas</string>
+    <string name="text_apply">Aplicar</string>
+    <string name="text_clear_filter">Limpiar filtro</string>
+    <string name="text_robbery_type_label">Tipo de robo</string>
+    <string name="text_robbery_type_all">Todos</string>
+    <string name="text_robbery_type_armed">Robo armado</string>
+    <string name="text_robbery_type_theft">Hurto</string>
+    <string name="text_robbery_type_burglary">Robo a vivienda</string>
+    <string name="text_location_permission_denied">Permiso de ubicación denegado</string>
+    <string name="text_date_filter_selected">Fechas</string>
+    <string name="text_date_filter_all">Todas las fechas</string>
+
     <string name="description_tab_for">Selección a %1$s</string>
     <string name="description_app_icon">Imagen del icono</string>
     <string name="description_icon_toggle_password_visibility">Cambiar visibilidad de contraseña</string>

@@ -19,26 +19,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
-/**
- * Displays a clickable social media button with an icon and text.
- */
 @Composable
 fun SocialMediaButton(
-    icon: Int,
-    text: String,
-    colorText: Color,
-    colorSurface: Color,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    colorSurface: Color,
+    colorText: Color,
+    text: String,
+    icon: Int
 ) {
     Surface(
         onClick = onClick,
         color = colorSurface,
         shape = shapes.large,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colorSurface
-        ),
+        border = BorderStroke(width = 1.dp, color = colorSurface),
         modifier = modifier
     ) {
         Row(
@@ -56,11 +50,7 @@ fun SocialMediaButton(
             )
 
             Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = text,
-                color = colorText
-            )
+            Text(text = text, color = colorText)
         }
     }
 }

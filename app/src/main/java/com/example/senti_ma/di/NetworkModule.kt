@@ -1,6 +1,7 @@
 package com.example.senti_ma.di
 
 import com.example.senti_ma.BuildConfig
+import com.example.senti_ma.data.remote.api.SentinelApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,9 +12,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
-/**
- * Dagger module that provides networking dependencies (OkHttp, Retrofit).
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -52,10 +50,10 @@ object NetworkModule {
             .build()
     }
 
-    // TODO: descomentar y ajustar cuando exista SentiBackApi
-    // @Provides
-    // @Singleton
-    // fun provideSentiBackApi(retrofit: Retrofit): SentiBackApi {
-    //     return retrofit.create(SentiBackApi::class.java)
-    // }
+    @Provides
+    @Singleton
+    fun provideRobberyApi(retrofit: Retrofit): SentinelApi {
+        return retrofit.create(SentinelApi::class.java)
+    }
+
 }

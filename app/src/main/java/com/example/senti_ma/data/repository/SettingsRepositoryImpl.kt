@@ -24,4 +24,5 @@ class SettingsRepositoryImpl @Inject constructor(
             prefs[darkThemeKey] = enabled
         }
     }
+
 }

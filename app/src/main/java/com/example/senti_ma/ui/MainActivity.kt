@@ -40,10 +40,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // osmdroid requires this configuration before using any MapView
-        Configuration.getInstance().load(
+        val osmConfig = Configuration.getInstance()
+        osmConfig.load(
             applicationContext,
-            getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE)
+            getSharedPreferences(
+                getString(R.string.app_name),
+                MODE_PRIVATE
+            )
         )
+        osmConfig.userAgentValue =
+            "Senti-MA/1.0 (com.example.senti_ma, contact: dbustos@unal.edu.co)"
 
         setContent {
             val themeViewModel: ThemeViewModel = hiltViewModel()
@@ -81,11 +87,7 @@ class MainActivity : ComponentActivity() {
 
                                         AppBottomBar(
                                             allScreens = tabBarScreens,
-                                            onTabSelected = { newScreen ->
-                                                navController.navigateSingleTopTo(
-                                                    newScreen.route
-                                                )
-                                            },
+                                            onTabSelected = { newScreen -> navController.navigateSingleTopTo(newScreen.route) },
                                             currentScreen = currentTabBarScreen
                                         )
                                     }
@@ -93,19 +95,9 @@ class MainActivity : ComponentActivity() {
                                 topBar = {
                                     AppTopBar(
                                         avatarUrl = state.user.photoUrl,
-                                        onAvatarClick = {
-                                            navController.navigateSingleTopTo(
-                                                Profile.route
-                                            )
-                                        },
-                                        onHomeClick = {
-                                            navController.navigateSingleTopTo(
-                                                RobberyMap.route
-                                            )
-                                        },
-                                        modifier = Modifier.background(
-                                            colorScheme.surfaceVariant
-                                        )
+                                        onAvatarClick = { navController.navigateSingleTopTo(Profile.route) },
+                                        onHomeClick = { navController.navigateSingleTopTo(RobberyMap.route) },
+                                        modifier = Modifier.background(colorScheme.surfaceVariant)
                                     )
                                 }
                             ) { innerPadding ->

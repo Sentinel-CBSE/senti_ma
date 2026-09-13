@@ -11,9 +11,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * Dagger module that provides instances related to Firebase.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object FirebaseModule {
@@ -31,4 +28,5 @@ object FirebaseModule {
     @Singleton
     fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics =
         FirebaseAnalytics.getInstance(context)
+
 }

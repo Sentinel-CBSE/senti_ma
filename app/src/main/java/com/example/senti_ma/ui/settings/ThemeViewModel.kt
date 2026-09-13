@@ -27,4 +27,5 @@ class ThemeViewModel @Inject constructor(
             settingsUseCases.setDarkTheme(enabled)
         }
     }
+
 }

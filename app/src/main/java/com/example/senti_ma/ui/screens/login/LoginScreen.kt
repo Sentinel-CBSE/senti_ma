@@ -50,9 +50,6 @@ import com.example.senti_ma.ui.shared.AnnotatedTextBox
 import com.example.senti_ma.ui.shared.IconImage
 import com.example.senti_ma.ui.theme.white_google
 
-/**
- * Composable for the login screen.
- */
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
@@ -74,11 +71,7 @@ fun LoginScreen(
         val state = loginUiState
 
         if (state is LoginUiState.Error) {
-            Toast.makeText(
-                context,
-                state.message,
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -12,9 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.senti_ma.R
 
-/**
- * Displays a top app bar with a back navigation icon.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthTopBar(

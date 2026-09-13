@@ -1,5 +1,5 @@
 package com.example.senti_ma.ui.screens.profile.events
 
-sealed class ProfileUiEvent {
-    data object SignOut : ProfileUiEvent()
+sealed interface ProfileUiEvent {
+    data object SignOut : ProfileUiEvent
 }
