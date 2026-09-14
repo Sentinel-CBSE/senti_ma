@@ -34,20 +34,29 @@ fun AppBottomBar(
             NavigationBarItem(
                 selected = currentScreen == screen,
                 onClick = { onTabSelected(screen) },
-                label = { Text(
-                    text = when (screen.route) {
-                        "profile" -> stringResource(R.string.label_profile)
-                        "robbery_map" -> stringResource(R.string.label_robbery_map)
-                        else -> stringResource(R.string.label_robbery_search)
-                    },
-                    style = typography.bodySmall,
-                )},
-                icon = { Icon(
-                    imageVector = if (currentScreen == screen) {
-                        screen.selectedIcon
-                    }else{ screen.unSelectedIcon },
-                    contentDescription = stringResource(id = R.string.description_tab_for, screen.route),
-                )},
+                label = {
+                    Text(
+                        text = when (screen.route) {
+                            "profile" -> stringResource(R.string.label_profile)
+                            "robbery_map" -> stringResource(R.string.label_robbery_map)
+                            else -> stringResource(R.string.label_robbery_search)
+                        },
+                        style = typography.bodySmall,
+                    )
+                },
+                icon = {
+                    Icon(
+                        imageVector = if (currentScreen == screen) {
+                            screen.selectedIcon
+                        } else {
+                            screen.unSelectedIcon
+                        },
+                        contentDescription = stringResource(
+                            id = R.string.description_tab_for,
+                            screen.route
+                        ),
+                    )
+                },
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.Transparent,
                     selectedIconColor = colorScheme.primary,

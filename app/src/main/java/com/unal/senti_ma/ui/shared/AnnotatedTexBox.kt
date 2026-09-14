@@ -16,7 +16,7 @@ fun AnnotatedTextBox(
     textClickable: String,
     onClick: () -> Unit,
     text: String = ""
-){
+) {
     Box(modifier = modifier) {
         val annotatedText = buildAnnotatedString {
             append(text)

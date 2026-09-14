@@ -1,7 +1,6 @@
 package com.unal.senti_ma.ui.screens.login
 
 import android.app.Activity
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +45,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.unal.senti_ma.R
 import com.unal.senti_ma.ui.screens.login.components.SocialMediaButton
 import com.unal.senti_ma.ui.screens.login.events.LoginUiEvent
+import com.unal.senti_ma.ui.screens.login.events.LoginViewModelEvent
 import com.unal.senti_ma.ui.shared.AnnotatedTextBox
 import com.unal.senti_ma.ui.shared.IconImage
 import com.unal.senti_ma.ui.theme.white_google
@@ -64,14 +64,25 @@ fun LoginScreen(
     val activity = context as? Activity
 
     LaunchedEffect(Unit) {
-        activity?.let { loginViewModel.onEvent(LoginUiEvent.SignInWithSavedCredentials(it)) }
+        loginViewModel.viewModelEvent.collect { event ->
+            when (event) {
+                is LoginViewModelEvent.Success -> {}
+                is LoginViewModelEvent.Error -> {
+                    android.widget.Toast.makeText(
+                        context,
+                        event.message,
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     }
 
-    LaunchedEffect(loginUiState) {
-        val state = loginUiState
-
-        if (state is LoginUiState.Error) {
-            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        activity?.let {
+            loginViewModel.onEvent(
+                LoginUiEvent.SignInWithSavedCredentials(it)
+            )
         }
     }
 
@@ -84,6 +95,7 @@ fun LoginScreen(
         ) {
             CircularProgressIndicator()
         }
+
         return
     }
 
@@ -102,7 +114,6 @@ fun LoginScreen(
                 .background(colorScheme.surface)
                 .padding(25.dp)
         ) {
-
             Text(
                 text = stringResource(R.string.app_name),
                 style = typography.headlineMedium,
@@ -138,12 +149,16 @@ fun LoginScreen(
                 isError = loginUiState is LoginUiState.Error,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 onValueChange = { loginViewModel.onEvent(LoginUiEvent.UpdateUserPassword(it)) },
-                visualTransformation = if (isUserPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation =
+                    if (isUserPasswordVisible) VisualTransformation.None
+                    else PasswordVisualTransformation(),
                 label = { Text(stringResource(R.string.text_field_user_password)) },
                 trailingIcon = {
                     IconButton(onClick = { isUserPasswordVisible = !isUserPasswordVisible }) {
                         Icon(
-                            imageVector = if (isUserPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector =
+                                if (isUserPasswordVisible) Icons.Default.Visibility
+                                else Icons.Default.VisibilityOff,
                             contentDescription = stringResource(R.string.description_icon_toggle_password_visibility)
                         )
                     }
@@ -159,46 +174,78 @@ fun LoginScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+
             Button(
-                onClick = { loginViewModel.onEvent(LoginUiEvent.SignInWithEmailAndPassword) },
+                onClick = {
+                    loginViewModel.onEvent(
+                        LoginUiEvent.SignInWithEmailAndPassword
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = stringResource(R.string.text_button_login))
+                Text(
+                    text = stringResource(
+                        R.string.text_button_login
+                    )
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
             AnnotatedTextBox(
-                textClickable = stringResource(R.string.text_message_clickable_forgot_password),
+                textClickable = stringResource(
+                    R.string.text_message_clickable_forgot_password
+                ),
                 onClick = {
-                    loginViewModel.onEvent(LoginUiEvent.ClearState)
+                    loginViewModel.onEvent(
+                        LoginUiEvent.ClearState
+                    )
                     onForgotPasswordClick()
                 },
                 modifier = Modifier
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = stringResource(R.string.separator_line),
                 color = colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+
             SocialMediaButton(
                 icon = R.drawable.ic_google,
-                text = stringResource(R.string.text_button_sign_in_with_google),
+                text = stringResource(
+                    R.string.text_button_sign_in_with_google
+                ),
                 colorText = Color.Black,
                 colorSurface = white_google,
-                onClick = { activity?.let { loginViewModel.onEvent(LoginUiEvent.SignInWithGoogle(it)) } },
+                onClick = {
+                    activity?.let {
+                        loginViewModel.onEvent(
+                            LoginUiEvent.SignInWithGoogle(it)
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
             AnnotatedTextBox(
-                text = stringResource(R.string.text_message_sign_up),
-                textClickable = stringResource(R.string.text_message_clickable_sign_up),
+                text = stringResource(
+                    R.string.text_message_sign_up
+                ),
+                textClickable = stringResource(
+                    R.string.text_message_clickable_sign_up
+                ),
                 onClick = {
-                    loginViewModel.onEvent(LoginUiEvent.ClearState)
+                    loginViewModel.onEvent(
+                        LoginUiEvent.ClearState
+                    )
                     onSignUpClick()
                 },
                 modifier = Modifier

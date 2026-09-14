@@ -47,7 +47,11 @@ class HeatmapOverlay(
         cachedBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
     }
 
-    private fun buildHeatmapBitmap(mapView: MapView, width: Int, height: Int): android.graphics.Bitmap {
+    private fun buildHeatmapBitmap(
+        mapView: MapView,
+        width: Int,
+        height: Int
+    ): android.graphics.Bitmap {
         val intensityBitmap = createBitmap(width, height)
         val intensityCanvas = Canvas(intensityBitmap)
 

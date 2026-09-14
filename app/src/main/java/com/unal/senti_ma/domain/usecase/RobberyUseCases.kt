@@ -16,7 +16,7 @@ class RobberyUseCases @Inject constructor(
     companion object {
         private const val GRID_SIZE = 40
         private const val MIN_INTENSITY = 0.25f
-        private const val FAR_PAST_TIMESTAMP = 0L // 1 ene 1970: "desde siempre"
+        private const val FAR_PAST_TIMESTAMP = 0L // 1 ene 1970:
     }
 
     suspend fun getHeatmapPoints(
@@ -28,13 +28,18 @@ class RobberyUseCases @Inject constructor(
         val effectiveFrom = fromTimestamp ?: FAR_PAST_TIMESTAMP
         val effectiveTo = toTimestamp ?: System.currentTimeMillis()
 
-        return when (val result = robberyRepository.getRobberyPoints(mapBounds, effectiveFrom, effectiveTo, type)) {
+        return when (val result =
+            robberyRepository.getRobberyPoints(mapBounds, effectiveFrom, effectiveTo, type)) {
             is AppResult.Success -> AppResult.Success(aggregateIntoGrid(result.data, mapBounds))
             is AppResult.Error -> result
+            AppResult.Cancelled -> AppResult.Cancelled
         }
     }
 
-    private fun aggregateIntoGrid(points: List<RobberyPoint>, mapBounds: MapBounds): List<HeatmapPoint> {
+    private fun aggregateIntoGrid(
+        points: List<RobberyPoint>,
+        mapBounds: MapBounds
+    ): List<HeatmapPoint> {
         if (points.isEmpty()) return emptyList()
 
         val latStep = (mapBounds.northLat - mapBounds.southLat) / GRID_SIZE
@@ -42,8 +47,10 @@ class RobberyUseCases @Inject constructor(
         if (latStep <= 0 || lonStep <= 0) return emptyList()
 
         val cells = points.groupBy { point ->
-            val row = ((point.latitude - mapBounds.southLat) / latStep).toInt().coerceIn(0, GRID_SIZE - 1)
-            val col = ((point.longitude - mapBounds.westLon) / lonStep).toInt().coerceIn(0, GRID_SIZE - 1)
+            val row =
+                ((point.latitude - mapBounds.southLat) / latStep).toInt().coerceIn(0, GRID_SIZE - 1)
+            val col =
+                ((point.longitude - mapBounds.westLon) / lonStep).toInt().coerceIn(0, GRID_SIZE - 1)
             row to col
         }
 

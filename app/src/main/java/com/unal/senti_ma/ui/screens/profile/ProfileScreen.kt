@@ -1,107 +1,160 @@
 package com.unal.senti_ma.ui.screens.profile
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.unal.senti_ma.R
-import com.unal.senti_ma.domain.model.User
+import com.unal.senti_ma.domain.model.EmergencyContact
+import com.unal.senti_ma.ui.screens.profile.components.EmergencyContactDialog
+import com.unal.senti_ma.ui.screens.profile.components.ProfileContent
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
+import com.unal.senti_ma.ui.screens.profile.events.ProfileViewModelEvent
 import com.unal.senti_ma.ui.settings.ThemeViewModel
+import java.util.UUID
 
 @Composable
 fun ProfileScreen(
-    user: User,
     modifier: Modifier = Modifier,
     profileViewModel: ProfileViewModel = hiltViewModel(),
     themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+
     val context = LocalContext.current
 
-    LaunchedEffect(profileUiState) {
-        val state = profileUiState
-        if (state is ProfileUiState.Error) {
-            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+    var showAddContactDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var editingContact by remember {
+        mutableStateOf<EmergencyContact?>(null)
+    }
+
+    LaunchedEffect(Unit) {
+        profileViewModel.viewModelEvent.collect { event ->
+            when (event) {
+
+                is ProfileViewModelEvent.Success -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                is ProfileViewModelEvent.Error -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        isDarkTheme?.let { darkTheme ->
-            TextButton(
-                onClick = { themeViewModel.setDarkTheme(!darkTheme) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DarkMode,
-                    contentDescription = stringResource(R.string.description_icon_theme)
-                )
-                Text(
-                    text = stringResource(R.string.text_dark_theme),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 16.dp)
-                )
-                Switch(
-                    checked = darkTheme,
-                    onCheckedChange = { themeViewModel.setDarkTheme(it) },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                    )
-                )
-            }
-        } ?: CircularProgressIndicator()
+    when (val state = profileUiState) {
 
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(16.dp))
+        is ProfileUiState.Idle -> {}
 
-        if (profileUiState is ProfileUiState.Loading) {
-            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-        } else {
-            TextButton(
-                onClick = { profileViewModel.onEvent(ProfileUiEvent.SignOut) },
-                modifier = Modifier.fillMaxWidth()
+        is ProfileUiState.Loading -> {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Logout,
-                    contentDescription = stringResource(R.string.description_icon_sign_out)
-                )
-                Text(
-                    text = stringResource(R.string.text_sign_out),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 16.dp)
-                )
+                CircularProgressIndicator()
             }
         }
+
+        is ProfileUiState.Success -> {
+            ProfileContent(
+                user = state.user,
+                isEditing = profileViewModel.isEditing,
+                isUpdating = profileViewModel.isUpdating,
+                userUpdate = profileViewModel.userUpdate,
+                isDarkTheme = isDarkTheme,
+                onToggleTheme = {
+                    themeViewModel.setDarkTheme(it)
+                },
+                onEvent = profileViewModel::onEvent,
+                onAddContact = {
+                    showAddContactDialog = true
+                },
+                onEditContact = {
+                    editingContact = it
+                }
+            )
+        }
+    }
+
+    if (showAddContactDialog) {
+        EmergencyContactDialog(
+            title = stringResource(
+                R.string.title_add_emergency_contact
+            ),
+            onDismiss = {
+                showAddContactDialog = false
+            },
+            onConfirm = { name, phone, relationship ->
+
+                profileViewModel.onEvent(
+                    ProfileUiEvent.AddEmergencyContact(
+                        EmergencyContact(
+                            uid = UUID.randomUUID().toString(),
+                            name = name,
+                            phoneNumber = phone,
+                            relationship = relationship
+                        )
+                    )
+                )
+
+                showAddContactDialog = false
+            }
+        )
+    }
+
+    editingContact?.let { contact ->
+
+        EmergencyContactDialog(
+            title = stringResource(
+                R.string.title_edit_emergency_contact
+            ),
+            initialName = contact.name,
+            initialPhone = contact.phoneNumber,
+            initialRelationship = contact.relationship,
+            onDismiss = {
+                editingContact = null
+            },
+            onConfirm = { name, phone, relationship ->
+
+                profileViewModel.onEvent(
+                    ProfileUiEvent.UpdateEmergencyContact(
+                        contact.copy(
+                            name = name,
+                            phoneNumber = phone,
+                            relationship = relationship
+                        )
+                    )
+                )
+
+                editingContact = null
+            }
+        )
     }
 }

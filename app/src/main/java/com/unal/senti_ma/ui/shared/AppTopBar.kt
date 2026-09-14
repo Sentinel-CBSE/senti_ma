@@ -30,11 +30,14 @@ fun AppTopBar(
     onAvatarClick: () -> Unit,
     onHomeClick: () -> Unit,
     avatarUrl: Uri?
-){
+) {
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = { onHomeClick() }) {
-                Icon(Icons.Default.Home, contentDescription = stringResource(R.string.description_home_icon))
+                Icon(
+                    Icons.Default.Home,
+                    contentDescription = stringResource(R.string.description_home_icon)
+                )
             }
         },
         title = {
@@ -51,7 +54,7 @@ fun AppTopBar(
                     .clickable { onAvatarClick() }
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(avatarUrl?: R.drawable.default_avatar),
+                    painter = rememberAsyncImagePainter(avatarUrl ?: R.drawable.default_avatar),
                     contentDescription = stringResource(R.string.description_avatar_image),
                     modifier = Modifier
                         .fillMaxSize()

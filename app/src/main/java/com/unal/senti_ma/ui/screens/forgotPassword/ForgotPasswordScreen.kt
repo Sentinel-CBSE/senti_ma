@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.unal.senti_ma.R
 import com.unal.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordUiEvent
+import com.unal.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordViewModelEvent
 import com.unal.senti_ma.ui.shared.AnnotatedTextBox
 import com.unal.senti_ma.ui.shared.AuthTopBar
 import com.unal.senti_ma.ui.shared.IconImage
@@ -49,31 +50,41 @@ fun ForgotPasswordScreen(
     onSignUpClick: () -> Unit
 ) {
     val forgotPasswordUiState by forgetPasswordViewModel.uiState.collectAsState()
-
     val context = LocalContext.current
-    val successMessage = stringResource(R.string.text_success_send_email)
 
-    LaunchedEffect(forgotPasswordUiState) {
-        when (val state = forgotPasswordUiState) {
-            is ForgotPasswordUiState.Error -> {
-                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        forgetPasswordViewModel.viewModelEvent.collect { event ->
+            when (event) {
+                is ForgotPasswordViewModelEvent.Success -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                is ForgotPasswordViewModelEvent.Error -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-            is ForgotPasswordUiState.Success -> {
-                Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
-            }
-            else -> {}
         }
     }
 
-    Scaffold(topBar = {
-        AuthTopBar(
-            title = stringResource(R.string.title_forgot_password),
-            onBackPressed = {
-                forgetPasswordViewModel.onEvent(ForgotPasswordUiEvent.ClearState)
-                onBackPressed()
-            }
-        )
-    }) { innerPadding ->
+    Scaffold(
+        topBar = {
+            AuthTopBar(
+                title = stringResource(R.string.title_forgot_password),
+                onBackPressed = {
+                    forgetPasswordViewModel.onEvent(ForgotPasswordUiEvent.ClearState)
+                    onBackPressed()
+                }
+            )
+        }
+    ) { innerPadding ->
         Box(
             modifier = modifier
                 .padding(innerPadding)
@@ -108,7 +119,13 @@ fun ForgotPasswordScreen(
                     value = forgetPasswordViewModel.userEmail,
                     isError = forgotPasswordUiState is ForgotPasswordUiState.Error,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    onValueChange = { forgetPasswordViewModel.onEvent(ForgotPasswordUiEvent.UpdateUserEmail(it)) },
+                    onValueChange = {
+                        forgetPasswordViewModel.onEvent(
+                            ForgotPasswordUiEvent.UpdateUserEmail(
+                                it
+                            )
+                        )
+                    },
                     label = { Text(text = stringResource(R.string.text_field_user_email)) },
                     colors = TextFieldDefaults.colors(
                         cursorColor = colorScheme.primary,

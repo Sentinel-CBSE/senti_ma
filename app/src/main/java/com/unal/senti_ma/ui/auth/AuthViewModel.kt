@@ -17,7 +17,12 @@ class AuthViewModel @Inject constructor(
 
     val authState: StateFlow<AuthState> = authUseCases.authState
         .map { user ->
-            if (user != null) AuthState.Authenticated(user) else AuthState.Unauthenticated
+            when {
+                user == null -> AuthState.Unauthenticated
+                user.isAnonymous -> AuthState.Authenticated(user)
+                !user.isEmailVerified -> AuthState.Unauthenticated
+                else -> AuthState.Authenticated(user)
+            }
         }
         .stateIn(
             scope = viewModelScope,

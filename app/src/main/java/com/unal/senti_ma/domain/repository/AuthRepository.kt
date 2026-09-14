@@ -13,7 +13,9 @@ interface AuthRepository {
 
     suspend fun signOut()
 
-    suspend fun sendPasswordResetEmail(email: String): AppResult<Unit>
+    suspend fun sendPasswordResetEmail(
+        email: String
+    ): AppResult<Unit>
 
     suspend fun createUserWithEmailAndPassword(
         name: String,
@@ -22,11 +24,18 @@ interface AuthRepository {
         activity: Activity
     ): AppResult<User>
 
-    suspend fun signInWithEmailAndPassword(email: String, password: String): AppResult<User>
+    suspend fun signInWithEmailAndPassword(
+        email: String,
+        password: String
+    ): AppResult<User>
 
-    suspend fun signInWithSavedCredentials(activity: Activity): AppResult<User>
+    suspend fun signInWithSavedCredentials(
+        activity: Activity
+    ): AppResult<User>
 
-    suspend fun signInWithGoogle(activity: Activity): AppResult<User>
+    suspend fun signInWithGoogle(
+        activity: Activity
+    ): AppResult<User>
 
     suspend fun signInAnonymously(): AppResult<User>
 

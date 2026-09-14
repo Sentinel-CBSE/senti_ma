@@ -48,7 +48,8 @@ class RobberyRepositoryImpl @Inject constructor(
         count: Int = 60
     ): List<RobberyPoint> {
         delay(500.milliseconds)
-        val availableTypes = type?.let { listOf(it) } ?: listOf("armed_robbery", "theft", "burglary")
+        val availableTypes =
+            type?.let { listOf(it) } ?: listOf("armed_robbery", "theft", "burglary")
 
         return List(count) {
             RobberyPoint(

@@ -48,9 +48,7 @@ fun MainNavGraph(
         }
 
         composable(route = Profile.route) {
-            ProfileScreen(
-                user = user,
-            )
+            ProfileScreen()
         }
     }
 }

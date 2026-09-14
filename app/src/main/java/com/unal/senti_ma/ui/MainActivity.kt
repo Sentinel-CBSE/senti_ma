@@ -83,11 +83,16 @@ class MainActivity : ComponentActivity() {
                                     val currentRoute = currentBackStack?.destination?.route
 
                                     if (tabBarScreens.any { it.route == currentRoute }) {
-                                        val currentTabBarScreen = tabBarScreens.first { it.route == currentRoute }
+                                        val currentTabBarScreen =
+                                            tabBarScreens.first { it.route == currentRoute }
 
                                         AppBottomBar(
                                             allScreens = tabBarScreens,
-                                            onTabSelected = { newScreen -> navController.navigateSingleTopTo(newScreen.route) },
+                                            onTabSelected = { newScreen ->
+                                                navController.navigateSingleTopTo(
+                                                    newScreen.route
+                                                )
+                                            },
                                             currentScreen = currentTabBarScreen
                                         )
                                     }

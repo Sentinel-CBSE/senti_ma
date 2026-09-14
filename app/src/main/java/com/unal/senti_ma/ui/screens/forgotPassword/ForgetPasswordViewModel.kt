@@ -1,7 +1,6 @@
 package com.unal.senti_ma.ui.screens.forgotPassword
 
 import android.content.Context
-import android.os.Bundle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,11 +10,13 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.usecase.AuthUseCases
 import com.unal.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordUiEvent
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.unal.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,12 +24,14 @@ import javax.inject.Inject
 @HiltViewModel
 class ForgetPasswordViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    private val firebaseAnalytics: FirebaseAnalytics,
     private val authUseCases: AuthUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ForgotPasswordUiState>(ForgotPasswordUiState.Idle)
     val uiState: StateFlow<ForgotPasswordUiState> = _uiState.asStateFlow()
+
+    private val _viewModelEvent = MutableSharedFlow<ForgotPasswordViewModelEvent>(replay = 0)
+    val viewModelEvent = _viewModelEvent.asSharedFlow()
 
     var userEmail by mutableStateOf("")
         private set
@@ -48,7 +51,7 @@ class ForgetPasswordViewModel @Inject constructor(
 
     private fun sendPasswordResetEmail() {
         if (userEmail.isBlank()) {
-            _uiState.value = ForgotPasswordUiState.Error(context.getString(R.string.text_error_required_fields_are_null))
+            showError(context.getString(R.string.text_error_required_fields_are_null))
             return
         }
 
@@ -56,12 +59,16 @@ class ForgetPasswordViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authUseCases.sendPasswordResetEmail(userEmail)) {
                 is AppResult.Success -> {
-                    _uiState.value = ForgotPasswordUiState.Success
+                    _uiState.value = ForgotPasswordUiState.Idle
+                    _viewModelEvent.emit(
+                        ForgotPasswordViewModelEvent.Success(
+                            context.getString(R.string.text_success_send_email)
+                        )
+                    )
                 }
-                is AppResult.Error -> {
-                    _uiState.value = ForgotPasswordUiState.Error(result.errorMessage)
-                    userEmail = ""
-                }
+
+                is AppResult.Error -> showError(result.errorMessage)
+                is AppResult.Cancelled -> {}
             }
         }
     }
@@ -71,8 +78,9 @@ class ForgetPasswordViewModel @Inject constructor(
         userEmail = event.newUserEmail
     }
 
-    fun logEvent(eventName: String, params: Bundle) {
-        firebaseAnalytics.logEvent(eventName, params)
+    private fun showError(message: String) {
+        _uiState.value = ForgotPasswordUiState.Error(message)
+        viewModelScope.launch { _viewModelEvent.emit(ForgotPasswordViewModelEvent.Error(message)) }
     }
 
 }

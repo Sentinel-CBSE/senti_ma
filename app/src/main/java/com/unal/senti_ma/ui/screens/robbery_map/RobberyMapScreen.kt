@@ -38,6 +38,7 @@ import com.unal.senti_ma.ui.screens.robbery_map.components.LocationPermissionHan
 import com.unal.senti_ma.ui.screens.robbery_map.components.RobberyDateRangeDialog
 import com.unal.senti_ma.ui.screens.robbery_map.components.RobberyTypeFilterDropdown
 import com.unal.senti_ma.ui.screens.robbery_map.events.RobberyMapUiEvent
+import com.unal.senti_ma.ui.screens.robbery_map.events.RobberyMapViewModelEvent
 import com.unal.senti_ma.ui.screens.robbery_map.map.HeatmapOverlay
 import com.unal.senti_ma.ui.screens.robbery_map.map.rememberMapViewWithLifecycle
 import kotlinx.coroutines.Job
@@ -93,6 +94,7 @@ fun RobberyMapScreen(
             delay(RELOAD_DEBOUNCE_MS.milliseconds)
 
             val box = map.boundingBox
+
             if (box.latNorth <= box.latSouth || box.lonEast <= box.lonWest) {
                 return@launch
             }
@@ -111,20 +113,36 @@ fun RobberyMapScreen(
     }
 
     LocationPermissionHandler(
-        onPermissionGranted = { hasLocationPermission = true },
+        onPermissionGranted = {
+            hasLocationPermission = true
+        },
         onPermissionDenied = {
             hasLocationPermission = false
 
-            Toast.makeText(context, R.string.text_location_permission_denied, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                R.string.text_location_permission_denied,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     )
 
+    LaunchedEffect(Unit) {
+        mapViewModel.viewModelEvent.collect { event ->
+            when (event) {
+                is RobberyMapViewModelEvent.Error -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     LaunchedEffect(robberyMapUiState) {
         when (val state = robberyMapUiState) {
-            is MapUiState.Error -> {
-                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-            }
-
             is MapUiState.Success -> {
                 heatmapOverlay.updatePoints(state.heatPoints)
                 mapView.invalidate()
@@ -135,7 +153,9 @@ fun RobberyMapScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -149,11 +169,19 @@ fun RobberyMapScreen(
         ) {
             RobberyTypeFilterDropdown(
                 selectedType = mapViewModel.selectedType,
-                onTypeSelected = { type -> mapViewModel.onEvent(RobberyMapUiEvent.UpdateTypeFilter(type)) },
+                onTypeSelected = { type ->
+                    mapViewModel.onEvent(
+                        RobberyMapUiEvent.UpdateTypeFilter(type)
+                    )
+                },
                 modifier = Modifier.weight(1f)
             )
 
-            TextButton(onClick = { isDatePickerVisible = true }) {
+            TextButton(
+                onClick = {
+                    isDatePickerVisible = true
+                }
+            ) {
                 Text(
                     text = stringResource(
                         if (mapViewModel.selectedFromTimestamp != null) {
@@ -224,6 +252,7 @@ fun RobberyMapScreen(
                         )
 
                         overlay.enableMyLocation()
+
                         overlay.runOnFirstFix {
                             view.post {
                                 overlay.myLocation?.let { location ->
@@ -252,7 +281,9 @@ fun RobberyMapScreen(
             )
 
             if (robberyMapUiState is MapUiState.Loading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
@@ -261,7 +292,9 @@ fun RobberyMapScreen(
         RobberyDateRangeDialog(
             initialStartDateMillis = mapViewModel.selectedFromTimestamp,
             initialEndDateMillis = mapViewModel.selectedToTimestamp,
-            onDismiss = { isDatePickerVisible = false },
+            onDismiss = {
+                isDatePickerVisible = false
+            },
             onConfirm = { from, to ->
                 isDatePickerVisible = false
 

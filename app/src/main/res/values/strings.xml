@@ -1,115 +1,189 @@
 <resources>
+
+    <!-- ============================================================
+         APP / NAVIGATION
+         ============================================================ -->
+
     <string name="app_name">Sentinel</string>
     <string name="label_profile">Perfil</string>
     <string name="label_robbery_map">Mapa</string>
     <string name="label_robbery_search">Eventos</string>
 
+
+    <!-- ============================================================
+         LOGIN
+         ============================================================ -->
+
+    <!-- Buttons -->
+    <string name="text_button_login">Iniciar sesión</string>
+    <string name="text_button_sign_in_with_google">Continuar con Google</string>
+
+    <!-- Messages -->
+    <string name="text_message_clickable_forgot_password">"¿Olvidaste tu contraseña? "</string>
+
+    <!-- Separators -->
+    <string name="separator_line">-------- o --------</string>
+
+    <!-- Errors -->
+    <string name="text_error_sign_in">Error al intentar ingresar</string>
+    <string name="text_error_smart_lock">Smart Lock error:</string>
+    <string name="text_error_email_not_verified">Correo no verificado</string>
+    <string name="text_error_email_already_exists">Usuario ya registrado</string>
+
+    <!-- Descriptions -->
+    <string name="description_icon_toggle_password_visibility">Cambiar visibilidad de contraseña</string>
+
+
+    <!-- ============================================================
+         FORGOT PASSWORD
+         ============================================================ -->
+
+    <!-- Titles -->
     <string name="title_forgot_password">Cambio de contraseña</string>
+
+    <!-- Messages -->
     <string name="text_message_enter_email">Ingrese un correo electrónico:</string>
-    <string name="text_field_user_email">correo electrónico</string>
-    <string name="text_button_send_email">Recuperar contraseña</string>
     <string name="text_message_sign_up">"¿Aún no tienes cuenta? "</string>
     <string name="text_message_clickable_sign_up">Regístrate</string>
+
+    <!-- Fields -->
+    <string name="text_field_user_email">correo electrónico</string>
+
+    <!-- Buttons -->
+    <string name="text_button_send_email">Recuperar contraseña</string>
+
+    <!-- Success -->
     <string name="text_success_send_email">Correo enviado con éxito</string>
+
+    <!-- Errors -->
     <string name="text_error_required_fields_are_null">Campos requeridos nulos</string>
     <string name="text_error_send_email">El correo suministrado es incorrecto</string>
 
+
+    <!-- ============================================================
+         SIGN UP
+         ============================================================ -->
+
+    <!-- Titles -->
     <string name="title_sign_up">Registrar usuario</string>
+
+    <!-- Fields -->
     <string name="text_field_user_name">Nombre de usuario</string>
     <string name="text_field_user_password">Contraseña</string>
     <string name="text_field_user_password_confirmation">Repetir contraseña</string>
+
+    <!-- Buttons -->
     <string name="text_button_sign_up">Registrar usuario</string>
-    <string name="text_success_sign_up">Usuario creado con exito: verifique su correo</string>
+
+    <!-- Success -->
+    <string name="text_success_sign_up">Verifique su correo</string>
+
+    <!-- Errors -->
     <string name="text_error_passwords_fields_not_match">Las contraseñas no coinciden</string>
     <string name="text_error_invalid_password_length">Longitud contraseña: 8</string>
     <string name="text_error_sign_up">Error al crear el usuario</string>
 
-    <string name="text_button_login">Iniciar sesión</string>
-    <string name="text_message_clickable_forgot_password">"¿Olvidaste tu contraseña? "</string>
-    <string name="separator_line">-------- o --------</string>
-    <string name="text_button_sign_in_with_google">Continuar con Google</string>
-    <string name="text_button_sign_in_anonymously">Continuar como invitado</string>
-    <string name="text_error_sign_in">Error al intentar ingresar</string>
-    <string name="text_error_smart_lock">Smart Lock error:</string>
-    <string name="text_error_email_not_verified">Correo no verificado</string>
-    <string name="text_error_email_already_exists">Uusario ya registrado</string>
 
-    <string name="title_dialog_login_required">Inicia sesión</string>
-    <string name="text_login_required_message">Debes iniciar sesión con un correo para crear publicaciones.</string>
-    <string name="text_button_login_action">Inicia sesión</string>
-    <string name="text_button_cancel_action">Cancelar</string>
+    <!-- ============================================================
+         PROFILE
+         ============================================================ -->
 
-    <string name="title_new_post_dialog">Crear nueva publicación</string>
-    <string name="text_content">Contenido</string>
-    <string name="text_button_publish_action">Publicar</string>
-    <string name="text_attachments">Archivos adjuntos</string>
-    <string name="text_add_attachment">Agregar archivos</string>
-    <string name="text_is_event">¿Es un evento?</string>
-    <string name="text_event_location">Dirección del evento</string>
-    <string name="text_event_date">Fecha del evento</string>
-    <string name="title_map_location">Selecciona una ubicación en el mapa</string>
-    <string name="text_location_not_found">No se pudo obtener la dirección</string>
-    <string name="text_button_confirm_location">Confirmar ubicación</string>
-
-    <string name="text_option_report">Reportar</string>
-    <string name="text_option_share">Compartir</string>
-
-    <string name="text_toggle_attendance_success">Asistencia cambiada</string>
-    <string name="text_confirm_attendance">Confirmar asistencia</string>
-    <string name="text_event_attendee_count">Número de asistencias: %1$s</string>
-    <string name="text_event_date_detail">Fecha: %1$s</string>
-    <string name="text_event_location_detail">Ubicación: %1$s</string>
-
-    <string name="title_new_report_dialog">Reportar publicación</string>
-    <string name="text_reason_report">Por favor, ingresa el motivo del reporte.</string>
-    <string name="text_button_create_report">Enviar Reporte</string>
-    <string name="text_success_create_report">Reporte enviado con éxito</string>
-
-    <string name="text_button_delete">Eliminar</string>
-    <string name="text_button_reply">Responder</string>
-    <string name="text_replying_to">Respuesta a</string>
-    <string name="text_reply_to">Respondiendo a %1$s</string>
-    <string name="text_success_add_comment">Comentario creado con éxito</string>
-    <string name="text_success_delete_comment">Comentario eliminado con éxito</string>
-    <string name="confirm_delete_action">Seguro de querer eliminar este comentario?</string>
-    <string name="text_confirm_action">Confirmación</string>
-    <string name="text_confirm">Confirmar</string>
-    <string name="text_cancel">Cancelar</string>
-
+    <!-- Theme -->
+    <string name="description_icon_theme">Cambiar tema</string>
     <string name="text_dark_theme">Tema oscuro</string>
+
+    <!-- Fields -->
+    <string name="text_field_profile_name">Nombre</string>
+    <string name="text_field_profile_eps">EPS</string>
+
+    <!-- Blood type -->
+    <string name="text_profile_blood_type">Tipo de sangre</string>
+    <string name="text_profile_rh">Factor Rh</string>
+
+    <!-- Profile values -->
+    <string name="text_profile_eps_value">EPS: %1$s</string>
+    <string name="text_profile_blood_type_value">Tipo de sangre: %1$s</string>
+    <string name="text_not_registered">No registrado</string>
+
+    <!-- Buttons -->
+    <string name="text_button_edit_profile">Editar perfil</string>
+    <string name="text_button_save">Guardar</string>
+    <string name="text_button_cancel">Cancelar</string>
     <string name="text_sign_out">Cerrar sesión</string>
 
-    <string name="text_error_get_heatmap">No se pudo obtener el mapa de calor</string>
+    <!-- Success -->
+    <string name="text_success_update_profile">Perfil actualizado correctamente</string>
+
+    <!-- Errors -->
+    <string name="text_error_update_profile">No se pudo actualizar el perfil.</string>
+
+    <!-- Descriptions -->
+    <string name="description_icon_edit">Editar perfil</string>
+    <string name="description_icon_sign_out">Cerrar sesión</string>
+
+
+    <!-- ============================================================
+         EMERGENCY CONTACTS
+         ============================================================ -->
+
+    <!-- Section -->
+    <string name="text_emergency_contacts">Contactos de emergencia</string>
+    <string name="text_no_emergency_contacts">No tienes contactos de emergencia registrados.</string>
+
+    <!-- Titles -->
+    <string name="title_add_emergency_contact">Agregar contacto de emergencia</string>
+    <string name="title_edit_emergency_contact">Editar contacto de emergencia</string>
+
+    <!-- Fields -->
+    <string name="text_field_contact_name">Nombre</string>
+    <string name="text_field_contact_phone">Teléfono</string>
+    <string name="text_field_contact_relationship">Parentesco</string>
+
+    <!-- Descriptions -->
+    <string name="description_icon_add_contact">Agregar contacto</string>
+    <string name="description_icon_edit_contact">Editar contacto</string>
+    <string name="description_icon_delete_contact">Eliminar contacto</string>
+
+    <!-- Success -->
+    <string name="text_success_add_emergency_contact">Contacto agregado correctamente</string>
+    <string name="text_success_update_emergency_contact">Contacto actualizado correctamente</string>
+    <string name="text_success_delete_emergency_contact">Contacto eliminado correctamente</string>
+
+
+    <!-- ============================================================
+         ROBBERY MAP
+         ============================================================ -->
+
+    <!-- Filters -->
     <string name="text_robbery_date_range_title">Selecciona un rango de fechas</string>
-    <string name="text_apply">Aplicar</string>
-    <string name="text_clear_filter">Limpiar filtro</string>
     <string name="text_robbery_type_label">Tipo de robo</string>
+
+    <!-- Filter values -->
     <string name="text_robbery_type_all">Todos</string>
     <string name="text_robbery_type_armed">Robo armado</string>
     <string name="text_robbery_type_theft">Hurto</string>
     <string name="text_robbery_type_burglary">Robo a vivienda</string>
-    <string name="text_location_permission_denied">Permiso de ubicación denegado</string>
+
     <string name="text_date_filter_selected">Fechas</string>
     <string name="text_date_filter_all">Todas las fechas</string>
 
+    <!-- Buttons -->
+    <string name="text_apply">Aplicar</string>
+    <string name="text_clear_filter">Limpiar filtro</string>
+
+    <!-- Errors -->
+    <string name="text_error_get_heatmap">No se pudo obtener el mapa de calor</string>
+    <string name="text_location_permission_denied">Permiso de ubicación denegado</string>
+
+
+    <!-- ============================================================
+         GENERAL / SHARED UI
+         ============================================================ -->
+
     <string name="description_tab_for">Selección a %1$s</string>
     <string name="description_app_icon">Imagen del icono</string>
-    <string name="description_icon_toggle_password_visibility">Cambiar visibilidad de contraseña</string>
     <string name="description_icon_return_to_login">Volver al Login</string>
     <string name="description_avatar_image">Avatar del usuario</string>
-    <string name="description_new_post">Crear nuevo post</string>
-    <string name="description_icon_more_post_options">Más opciones de la publicación</string>
-    <string name="description_post_event_menu">Menu de opciones para crear evento o publicación</string>
-    <string name="description_touch_icon">Manipular imagen</string>
     <string name="description_home_icon">Icono home</string>
-    <string name="description_favorite_icon">Icono favorite</string>
-    <string name="description_attachment_image">Attachment image</string>
-    <string name="description_cancel_reply_comment">Cancelar respuesta</string>
-    <string name="description_select_date">Select date</string>
-    <string name="description_select_location">Seleccionar ubicación</string>
-    <string name="description_marker">Marcador central</string>
-    <string name="description_icon_theme">Ícono de tema</string>
-    <string name="description_icon_sign_out">Ícono de cerrar sesión</string>
 
-    <string name="permission_denied">Permiso de ubicación denegado</string>
 </resources>

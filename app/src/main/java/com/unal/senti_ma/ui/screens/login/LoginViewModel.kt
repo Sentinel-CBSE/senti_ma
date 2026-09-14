@@ -1,7 +1,6 @@
 package com.unal.senti_ma.ui.screens.login
 
 import android.content.Context
-import android.os.Bundle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,10 +10,12 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.usecase.AuthUseCases
 import com.unal.senti_ma.ui.screens.login.events.LoginUiEvent
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.unal.senti_ma.ui.screens.login.events.LoginViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,12 +23,14 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val firebaseAnalytics: FirebaseAnalytics,
     private val authUseCases: AuthUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState = _uiState.asStateFlow()
+
+    private val _viewModelEvent = MutableSharedFlow<LoginViewModelEvent>(replay = 0)
+    val viewModelEvent = _viewModelEvent.asSharedFlow()
 
     var userEmail by mutableStateOf("")
         private set
@@ -57,8 +60,13 @@ class LoginViewModel @Inject constructor(
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInAnonymously()) {
-                is AppResult.Success -> _uiState.value = LoginUiState.Success
-                is AppResult.Error -> _uiState.value = LoginUiState.Error(result.errorMessage)
+                is AppResult.Success -> {
+                    _uiState.value = LoginUiState.Idle
+                    _viewModelEvent.emit(LoginViewModelEvent.Success)
+                }
+
+                is AppResult.Error -> showError(result.errorMessage)
+                is AppResult.Cancelled -> {}
             }
         }
     }
@@ -66,14 +74,13 @@ class LoginViewModel @Inject constructor(
     private fun onSignInWithSavedCredentials(event: LoginUiEvent.SignInWithSavedCredentials) {
         viewModelScope.launch {
             when (val result = authUseCases.signInWithSavedCredentials(event.activity)) {
-                is AppResult.Success -> _uiState.value = LoginUiState.Success
-                is AppResult.Error -> {
-                    if (result.errorMessage != "activity is cancelled by the user.") {
-                        _uiState.value = LoginUiState.Error(result.errorMessage)
-                    } else {
-                        _uiState.value = LoginUiState.Idle
-                    }
+                is AppResult.Success -> {
+                    _uiState.value = LoginUiState.Idle
+                    _viewModelEvent.emit(LoginViewModelEvent.Success)
                 }
+
+                is AppResult.Error -> showError(result.errorMessage)
+                is AppResult.Cancelled -> {}
             }
         }
     }
@@ -81,33 +88,38 @@ class LoginViewModel @Inject constructor(
     private fun onSignInWithGoogle(event: LoginUiEvent.SignInWithGoogle) {
         viewModelScope.launch {
             when (val result = authUseCases.signInWithGoogle(event.activity)) {
-                is AppResult.Success -> _uiState.value = LoginUiState.Success
-                is AppResult.Error -> {
-                    if (result.errorMessage != "activity is cancelled by the user.") {
-                        _uiState.value = LoginUiState.Error(result.errorMessage)
-                    } else {
-                        _uiState.value = LoginUiState.Idle
-                    }
+                is AppResult.Success -> {
+                    _uiState.value = LoginUiState.Idle
+                    _viewModelEvent.emit(LoginViewModelEvent.Success)
                 }
+
+                is AppResult.Error -> showError(result.errorMessage)
+                is AppResult.Cancelled -> {}
             }
         }
     }
 
     private fun onSignInWithEmailAndPassword() {
         if (userEmail.isBlank() || userPassword.isBlank()) {
-            _uiState.value = LoginUiState.Error(context.getString(R.string.text_error_required_fields_are_null))
+            showError(context.getString(R.string.text_error_required_fields_are_null))
             return
         }
 
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             when (val result = authUseCases.signInWithEmailAndPassword(userEmail, userPassword)) {
-                is AppResult.Success -> _uiState.value = LoginUiState.Success
+                is AppResult.Success -> {
+                    _uiState.value = LoginUiState.Idle
+                    _viewModelEvent.emit(LoginViewModelEvent.Success)
+                }
+
                 is AppResult.Error -> {
-                    _uiState.value = LoginUiState.Error(result.errorMessage)
+                    showError(result.errorMessage)
                     userPassword = ""
                     userEmail = ""
                 }
+
+                is AppResult.Cancelled -> {}
             }
         }
     }
@@ -122,8 +134,9 @@ class LoginViewModel @Inject constructor(
         userPassword = event.newUserPassword
     }
 
-    fun logEvent(eventName: String, params: Bundle) {
-        firebaseAnalytics.logEvent(eventName, params)
+    private fun showError(message: String) {
+        _uiState.value = LoginUiState.Error(message)
+        viewModelScope.launch { _viewModelEvent.emit(LoginViewModelEvent.Error(message)) }
     }
 
 }

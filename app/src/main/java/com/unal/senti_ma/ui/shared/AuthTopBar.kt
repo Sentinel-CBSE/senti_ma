@@ -18,11 +18,11 @@ fun AuthTopBar(
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
     title: String
-){
+) {
     TopAppBar(
         title = { Text(text = title) },
         navigationIcon = {
-            IconButton (onClick = { onBackPressed() }) {
+            IconButton(onClick = { onBackPressed() }) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBackIosNew,
                     contentDescription = stringResource(R.string.description_icon_return_to_login)

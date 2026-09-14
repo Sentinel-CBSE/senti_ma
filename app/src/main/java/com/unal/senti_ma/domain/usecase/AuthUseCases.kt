@@ -18,7 +18,9 @@ class AuthUseCases @Inject constructor(
     suspend fun signOut() =
         authRepository.signOut()
 
-    suspend fun sendPasswordResetEmail(email: String): AppResult<Unit> =
+    suspend fun sendPasswordResetEmail(
+        email: String
+    ): AppResult<Unit> =
         authRepository.sendPasswordResetEmail(email)
 
     suspend fun createUserWithEmailAndPassword(
@@ -29,13 +31,20 @@ class AuthUseCases @Inject constructor(
     ): AppResult<User> =
         authRepository.createUserWithEmailAndPassword(name, email, password, activity)
 
-    suspend fun signInWithEmailAndPassword(email: String, password: String): AppResult<User> =
+    suspend fun signInWithEmailAndPassword(
+        email: String,
+        password: String
+    ): AppResult<User> =
         authRepository.signInWithEmailAndPassword(email, password)
 
-    suspend fun signInWithSavedCredentials(activity: Activity): AppResult<User> =
+    suspend fun signInWithSavedCredentials(
+        activity: Activity
+    ): AppResult<User> =
         authRepository.signInWithSavedCredentials(activity)
 
-    suspend fun signInWithGoogle(activity: Activity): AppResult<User> =
+    suspend fun signInWithGoogle(
+        activity: Activity
+    ): AppResult<User> =
         authRepository.signInWithGoogle(activity)
 
     suspend fun signInAnonymously(): AppResult<User> =

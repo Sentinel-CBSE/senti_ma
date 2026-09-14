@@ -1,7 +1,7 @@
 package com.unal.senti_ma.data.mappers
 
-import com.unal.senti_ma.domain.model.User
 import com.google.firebase.auth.FirebaseUser
+import com.unal.senti_ma.domain.model.User
 
 fun FirebaseUser.toDomain(): User = User(
     uid = uid,
@@ -9,5 +9,9 @@ fun FirebaseUser.toDomain(): User = User(
     photoUrl = photoUrl,
     displayName = displayName,
     isAnonymous = isAnonymous,
-    isEmailVerified = isEmailVerified
+    isEmailVerified = isEmailVerified,
+    emergencyContacts = emptyList(),
+    bloodTypeLetter = null,
+    bloodTypeRh = null,
+    eps = null,
 )

@@ -9,8 +9,11 @@ import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.MapBounds
 import com.unal.senti_ma.domain.usecase.RobberyUseCases
 import com.unal.senti_ma.ui.screens.robbery_map.events.RobberyMapUiEvent
+import com.unal.senti_ma.ui.screens.robbery_map.events.RobberyMapViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,6 +25,9 @@ class MapViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<MapUiState>(MapUiState.Idle)
     val uiState = _uiState.asStateFlow()
+
+    private val _viewModelEvent = MutableSharedFlow<RobberyMapViewModelEvent>(replay = 0)
+    val viewModelEvent = _viewModelEvent.asSharedFlow()
 
     var selectedType by mutableStateOf<String?>(null)
         private set
@@ -47,17 +53,23 @@ class MapViewModel @Inject constructor(
         _uiState.value = MapUiState.Idle
     }
 
-    private fun updateMapBounds(event: RobberyMapUiEvent.UpdateMapBounds) {
+    private fun updateMapBounds(
+        event: RobberyMapUiEvent.UpdateMapBounds
+    ) {
         currentMapBounds = event.mapBounds
         reload()
     }
 
-    private fun updateTypeFilter(event: RobberyMapUiEvent.UpdateTypeFilter) {
+    private fun updateTypeFilter(
+        event: RobberyMapUiEvent.UpdateTypeFilter
+    ) {
         selectedType = event.type
         reload()
     }
 
-    private fun updateDateRangeFilter(event: RobberyMapUiEvent.UpdateDateRangeFilter) {
+    private fun updateDateRangeFilter(
+        event: RobberyMapUiEvent.UpdateDateRangeFilter
+    ) {
         selectedFromTimestamp = event.fromTimestamp
         selectedToTimestamp = event.toTimestamp
         reload()
@@ -76,8 +88,19 @@ class MapViewModel @Inject constructor(
                     toTimestamp = selectedToTimestamp
                 )
             ) {
-                is AppResult.Success -> { _uiState.value = MapUiState.Success(result.data) }
-                is AppResult.Error -> { _uiState.value = MapUiState.Error(result.errorMessage) }
+                is AppResult.Success -> {
+                    _uiState.value = MapUiState.Success(result.data)
+                }
+
+                is AppResult.Error -> {
+                    _viewModelEvent.emit(
+                        RobberyMapViewModelEvent.Error(
+                            result.errorMessage
+                        )
+                    )
+                }
+
+                is AppResult.Cancelled -> {}
             }
         }
     }
