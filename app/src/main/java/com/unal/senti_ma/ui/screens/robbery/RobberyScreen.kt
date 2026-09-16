@@ -3,19 +3,28 @@ package com.unal.senti_ma.ui.screens.robbery
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -65,8 +74,13 @@ fun RobberyScreen(
     val mapView = rememberMapViewWithLifecycle(context)
     val heatmapOverlay = remember { HeatmapOverlay() }
 
-    var showDateDialog by remember { mutableStateOf(false) }
-    var filtersExpanded by remember { mutableStateOf(false) }
+    var showDateDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var filtersExpanded by remember {
+        mutableStateOf(false)
+    }
 
     var hasLocationPermission by remember {
         mutableStateOf(false)
@@ -74,6 +88,10 @@ fun RobberyScreen(
 
     var hasCenteredOnLocation by remember {
         mutableStateOf(false)
+    }
+
+    var locationOverlay by remember {
+        mutableStateOf<MyLocationNewOverlay?>(null)
     }
 
     val pointMarkers = remember(mapView) {
@@ -88,7 +106,7 @@ fun RobberyScreen(
         val bounds = mapView.boundingBox
 
         robberyViewModel.onEvent(
-            RobberyUiEvent.UpdateMapBounds(
+            RobberyUiEvent.UpdateMapPosition(
                 mapBounds = MapBounds(
                     northLat = bounds.latNorth,
                     southLat = bounds.latSouth,
@@ -110,6 +128,7 @@ fun RobberyScreen(
         onPermissionDenied = {
             hasLocationPermission = false
             hasCenteredOnLocation = false
+            locationOverlay = null
 
             Toast.makeText(
                 context,
@@ -226,6 +245,85 @@ fun RobberyScreen(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = 12.dp,
+                    start = 12.dp,
+                    end = 12.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = robberyViewModel.selectedAddress,
+                onValueChange = { address ->
+                    robberyViewModel.onEvent(
+                        RobberyUiEvent.UpdateAddressSearch(
+                            address
+                        )
+                    )
+                },
+                label = {
+                    androidx.compose.material3.Text(
+                        text = stringResource(
+                            R.string.text_robbery_address_label
+                        )
+                    )
+                },
+                placeholder = {
+                    androidx.compose.material3.Text(
+                        text = stringResource(
+                            R.string.text_robbery_address_placeholder
+                        )
+                    )
+                },
+                singleLine = true,
+                trailingIcon = {
+                    if (
+                        robberyViewModel.selectedAddress.isNotEmpty()
+                    ) {
+                        IconButton(
+                            onClick = {
+                                robberyViewModel.onEvent(
+                                    RobberyUiEvent.UpdateAddressSearch(
+                                        ""
+                                    )
+                                )
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier.weight(1f),
+                shape = MaterialTheme.shapes.medium
+            )
+
+            Spacer(
+                modifier = Modifier.width(8.dp)
+            )
+
+            IconButton(
+                onClick = {
+                    robberyViewModel.onEvent(
+                        RobberyUiEvent.UpdateMapToPosition
+                    )
+                },
+                enabled = robberyViewModel.selectedAddress.isNotBlank()
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = stringResource(
+                        R.string.description_robbery_search_address
+                    )
+                )
+            }
+        }
+
         RobberyFilters(
             expanded = filtersExpanded,
             onExpandedChange = {
@@ -236,8 +334,6 @@ fun RobberyScreen(
                 robberyViewModel.selectedFromTimestamp,
             selectedToTimestamp =
                 robberyViewModel.selectedToTimestamp,
-            selectedAddress =
-                robberyViewModel.selectedAddress,
             onTypeSelected = { type ->
                 robberyViewModel.onEvent(
                     RobberyUiEvent.UpdateTypeFilter(type)
@@ -245,16 +341,6 @@ fun RobberyScreen(
             },
             onDateClick = {
                 showDateDialog = true
-            },
-            onAddressChange = { address ->
-                robberyViewModel.onEvent(
-                    RobberyUiEvent.UpdateAddress(address)
-                )
-            },
-            onClearAddress = {
-                robberyViewModel.onEvent(
-                    RobberyUiEvent.UpdateAddress("")
-                )
             }
         )
 
@@ -326,10 +412,12 @@ fun RobberyScreen(
                     .fillMaxSize()
                     .clipToBounds(),
                 update = { map ->
-                    var locationOverlay =
-                        map.overlays
-                            .filterIsInstance<MyLocationNewOverlay>()
-                            .firstOrNull()
+                    if (locationOverlay == null) {
+                        locationOverlay =
+                            map.overlays
+                                .filterIsInstance<MyLocationNewOverlay>()
+                                .firstOrNull()
+                    }
 
                     if (
                         hasLocationPermission &&
@@ -342,14 +430,14 @@ fun RobberyScreen(
                             )
 
                         map.overlays.add(
-                            locationOverlay
+                            locationOverlay!!
                         )
 
-                        locationOverlay.enableMyLocation()
+                        locationOverlay!!.enableMyLocation()
 
-                        locationOverlay.runOnFirstFix {
+                        locationOverlay!!.runOnFirstFix {
                             val location =
-                                locationOverlay.myLocation
+                                locationOverlay!!.myLocation
                                     ?: return@runOnFirstFix
 
                             map.post {
@@ -382,6 +470,47 @@ fun RobberyScreen(
                     .size(42.dp),
                 tint = Color.Red
             )
+
+            FloatingActionButton(
+                onClick = {
+                    val location =
+                        locationOverlay?.myLocation
+
+                    if (location != null) {
+                        mapView.controller.setZoom(15.0)
+
+                        mapView.controller.animateTo(
+                            location
+                        )
+
+                        mapView.post {
+                            updateMapPosition()
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(
+                        end = 16.dp,
+                        bottom = 88.dp
+                    ),
+                containerColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.primary,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 2.dp,
+                    pressedElevation = 4.dp,
+                    focusedElevation = 2.dp,
+                    hoveredElevation = 3.dp
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MyLocation,
+                    contentDescription = stringResource(
+                        R.string.description_robbery_my_location
+                    ),
+                    modifier = Modifier.size(32.dp)
+                )
+            }
 
             FloatingActionButton(
                 onClick = {

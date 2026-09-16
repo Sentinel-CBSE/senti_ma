@@ -18,11 +18,13 @@ sealed interface RobberyUiEvent {
         val toTimestamp: Long?
     ) : RobberyUiEvent
 
-    data class UpdateAddress(
+    data class UpdateAddressSearch(
         val address: String
     ) : RobberyUiEvent
 
-    data class UpdateMapBounds(
+    data object UpdateMapToPosition : RobberyUiEvent
+
+    data class UpdateMapPosition(
         val mapBounds: MapBounds,
         val center: Coordinates
     ) : RobberyUiEvent

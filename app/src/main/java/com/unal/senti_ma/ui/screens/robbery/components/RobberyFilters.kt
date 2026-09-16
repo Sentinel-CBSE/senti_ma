@@ -10,16 +10,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,11 +34,8 @@ fun RobberyFilters(
     selectedType: String?,
     selectedFromTimestamp: Long?,
     selectedToTimestamp: Long?,
-    selectedAddress: String,
     onTypeSelected: (String?) -> Unit,
-    onDateClick: () -> Unit,
-    onAddressChange: (String) -> Unit,
-    onClearAddress: () -> Unit
+    onDateClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -111,7 +105,6 @@ fun RobberyFilters(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
             ) {
-                // 1. Robbery type
                 RobberyTypeFilterDropdown(
                     selectedType = selectedType,
                     onTypeSelected = onTypeSelected,
@@ -124,48 +117,6 @@ fun RobberyFilters(
                     modifier = Modifier.height(8.dp)
                 )
 
-                // 2. Address
-                OutlinedTextField(
-                    value = selectedAddress,
-                    onValueChange = onAddressChange,
-                    label = {
-                        Text(
-                            text = stringResource(
-                                R.string.text_robbery_address_label
-                            )
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = stringResource(
-                                R.string.text_robbery_address_placeholder
-                            )
-                        )
-                    },
-                    singleLine = true,
-                    trailingIcon = {
-                        if (selectedAddress.isNotEmpty()) {
-                            IconButton(
-                                onClick = onClearAddress
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(
-                    modifier = Modifier.height(15.dp)
-                )
-
-                // 3. Date range
                 OutlinedButton(
                     onClick = onDateClick,
                     modifier = Modifier

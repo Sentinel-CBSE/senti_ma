@@ -6,7 +6,6 @@
          ============================================================ -->
 
     <string name="app_name">Sentinel</string>
-
     <string name="label_profile">Perfil</string>
     <string name="label_robbery">Robo</string>
 
@@ -58,6 +57,11 @@
         Cambio de contraseña
     </string>
 
+    <!-- Fields -->
+    <string name="text_field_user_email">
+        correo electrónico
+    </string>
+
     <!-- Messages -->
     <string name="text_message_enter_email">
         Ingrese un correo electrónico:
@@ -67,11 +71,6 @@
     </string>
     <string name="text_message_clickable_sign_up">
         Regístrate
-    </string>
-
-    <!-- Fields -->
-    <string name="text_field_user_email">
-        correo electrónico
     </string>
 
     <!-- Buttons -->
@@ -139,11 +138,6 @@
          PROFILE
          ============================================================ -->
 
-    <!-- Theme -->
-    <string name="text_dark_theme">
-        Tema oscuro
-    </string>
-
     <!-- Fields -->
     <string name="text_field_profile_name">
         Nombre
@@ -160,7 +154,7 @@
         Factor Rh
     </string>
 
-    <!-- Profile values -->
+    <!-- Values -->
     <string name="text_profile_eps_value">
         EPS: %1$s
     </string>
@@ -169,6 +163,11 @@
     </string>
     <string name="text_not_registered">
         No registrado
+    </string>
+
+    <!-- Theme -->
+    <string name="text_dark_theme">
+        Tema oscuro
     </string>
 
     <!-- Buttons -->
@@ -306,7 +305,7 @@
         Hasta: %1$s
     </string>
 
-    <!-- Filter buttons -->
+    <!-- Actions -->
     <string name="text_apply">
         Aplicar
     </string>
@@ -314,15 +313,19 @@
         Limpiar filtro
     </string>
 
-    <!-- Filter descriptions -->
+    <!-- Descriptions -->
     <string name="description_expand_filters">
         Mostrar filtros
     </string>
     <string name="description_collapse_filters">
         Ocultar filtros
     </string>
-
-    <!-- Display mode -->
+    <string name="description_robbery_search_address">
+        Buscar dirección
+    </string>
+    <string name="description_robbery_my_location">
+        Ir a mi ubicación actual
+    </string>
     <string name="description_robbery_show_points">
         Mostrar puntos
     </string>
@@ -348,6 +351,7 @@
         No fue posible obtener la ubicación de la dirección.
     </string>
 
+    <!-- Reverse geocoding errors -->
     <string name="error_reverse_geocoding_address_not_found">
         No se encontró una dirección para la ubicación seleccionada.
     </string>
