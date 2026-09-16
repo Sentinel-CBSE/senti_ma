@@ -1,10 +1,12 @@
 package com.unal.senti_ma.di
 
 import com.unal.senti_ma.data.repository.AuthRepositoryImpl
+import com.unal.senti_ma.data.repository.GeocodingRepositoryImpl
 import com.unal.senti_ma.data.repository.RobberyRepositoryImpl
 import com.unal.senti_ma.data.repository.SettingsRepositoryImpl
 import com.unal.senti_ma.data.repository.UserRepositoryImpl
 import com.unal.senti_ma.domain.repository.AuthRepository
+import com.unal.senti_ma.domain.repository.GeocodingRepository
 import com.unal.senti_ma.domain.repository.RobberyRepository
 import com.unal.senti_ma.domain.repository.SettingsRepository
 import com.unal.senti_ma.domain.repository.UserRepository
@@ -19,18 +21,32 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
 
     @Binds
-    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+    abstract fun bindAuthRepository(
+        impl: AuthRepositoryImpl
+    ): AuthRepository
 
     @Binds
     @Singleton
-    abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+    abstract fun bindSettingsRepository(
+        impl: SettingsRepositoryImpl
+    ): SettingsRepository
 
     @Binds
     @Singleton
-    abstract fun bindRobberyRepository(impl: RobberyRepositoryImpl): RobberyRepository
+    abstract fun bindRobberyRepository(
+        impl: RobberyRepositoryImpl
+    ): RobberyRepository
 
     @Binds
     @Singleton
-    abstract fun bindUserRepository(impl: UserRepositoryImpl): UserRepository
+    abstract fun bindGeocodingRepository(
+        impl: GeocodingRepositoryImpl
+    ): GeocodingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(
+        impl: UserRepositoryImpl
+    ): UserRepository
 
 }

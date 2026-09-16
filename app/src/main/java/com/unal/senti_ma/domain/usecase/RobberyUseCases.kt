@@ -3,6 +3,7 @@ package com.unal.senti_ma.domain.usecase
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.HeatmapPoint
 import com.unal.senti_ma.domain.model.MapBounds
+import com.unal.senti_ma.domain.model.RobberyMapData
 import com.unal.senti_ma.domain.model.RobberyPoint
 import com.unal.senti_ma.domain.repository.RobberyRepository
 import javax.inject.Inject
@@ -19,19 +20,43 @@ class RobberyUseCases @Inject constructor(
         private const val FAR_PAST_TIMESTAMP = 0L // 1 ene 1970:
     }
 
-    suspend fun getHeatmapPoints(
+    suspend fun getRobberyMapData(
         mapBounds: MapBounds,
         fromTimestamp: Long?,
         toTimestamp: Long?,
         type: String?
-    ): AppResult<List<HeatmapPoint>> {
-        val effectiveFrom = fromTimestamp ?: FAR_PAST_TIMESTAMP
-        val effectiveTo = toTimestamp ?: System.currentTimeMillis()
+    ): AppResult<RobberyMapData> {
 
-        return when (val result =
-            robberyRepository.getRobberyPoints(mapBounds, effectiveFrom, effectiveTo, type)) {
-            is AppResult.Success -> AppResult.Success(aggregateIntoGrid(result.data, mapBounds))
+        val effectiveFrom =
+            fromTimestamp ?: FAR_PAST_TIMESTAMP
+
+        val effectiveTo =
+            toTimestamp ?: System.currentTimeMillis()
+
+        return when (
+            val result = robberyRepository.getRobberyPoints(
+                mapBounds = mapBounds,
+                fromTimestamp = effectiveFrom,
+                toTimestamp = effectiveTo,
+                type = type
+            )
+        ) {
+            is AppResult.Success -> {
+                val robberies = result.data
+
+                AppResult.Success(
+                    RobberyMapData(
+                        robberyPoints = robberies,
+                        heatmapPoints = aggregateIntoGrid(
+                            points = robberies,
+                            mapBounds = mapBounds
+                        )
+                    )
+                )
+            }
+
             is AppResult.Error -> result
+
             AppResult.Cancelled -> AppResult.Cancelled
         }
     }

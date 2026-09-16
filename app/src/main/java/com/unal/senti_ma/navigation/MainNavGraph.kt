@@ -7,9 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.unal.senti_ma.domain.model.User
 import com.unal.senti_ma.ui.screens.profile.ProfileScreen
+import com.unal.senti_ma.ui.screens.robbery.RobberyScreen
 import com.unal.senti_ma.ui.screens.robbery_detail.RobberyDetailScreen
-import com.unal.senti_ma.ui.screens.robbery_map.RobberyMapScreen
-import com.unal.senti_ma.ui.screens.robbery_search.RobberySearchScreen
 import com.unal.senti_ma.utils.navigateSingleTopTo
 
 @Composable
@@ -20,15 +19,12 @@ fun MainNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = RobberyMap.route,
+        startDestination = Robbery.route,
         modifier = modifier
     ) {
-        composable(route = RobberyMap.route) {
-            RobberyMapScreen()
-        }
 
-        composable(route = RobberySearch.route) {
-            RobberySearchScreen(
+        composable(route = Robbery.route) {
+            RobberyScreen(
                 onRobberyClick = { robberyId ->
                     navController.navigateSingleTopTo(
                         "${RobberyDetail.route}?${RobberyDetail.ID_ARG}=$robberyId"

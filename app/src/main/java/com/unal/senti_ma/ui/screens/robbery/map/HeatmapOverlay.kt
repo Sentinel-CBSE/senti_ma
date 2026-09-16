@@ -1,8 +1,10 @@
-package com.unal.senti_ma.ui.screens.robbery_map.map
+package com.unal.senti_ma.ui.screens.robbery.map
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Point
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RadialGradient
@@ -18,13 +20,15 @@ class HeatmapOverlay(
     private val radiusPx: Float = 80f
 ) : Overlay() {
 
-    private var cachedBitmap: android.graphics.Bitmap? = null
+    var isVisible = true
+
+    private var cachedBitmap: Bitmap? = null
     private var lastWidth = 0
     private var lastHeight = 0
 
     fun updatePoints(newPoints: List<HeatmapPoint>) {
         points = newPoints
-        cachedBitmap = null
+        invalidateCache()
     }
 
     fun invalidateCache() {
@@ -32,7 +36,7 @@ class HeatmapOverlay(
     }
 
     override fun draw(canvas: Canvas, mapView: MapView, shadow: Boolean) {
-        if (shadow || points.isEmpty()) return
+        if (!isVisible || shadow || points.isEmpty()) return
 
         val width = mapView.width
         val height = mapView.height
@@ -44,14 +48,16 @@ class HeatmapOverlay(
             lastHeight = height
         }
 
-        cachedBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
+        cachedBitmap?.let {
+            canvas.drawBitmap(it, 0f, 0f, null)
+        }
     }
 
     private fun buildHeatmapBitmap(
         mapView: MapView,
         width: Int,
         height: Int
-    ): android.graphics.Bitmap {
+    ): Bitmap {
         val intensityBitmap = createBitmap(width, height)
         val intensityCanvas = Canvas(intensityBitmap)
 
@@ -60,7 +66,7 @@ class HeatmapOverlay(
         }
 
         val projection = mapView.projection
-        val point = android.graphics.Point()
+        val point = Point()
 
         points.forEach { p ->
             projection.toPixels(GeoPoint(p.latitude, p.longitude), point)

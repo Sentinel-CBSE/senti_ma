@@ -38,8 +38,7 @@ fun AppBottomBar(
                     Text(
                         text = when (screen.route) {
                             "profile" -> stringResource(R.string.label_profile)
-                            "robbery_map" -> stringResource(R.string.label_robbery_map)
-                            else -> stringResource(R.string.label_robbery_search)
+                            else -> stringResource(R.string.label_robbery)
                         },
                         style = typography.bodySmall,
                     )

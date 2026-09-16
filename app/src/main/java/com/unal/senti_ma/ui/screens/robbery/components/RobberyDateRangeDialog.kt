@@ -1,4 +1,4 @@
-package com.unal.senti_ma.ui.screens.robbery_map.components
+package com.unal.senti_ma.ui.screens.robbery.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

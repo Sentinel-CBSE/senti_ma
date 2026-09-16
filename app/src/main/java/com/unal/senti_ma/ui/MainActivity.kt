@@ -21,7 +21,7 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.navigation.AuthNavGraph
 import com.unal.senti_ma.navigation.MainNavGraph
 import com.unal.senti_ma.navigation.Profile
-import com.unal.senti_ma.navigation.RobberyMap
+import com.unal.senti_ma.navigation.Robbery
 import com.unal.senti_ma.navigation.tabBarScreens
 import com.unal.senti_ma.ui.auth.AuthState
 import com.unal.senti_ma.ui.auth.AuthViewModel
@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
                                     AppTopBar(
                                         avatarUrl = state.user.photoUrl,
                                         onAvatarClick = { navController.navigateSingleTopTo(Profile.route) },
-                                        onHomeClick = { navController.navigateSingleTopTo(RobberyMap.route) },
+                                        onHomeClick = { navController.navigateSingleTopTo(Robbery.route) },
                                         modifier = Modifier.background(colorScheme.surfaceVariant)
                                     )
                                 }

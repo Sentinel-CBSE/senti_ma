@@ -1,4 +1,4 @@
-package com.unal.senti_ma.ui.screens.robbery_map.map
+package com.unal.senti_ma.ui.screens.robbery.map
 
 import android.content.Context
 import androidx.compose.runtime.Composable

@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
@@ -53,6 +54,7 @@ class RobberyRepositoryImpl @Inject constructor(
 
         return List(count) {
             RobberyPoint(
+                id = UUID.randomUUID().toString(),
                 latitude = Random.nextDouble(mapBounds.southLat, mapBounds.northLat),
                 longitude = Random.nextDouble(mapBounds.westLon, mapBounds.eastLon),
                 type = availableTypes.random(),

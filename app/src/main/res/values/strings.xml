@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <!-- ============================================================
@@ -5,9 +6,9 @@
          ============================================================ -->
 
     <string name="app_name">Sentinel</string>
+
     <string name="label_profile">Perfil</string>
-    <string name="label_robbery_map">Mapa</string>
-    <string name="label_robbery_search">Eventos</string>
+    <string name="label_robbery">Robo</string>
 
 
     <!-- ============================================================
@@ -16,22 +17,36 @@
 
     <!-- Buttons -->
     <string name="text_button_login">Iniciar sesión</string>
-    <string name="text_button_sign_in_with_google">Continuar con Google</string>
+    <string name="text_button_sign_in_with_google">
+        Continuar con Google
+    </string>
 
     <!-- Messages -->
-    <string name="text_message_clickable_forgot_password">"¿Olvidaste tu contraseña? "</string>
+    <string name="text_message_clickable_forgot_password">
+        ¿Olvidaste tu contraseña?
+    </string>
 
     <!-- Separators -->
     <string name="separator_line">-------- o --------</string>
 
     <!-- Errors -->
-    <string name="text_error_sign_in">Error al intentar ingresar</string>
-    <string name="text_error_smart_lock">Smart Lock error:</string>
-    <string name="text_error_email_not_verified">Correo no verificado</string>
-    <string name="text_error_email_already_exists">Usuario ya registrado</string>
+    <string name="text_error_sign_in">
+        Error al intentar ingresar
+    </string>
+    <string name="text_error_smart_lock">
+        Smart Lock error:
+    </string>
+    <string name="text_error_email_not_verified">
+        Correo no verificado
+    </string>
+    <string name="text_error_email_already_exists">
+        Usuario ya registrado
+    </string>
 
     <!-- Descriptions -->
-    <string name="description_icon_toggle_password_visibility">Cambiar visibilidad de contraseña</string>
+    <string name="description_icon_toggle_password_visibility">
+        Cambiar visibilidad de contraseña
+    </string>
 
 
     <!-- ============================================================
@@ -39,25 +54,43 @@
          ============================================================ -->
 
     <!-- Titles -->
-    <string name="title_forgot_password">Cambio de contraseña</string>
+    <string name="title_forgot_password">
+        Cambio de contraseña
+    </string>
 
     <!-- Messages -->
-    <string name="text_message_enter_email">Ingrese un correo electrónico:</string>
-    <string name="text_message_sign_up">"¿Aún no tienes cuenta? "</string>
-    <string name="text_message_clickable_sign_up">Regístrate</string>
+    <string name="text_message_enter_email">
+        Ingrese un correo electrónico:
+    </string>
+    <string name="text_message_sign_up">
+        ¿Aún no tienes cuenta?
+    </string>
+    <string name="text_message_clickable_sign_up">
+        Regístrate
+    </string>
 
     <!-- Fields -->
-    <string name="text_field_user_email">correo electrónico</string>
+    <string name="text_field_user_email">
+        correo electrónico
+    </string>
 
     <!-- Buttons -->
-    <string name="text_button_send_email">Recuperar contraseña</string>
+    <string name="text_button_send_email">
+        Recuperar contraseña
+    </string>
 
     <!-- Success -->
-    <string name="text_success_send_email">Correo enviado con éxito</string>
+    <string name="text_success_send_email">
+        Correo enviado con éxito
+    </string>
 
     <!-- Errors -->
-    <string name="text_error_required_fields_are_null">Campos requeridos nulos</string>
-    <string name="text_error_send_email">El correo suministrado es incorrecto</string>
+    <string name="text_error_required_fields_are_null">
+        Campos requeridos nulos
+    </string>
+    <string name="text_error_send_email">
+        El correo suministrado es incorrecto
+    </string>
 
 
     <!-- ============================================================
@@ -65,23 +98,41 @@
          ============================================================ -->
 
     <!-- Titles -->
-    <string name="title_sign_up">Registrar usuario</string>
+    <string name="title_sign_up">
+        Registrar usuario
+    </string>
 
     <!-- Fields -->
-    <string name="text_field_user_name">Nombre de usuario</string>
-    <string name="text_field_user_password">Contraseña</string>
-    <string name="text_field_user_password_confirmation">Repetir contraseña</string>
+    <string name="text_field_user_name">
+        Nombre de usuario
+    </string>
+    <string name="text_field_user_password">
+        Contraseña
+    </string>
+    <string name="text_field_user_password_confirmation">
+        Repetir contraseña
+    </string>
 
     <!-- Buttons -->
-    <string name="text_button_sign_up">Registrar usuario</string>
+    <string name="text_button_sign_up">
+        Registrar usuario
+    </string>
 
     <!-- Success -->
-    <string name="text_success_sign_up">Verifique su correo</string>
+    <string name="text_success_sign_up">
+        Verifique su correo
+    </string>
 
     <!-- Errors -->
-    <string name="text_error_passwords_fields_not_match">Las contraseñas no coinciden</string>
-    <string name="text_error_invalid_password_length">Longitud contraseña: 8</string>
-    <string name="text_error_sign_up">Error al crear el usuario</string>
+    <string name="text_error_passwords_fields_not_match">
+        Las contraseñas no coinciden
+    </string>
+    <string name="text_error_invalid_password_length">
+        Longitud contraseña: 8
+    </string>
+    <string name="text_error_sign_up">
+        Error al crear el usuario
+    </string>
 
 
     <!-- ============================================================
@@ -89,37 +140,71 @@
          ============================================================ -->
 
     <!-- Theme -->
-    <string name="description_icon_theme">Cambiar tema</string>
-    <string name="text_dark_theme">Tema oscuro</string>
+    <string name="text_dark_theme">
+        Tema oscuro
+    </string>
 
     <!-- Fields -->
-    <string name="text_field_profile_name">Nombre</string>
-    <string name="text_field_profile_eps">EPS</string>
+    <string name="text_field_profile_name">
+        Nombre
+    </string>
+    <string name="text_field_profile_eps">
+        EPS
+    </string>
 
     <!-- Blood type -->
-    <string name="text_profile_blood_type">Tipo de sangre</string>
-    <string name="text_profile_rh">Factor Rh</string>
+    <string name="text_profile_blood_type">
+        Tipo de sangre
+    </string>
+    <string name="text_profile_rh">
+        Factor Rh
+    </string>
 
     <!-- Profile values -->
-    <string name="text_profile_eps_value">EPS: %1$s</string>
-    <string name="text_profile_blood_type_value">Tipo de sangre: %1$s</string>
-    <string name="text_not_registered">No registrado</string>
+    <string name="text_profile_eps_value">
+        EPS: %1$s
+    </string>
+    <string name="text_profile_blood_type_value">
+        Tipo de sangre: %1$s
+    </string>
+    <string name="text_not_registered">
+        No registrado
+    </string>
 
     <!-- Buttons -->
-    <string name="text_button_edit_profile">Editar perfil</string>
-    <string name="text_button_save">Guardar</string>
-    <string name="text_button_cancel">Cancelar</string>
-    <string name="text_sign_out">Cerrar sesión</string>
+    <string name="text_button_edit_profile">
+        Editar perfil
+    </string>
+    <string name="text_button_save">
+        Guardar
+    </string>
+    <string name="text_button_cancel">
+        Cancelar
+    </string>
+    <string name="text_sign_out">
+        Cerrar sesión
+    </string>
 
     <!-- Success -->
-    <string name="text_success_update_profile">Perfil actualizado correctamente</string>
+    <string name="text_success_update_profile">
+        Perfil actualizado correctamente
+    </string>
 
     <!-- Errors -->
-    <string name="text_error_update_profile">No se pudo actualizar el perfil.</string>
+    <string name="text_error_update_profile">
+        No se pudo actualizar el perfil.
+    </string>
 
     <!-- Descriptions -->
-    <string name="description_icon_edit">Editar perfil</string>
-    <string name="description_icon_sign_out">Cerrar sesión</string>
+    <string name="description_icon_theme">
+        Cambiar tema
+    </string>
+    <string name="description_icon_edit">
+        Editar perfil
+    </string>
+    <string name="description_icon_sign_out">
+        Cerrar sesión
+    </string>
 
 
     <!-- ============================================================
@@ -127,63 +212,173 @@
          ============================================================ -->
 
     <!-- Section -->
-    <string name="text_emergency_contacts">Contactos de emergencia</string>
-    <string name="text_no_emergency_contacts">No tienes contactos de emergencia registrados.</string>
+    <string name="text_emergency_contacts">
+        Contactos de emergencia
+    </string>
+    <string name="text_no_emergency_contacts">
+        No tienes contactos de emergencia registrados.
+    </string>
 
     <!-- Titles -->
-    <string name="title_add_emergency_contact">Agregar contacto de emergencia</string>
-    <string name="title_edit_emergency_contact">Editar contacto de emergencia</string>
+    <string name="title_add_emergency_contact">
+        Agregar contacto de emergencia
+    </string>
+    <string name="title_edit_emergency_contact">
+        Editar contacto de emergencia
+    </string>
 
     <!-- Fields -->
-    <string name="text_field_contact_name">Nombre</string>
-    <string name="text_field_contact_phone">Teléfono</string>
-    <string name="text_field_contact_relationship">Parentesco</string>
+    <string name="text_field_contact_name">
+        Nombre
+    </string>
+    <string name="text_field_contact_phone">
+        Teléfono
+    </string>
+    <string name="text_field_contact_relationship">
+        Parentesco
+    </string>
 
     <!-- Descriptions -->
-    <string name="description_icon_add_contact">Agregar contacto</string>
-    <string name="description_icon_edit_contact">Editar contacto</string>
-    <string name="description_icon_delete_contact">Eliminar contacto</string>
+    <string name="description_icon_add_contact">
+        Agregar contacto
+    </string>
+    <string name="description_icon_edit_contact">
+        Editar contacto
+    </string>
+    <string name="description_icon_delete_contact">
+        Eliminar contacto
+    </string>
 
     <!-- Success -->
-    <string name="text_success_add_emergency_contact">Contacto agregado correctamente</string>
-    <string name="text_success_update_emergency_contact">Contacto actualizado correctamente</string>
-    <string name="text_success_delete_emergency_contact">Contacto eliminado correctamente</string>
+    <string name="text_success_add_emergency_contact">
+        Contacto agregado correctamente
+    </string>
+    <string name="text_success_update_emergency_contact">
+        Contacto actualizado correctamente
+    </string>
+    <string name="text_success_delete_emergency_contact">
+        Contacto eliminado correctamente
+    </string>
 
 
     <!-- ============================================================
-         ROBBERY MAP
+         ROBBERY
          ============================================================ -->
 
     <!-- Filters -->
-    <string name="text_robbery_date_range_title">Selecciona un rango de fechas</string>
-    <string name="text_robbery_type_label">Tipo de robo</string>
+    <string name="text_robbery_filters">
+        Filtros
+    </string>
 
-    <!-- Filter values -->
-    <string name="text_robbery_type_all">Todos</string>
-    <string name="text_robbery_type_armed">Robo armado</string>
-    <string name="text_robbery_type_theft">Hurto</string>
-    <string name="text_robbery_type_burglary">Robo a vivienda</string>
+    <!-- Robbery type -->
+    <string name="text_robbery_type_label">
+        Tipo de robo
+    </string>
+    <string name="text_robbery_type_all">
+        Todos
+    </string>
+    <string name="text_robbery_type_armed">
+        Robo armado
+    </string>
+    <string name="text_robbery_type_theft">
+        Hurto
+    </string>
+    <string name="text_robbery_type_burglary">
+        Robo a vivienda
+    </string>
 
-    <string name="text_date_filter_selected">Fechas</string>
-    <string name="text_date_filter_all">Todas las fechas</string>
+    <!-- Address -->
+    <string name="text_robbery_address_label">
+        Dirección
+    </string>
+    <string name="text_robbery_address_placeholder">
+        Escribe una dirección
+    </string>
 
-    <!-- Buttons -->
-    <string name="text_apply">Aplicar</string>
-    <string name="text_clear_filter">Limpiar filtro</string>
+    <!-- Date range -->
+    <string name="text_robbery_date_range_title">
+        Selecciona un rango de fechas
+    </string>
+    <string name="text_robbery_date_from">
+        Desde: %1$s
+    </string>
+    <string name="text_robbery_date_to">
+        Hasta: %1$s
+    </string>
+
+    <!-- Filter buttons -->
+    <string name="text_apply">
+        Aplicar
+    </string>
+    <string name="text_clear_filter">
+        Limpiar filtro
+    </string>
+
+    <!-- Filter descriptions -->
+    <string name="description_expand_filters">
+        Mostrar filtros
+    </string>
+    <string name="description_collapse_filters">
+        Ocultar filtros
+    </string>
+
+    <!-- Display mode -->
+    <string name="description_robbery_show_points">
+        Mostrar puntos
+    </string>
+    <string name="description_robbery_show_heatmap">
+        Mostrar mapa de calor
+    </string>
 
     <!-- Errors -->
-    <string name="text_error_get_heatmap">No se pudo obtener el mapa de calor</string>
-    <string name="text_location_permission_denied">Permiso de ubicación denegado</string>
+    <string name="text_error_get_heatmap">
+        No se pudo obtener el mapa de calor
+    </string>
+
+    <string name="text_location_permission_denied">
+        Permiso de ubicación negado
+    </string>
+
+    <!-- Geocoding errors -->
+    <string name="error_geocoding_address_not_found">
+        No se encontró la dirección indicada.
+    </string>
+
+    <string name="error_geocoding_failed">
+        No fue posible obtener la ubicación de la dirección.
+    </string>
+
+    <string name="error_reverse_geocoding_address_not_found">
+        No se encontró una dirección para la ubicación seleccionada.
+    </string>
+
+    <string name="error_reverse_geocoding_failed">
+        No fue posible obtener la dirección de la ubicación.
+    </string>
 
 
     <!-- ============================================================
          GENERAL / SHARED UI
          ============================================================ -->
 
-    <string name="description_tab_for">Selección a %1$s</string>
-    <string name="description_app_icon">Imagen del icono</string>
-    <string name="description_icon_return_to_login">Volver al Login</string>
-    <string name="description_avatar_image">Avatar del usuario</string>
-    <string name="description_home_icon">Icono home</string>
+    <string name="description_tab_for">
+        Selección a %1$s
+    </string>
+
+    <string name="description_app_icon">
+        Imagen del icono
+    </string>
+
+    <string name="description_icon_return_to_login">
+        Volver al Login
+    </string>
+
+    <string name="description_avatar_image">
+        Avatar del usuario
+    </string>
+
+    <string name="description_home_icon">
+        Icono home
+    </string>
 
 </resources>
