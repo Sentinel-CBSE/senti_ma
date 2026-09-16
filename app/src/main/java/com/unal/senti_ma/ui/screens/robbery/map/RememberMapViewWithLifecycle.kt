@@ -20,21 +20,8 @@ fun rememberMapViewWithLifecycle(
         }
     }
 
-    val lifecycleObserver = rememberMapLifecycleObserver(mapView)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    DisposableEffect(lifecycle) {
-        lifecycle.addObserver(lifecycleObserver)
-        onDispose {
-            lifecycle.removeObserver(lifecycleObserver)
-        }
-    }
-
-    return mapView
-}
-
-@Composable
-fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
-    remember(mapView) {
+    val lifecycleObserver = remember(mapView) {
         LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> mapView.onResume()
@@ -43,3 +30,14 @@ fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
             }
         }
     }
+
+    DisposableEffect(lifecycle, mapView) {
+        lifecycle.addObserver(lifecycleObserver)
+        onDispose {
+            lifecycle.removeObserver(lifecycleObserver)
+            mapView.onDetach()
+        }
+    }
+
+    return mapView
+}

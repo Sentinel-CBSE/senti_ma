@@ -63,4 +63,27 @@ class RobberyRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun createRobberyReport(
+        type: String,
+        latitude: Double,
+        longitude: Double,
+        timestamp: Long
+    ): AppResult<Unit> {
+        return try {
+            withContext(Dispatchers.IO) {
+                // TODO: reemplazar por la llamada real:
+                // sentinelApi.createRobberyReport(type = type, latitude = latitude, longitude = longitude, timestamp = timestamp)
+                delay(500.milliseconds)
+            }
+
+            AppResult.Success(Unit)
+        } catch (_: Exception) {
+            AppResult.Error(
+                context.getString(
+                    R.string.text_error_create_robbery
+                )
+            )
+        }
+    }
+
 }

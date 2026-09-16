@@ -15,43 +15,34 @@ class RobberyPointMarkers(
     fun updatePoints(points: List<RobberyPoint>) {
         clearMarkers()
 
-        points.forEach { robbery ->
-            val marker = Marker(mapView).apply {
-                position = GeoPoint(
-                    robbery.latitude,
-                    robbery.longitude
-                )
-
-                setAnchor(
-                    Marker.ANCHOR_CENTER,
-                    Marker.ANCHOR_BOTTOM
-                )
-
+        val newMarkers = points.map { robbery ->
+            Marker(mapView).apply {
+                position = GeoPoint(robbery.latitude, robbery.longitude)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 setOnMarkerClickListener { _, _ ->
                     onRobberyClick(robbery.id)
                     true
                 }
             }
-
-            markers += marker
-            mapView.overlays.add(marker)
         }
+
+        markers.addAll(newMarkers)
+        mapView.overlays.addAll(newMarkers)
+        mapView.invalidate()
     }
 
     fun setVisible(visible: Boolean) {
         markers.forEach { marker ->
             marker.isEnabled = visible
         }
-
         mapView.invalidate()
     }
 
     private fun clearMarkers() {
-        markers.forEach { marker ->
-            mapView.overlays.remove(marker)
+        if (markers.isNotEmpty()) {
+            mapView.overlays.removeAll(markers)
+            markers.clear()
         }
-
-        markers.clear()
     }
 
     fun clear() {

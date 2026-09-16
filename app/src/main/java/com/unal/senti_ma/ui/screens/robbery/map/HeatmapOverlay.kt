@@ -32,6 +32,7 @@ class HeatmapOverlay(
     }
 
     fun invalidateCache() {
+        cachedBitmap?.recycle()
         cachedBitmap = null
     }
 
@@ -40,9 +41,10 @@ class HeatmapOverlay(
 
         val width = mapView.width
         val height = mapView.height
-        if (width == 0 || height == 0) return
+        if (width <= 0 || height <= 0) return
 
         if (cachedBitmap == null || lastWidth != width || lastHeight != height) {
+            invalidateCache()
             cachedBitmap = buildHeatmapBitmap(mapView, width, height)
             lastWidth = width
             lastHeight = height
@@ -89,6 +91,8 @@ class HeatmapOverlay(
         val heatBitmap = createBitmap(width, height)
         val pixels = IntArray(width * height)
         intensityBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        intensityBitmap.recycle()
 
         for (i in pixels.indices) {
             val alpha = Color.alpha(pixels[i])

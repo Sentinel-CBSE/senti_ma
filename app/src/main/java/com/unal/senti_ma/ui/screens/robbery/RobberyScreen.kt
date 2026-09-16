@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +47,7 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.model.MapBounds
-import com.unal.senti_ma.ui.screens.robbery.components.LocationPermissionHandler
+import com.unal.senti_ma.ui.shared.LocationPermissionHandler
 import com.unal.senti_ma.ui.screens.robbery.components.RobberyDateRangeDialog
 import com.unal.senti_ma.ui.screens.robbery.components.RobberyFilters
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyUiEvent
@@ -62,6 +63,10 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
+private class LocationOverlayRef {
+    var overlay: MyLocationNewOverlay? = null
+}
+
 @Composable
 fun RobberyScreen(
     modifier: Modifier = Modifier,
@@ -72,7 +77,9 @@ fun RobberyScreen(
 
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle(context)
-    val heatmapOverlay = remember { HeatmapOverlay() }
+    val heatmapOverlay = remember {
+        HeatmapOverlay()
+    }
 
     var showDateDialog by remember {
         mutableStateOf(false)
@@ -90,8 +97,8 @@ fun RobberyScreen(
         mutableStateOf(false)
     }
 
-    var locationOverlay by remember {
-        mutableStateOf<MyLocationNewOverlay?>(null)
+    val locationOverlayRef = remember {
+        LocationOverlayRef()
     }
 
     val pointMarkers = remember(mapView) {
@@ -128,7 +135,6 @@ fun RobberyScreen(
         onPermissionDenied = {
             hasLocationPermission = false
             hasCenteredOnLocation = false
-            locationOverlay = null
 
             Toast.makeText(
                 context,
@@ -204,6 +210,58 @@ fun RobberyScreen(
         mapView.invalidate()
     }
 
+    DisposableEffect(
+        mapView,
+        hasLocationPermission
+    ) {
+        if (hasLocationPermission) {
+            val overlay = MyLocationNewOverlay(
+                GpsMyLocationProvider(context),
+                mapView
+            ).apply {
+                enableMyLocation()
+                isDrawAccuracyEnabled = true
+            }
+
+            locationOverlayRef.overlay = overlay
+
+            mapView.overlays.add(overlay)
+
+            overlay.runOnFirstFix {
+                val location = overlay.myLocation
+                    ?: return@runOnFirstFix
+
+                mapView.post {
+                    if (!hasCenteredOnLocation) {
+                        hasCenteredOnLocation = true
+
+                        mapView.controller.setZoom(15.0)
+
+                        mapView.controller.animateTo(
+                            location
+                        )
+
+                        updateMapPosition()
+                    }
+                }
+            }
+
+            mapView.invalidate()
+        }
+
+        onDispose {
+            locationOverlayRef.overlay?.disableMyLocation()
+
+            locationOverlayRef.overlay?.let { overlay ->
+                mapView.overlays.remove(overlay)
+            }
+
+            locationOverlayRef.overlay = null
+
+            mapView.invalidate()
+        }
+    }
+
     DisposableEffect(mapView) {
         onDispose {
             pointMarkers.clear()
@@ -265,14 +323,14 @@ fun RobberyScreen(
                     )
                 },
                 label = {
-                    androidx.compose.material3.Text(
+                    Text(
                         text = stringResource(
                             R.string.text_robbery_address_label
                         )
                     )
                 },
                 placeholder = {
-                    androidx.compose.material3.Text(
+                    Text(
                         text = stringResource(
                             R.string.text_robbery_address_placeholder
                         )
@@ -313,10 +371,11 @@ fun RobberyScreen(
                         RobberyUiEvent.UpdateMapToPosition
                     )
                 },
-                enabled = robberyViewModel.selectedAddress.isNotBlank()
+                enabled =
+                    robberyViewModel.selectedAddress.isNotBlank()
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Search,
+                    imageVector = Icons.Default.Search,
                     contentDescription = stringResource(
                         R.string.description_robbery_search_address
                     )
@@ -411,55 +470,7 @@ fun RobberyScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .clipToBounds(),
-                update = { map ->
-                    if (locationOverlay == null) {
-                        locationOverlay =
-                            map.overlays
-                                .filterIsInstance<MyLocationNewOverlay>()
-                                .firstOrNull()
-                    }
-
-                    if (
-                        hasLocationPermission &&
-                        locationOverlay == null
-                    ) {
-                        locationOverlay =
-                            MyLocationNewOverlay(
-                                GpsMyLocationProvider(context),
-                                map
-                            )
-
-                        map.overlays.add(
-                            locationOverlay!!
-                        )
-
-                        locationOverlay!!.enableMyLocation()
-
-                        locationOverlay!!.runOnFirstFix {
-                            val location =
-                                locationOverlay!!.myLocation
-                                    ?: return@runOnFirstFix
-
-                            map.post {
-                                if (!hasCenteredOnLocation) {
-                                    hasCenteredOnLocation = true
-
-                                    map.controller.setZoom(
-                                        15.0
-                                    )
-
-                                    map.controller.animateTo(
-                                        location
-                                    )
-
-                                    updateMapPosition()
-                                }
-                            }
-                        }
-
-                        map.invalidate()
-                    }
-                }
+                update = {}
             )
 
             Icon(
@@ -474,7 +485,7 @@ fun RobberyScreen(
             FloatingActionButton(
                 onClick = {
                     val location =
-                        locationOverlay?.myLocation
+                        locationOverlayRef.overlay?.myLocation
 
                     if (location != null) {
                         mapView.controller.setZoom(15.0)
@@ -486,6 +497,12 @@ fun RobberyScreen(
                         mapView.post {
                             updateMapPosition()
                         }
+                    } else {
+                        Toast.makeText(
+                            context,
+                            R.string.text_location_not_available_yet,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 },
                 modifier = Modifier

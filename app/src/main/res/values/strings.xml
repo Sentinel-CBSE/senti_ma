@@ -6,8 +6,10 @@
          ============================================================ -->
 
     <string name="app_name">Sentinel</string>
+
     <string name="label_profile">Perfil</string>
-    <string name="label_robbery">Robo</string>
+    <string name="label_report">Reporte</string>
+    <string name="label_robbery">Mapa</string>
 
 
     <!-- ============================================================
@@ -33,13 +35,13 @@
         Error al intentar ingresar
     </string>
     <string name="text_error_smart_lock">
-        Smart Lock error:
+        Error de Smart Lock
     </string>
     <string name="text_error_email_not_verified">
         Correo no verificado
     </string>
     <string name="text_error_email_already_exists">
-        Usuario ya registrado
+        El usuario ya está registrado
     </string>
 
     <!-- Descriptions -->
@@ -59,12 +61,12 @@
 
     <!-- Fields -->
     <string name="text_field_user_email">
-        correo electrónico
+        Correo electrónico
     </string>
 
     <!-- Messages -->
     <string name="text_message_enter_email">
-        Ingrese un correo electrónico:
+        Ingresa un correo electrónico:
     </string>
     <string name="text_message_sign_up">
         ¿Aún no tienes cuenta?
@@ -85,10 +87,10 @@
 
     <!-- Errors -->
     <string name="text_error_required_fields_are_null">
-        Campos requeridos nulos
+        Hay campos requeridos sin completar
     </string>
     <string name="text_error_send_email">
-        El correo suministrado es incorrecto
+        El correo suministrado no es válido
     </string>
 
 
@@ -119,7 +121,7 @@
 
     <!-- Success -->
     <string name="text_success_sign_up">
-        Verifique su correo
+        Verifica tu correo electrónico
     </string>
 
     <!-- Errors -->
@@ -127,7 +129,7 @@
         Las contraseñas no coinciden
     </string>
     <string name="text_error_invalid_password_length">
-        Longitud contraseña: 8
+        La contraseña debe tener al menos 8 caracteres
     </string>
     <string name="text_error_sign_up">
         Error al crear el usuario
@@ -333,13 +335,15 @@
         Mostrar mapa de calor
     </string>
 
-    <!-- Errors -->
+    <!-- Status / Errors -->
+    <string name="text_location_not_available_yet">
+        Ubicación no disponible aún
+    </string>
     <string name="text_error_get_heatmap">
         No se pudo obtener el mapa de calor
     </string>
-
     <string name="text_location_permission_denied">
-        Permiso de ubicación negado
+        Permiso de ubicación denegado
     </string>
 
     <!-- Geocoding errors -->
@@ -362,6 +366,59 @@
 
 
     <!-- ============================================================
+         REPORT
+         ============================================================ -->
+
+    <string name="title_report">
+        Reportar incidente
+    </string>
+
+    <string name="text_report_description">
+        Mantén presionado el tipo de incidente durante 3 segundos para reportarlo.
+    </string>
+
+    <string name="text_report_armed_robbery">
+        Robo con arma
+    </string>
+
+    <string name="text_report_theft">
+        Hurto
+    </string>
+
+    <string name="text_report_burglary">
+        Robo a vivienda
+    </string>
+
+    <string name="text_hold_to_report">
+        Mantén presionado para reportar
+    </string>
+
+    <string name="text_report_confirming">
+        El reporte se enviará en unos segundos
+    </string>
+
+    <string name="text_location_unavailable">
+        No se pudo obtener tu ubicación. Intenta nuevamente.
+    </string>
+
+    <string name="text_creating_report">
+        Creando reporte…
+    </string>
+
+    <string name="text_report_created">
+        Reporte creado correctamente
+    </string>
+
+    <string name="text_cancel">
+        Cancelar
+    </string>
+
+    <string name="text_error_create_robbery">
+        No se pudo crear el reporte de robo.
+    </string>
+
+
+    <!-- ============================================================
          GENERAL / SHARED UI
          ============================================================ -->
 
@@ -374,7 +431,7 @@
     </string>
 
     <string name="description_icon_return_to_login">
-        Volver al Login
+        Volver al inicio de sesión
     </string>
 
     <string name="description_avatar_image">
@@ -382,7 +439,7 @@
     </string>
 
     <string name="description_home_icon">
-        Icono home
+        Icono de inicio
     </string>
 
 </resources>

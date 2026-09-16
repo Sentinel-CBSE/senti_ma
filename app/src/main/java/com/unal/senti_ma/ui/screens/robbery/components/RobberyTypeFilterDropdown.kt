@@ -1,7 +1,6 @@
 package com.unal.senti_ma.ui.screens.robbery.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -35,8 +34,8 @@ fun RobberyTypeFilterDropdown(
     var isExpanded by remember { mutableStateOf(false) }
 
     val selectedLabel = ROBBERY_TYPES
-        .first { it.first == selectedType }
-        .second
+        .firstOrNull { it.first == selectedType }?.second
+        ?: R.string.text_robbery_type_all
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
@@ -54,11 +53,9 @@ fun RobberyTypeFilterDropdown(
                 .fillMaxWidth()
         )
 
-        DropdownMenu(
+        ExposedDropdownMenu(
             expanded = isExpanded,
-            onDismissRequest = {
-                isExpanded = false
-            }
+            onDismissRequest = { isExpanded = false }
         ) {
             ROBBERY_TYPES.forEach { (typeValue, labelRes) ->
                 DropdownMenuItem(
@@ -66,7 +63,8 @@ fun RobberyTypeFilterDropdown(
                     onClick = {
                         isExpanded = false
                         onTypeSelected(typeValue)
-                    }
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
         }

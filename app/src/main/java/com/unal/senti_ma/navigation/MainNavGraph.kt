@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.unal.senti_ma.domain.model.User
 import com.unal.senti_ma.ui.screens.profile.ProfileScreen
+import com.unal.senti_ma.ui.screens.report.ReportScreen
 import com.unal.senti_ma.ui.screens.robbery.RobberyScreen
 import com.unal.senti_ma.ui.screens.robbery_detail.RobberyDetailScreen
 import com.unal.senti_ma.utils.navigateSingleTopTo
@@ -19,9 +20,17 @@ fun MainNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Robbery.route,
+        startDestination = Report.route,
         modifier = modifier
     ) {
+
+        composable(route = Profile.route) {
+            ProfileScreen()
+        }
+
+        composable(route = Report.route) {
+            ReportScreen()
+        }
 
         composable(route = Robbery.route) {
             RobberyScreen(
@@ -41,10 +50,6 @@ fun MainNavGraph(
             if (robberyId != null) {
                 RobberyDetailScreen(robberyId = robberyId)
             }
-        }
-
-        composable(route = Profile.route) {
-            ProfileScreen()
         }
     }
 }

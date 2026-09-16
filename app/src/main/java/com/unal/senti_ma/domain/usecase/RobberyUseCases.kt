@@ -90,4 +90,17 @@ class RobberyUseCases @Inject constructor(
         }
     }
 
+    suspend fun createRobberyReport(
+        type: String,
+        latitude: Double,
+        longitude: Double
+    ): AppResult<Unit> {
+        return robberyRepository.createRobberyReport(
+            type = type,
+            latitude = latitude,
+            longitude = longitude,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
 }

@@ -1,8 +1,10 @@
 package com.unal.senti_ma.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,10 +21,16 @@ data object Profile : TabBarDestination {
     override val unSelectedIcon = Icons.Outlined.PersonOutline
 }
 
+data object Report : TabBarDestination {
+    override val route = "report"
+    override val selectedIcon = Icons.Filled.AddCircle
+    override val unSelectedIcon = Icons.Outlined.AddCircleOutline
+}
+
 data object Robbery : TabBarDestination {
     override val route = "robbery"
     override val selectedIcon = Icons.Filled.Map
     override val unSelectedIcon = Icons.Outlined.Map
 }
 
-val tabBarScreens = listOf(Profile, Robbery)
+val tabBarScreens = listOf(Profile, Report, Robbery)

@@ -1,4 +1,4 @@
-package com.unal.senti_ma.ui.screens.robbery.components
+package com.unal.senti_ma.ui.shared
 
 import android.Manifest
 import android.content.pm.PackageManager

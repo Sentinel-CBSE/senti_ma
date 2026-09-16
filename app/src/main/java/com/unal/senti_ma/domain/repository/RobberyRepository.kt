@@ -13,4 +13,11 @@ interface RobberyRepository {
         type: String?
     ): AppResult<List<RobberyPoint>>
 
+    suspend fun createRobberyReport(
+        type: String,
+        latitude: Double,
+        longitude: Double,
+        timestamp: Long
+    ): AppResult<Unit>
+
 }
