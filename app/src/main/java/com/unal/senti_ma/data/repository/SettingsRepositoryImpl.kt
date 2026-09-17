@@ -13,15 +13,30 @@ class SettingsRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) : SettingsRepository {
 
-    private val darkThemeKey = booleanPreferencesKey("is_dark_theme")
+    private val darkThemeKey =
+        booleanPreferencesKey("is_dark_theme")
+    private val locationTrackingEnabledKey =
+        booleanPreferencesKey("location_tracking_enabled")
 
-    override val isDarkTheme: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[darkThemeKey] ?: false
-    }
+    override val isDarkTheme: Flow<Boolean> =
+        dataStore.data.map { prefs ->
+            prefs[darkThemeKey] ?: false
+        }
+
+    override val isLocationTrackingEnabled: Flow<Boolean> =
+        dataStore.data.map { prefs ->
+            prefs[locationTrackingEnabledKey] ?: false
+        }
 
     override suspend fun setDarkTheme(enabled: Boolean) {
         dataStore.edit { prefs ->
             prefs[darkThemeKey] = enabled
+        }
+    }
+
+    override suspend fun setLocationTrackingEnabled(enabled: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[locationTrackingEnabledKey] = enabled
         }
     }
 

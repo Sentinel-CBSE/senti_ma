@@ -13,8 +13,8 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 
 class GeocodingRepositoryImpl @Inject constructor(
-    private val geocoder: Geocoder,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val geocoder: Geocoder
 ) : GeocodingRepository {
 
     override suspend fun getCoordinatesFromAddress(

@@ -21,7 +21,7 @@ hiltAndroid = "2.60.1"
 hiltNavigationCompose = "1.4.0"
 
 # Auth / Credentials
-googleid = "1.2.0"
+googleid = "1.2.1"
 credentials = "1.6.0"
 credentialsPlayServicesAuth = "1.6.0"
 playServicesAuth = "22.0.0"
@@ -37,6 +37,9 @@ okhttp = "5.5.0"
 # Maps
 osmdroidAndroid = "6.1.20"
 osmbonuspack = "6.4"
+
+# Location
+playServicesLocation = "21.4.0"
 
 # Firebase
 firebaseBom = "34.19.0"
@@ -82,6 +85,9 @@ squareup-okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-inte
 # Maps
 org-osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroidAndroid" }
 com-osmbonuspack = { group = "com.github.MKergall", name = "osmbonuspack", version.ref = "osmbonuspack" }
+
+# Location
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 
 # Compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }

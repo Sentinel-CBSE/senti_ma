@@ -13,7 +13,14 @@ class SettingsUseCases @Inject constructor(
     fun observeDarkTheme(): Flow<Boolean> =
         settingsRepository.isDarkTheme
 
+    fun observeLocationTracking(): Flow<Boolean> =
+        settingsRepository.isLocationTrackingEnabled
+
     suspend fun setDarkTheme(enabled: Boolean) =
         settingsRepository.setDarkTheme(enabled)
+
+    suspend fun setLocationTrackingEnabled(enabled: Boolean) {
+        settingsRepository.setLocationTrackingEnabled(enabled)
+    }
 
 }

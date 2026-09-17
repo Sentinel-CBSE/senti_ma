@@ -442,4 +442,16 @@
         Icono de inicio
     </string>
 
+
+    <string name="text_error_send_location">
+    No se pudo enviar la ubicación
+</string>
+
+    <string name="notification_location_tracking">Seguimiento de ubicación activo</string>
+
+    <string name="notification_location_channel">Location tracking</string>
+
+    <string name="text_location_tracking">Location tracking</string>
+    <string name="description_icon_location_tracking">Location tracking</string>
+
 </resources>

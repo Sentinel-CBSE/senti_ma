@@ -23,19 +23,28 @@ import com.unal.senti_ma.ui.screens.profile.components.EmergencyContactDialog
 import com.unal.senti_ma.ui.screens.profile.components.ProfileContent
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 import com.unal.senti_ma.ui.screens.profile.events.ProfileViewModelEvent
-import com.unal.senti_ma.ui.settings.ThemeViewModel
+import com.unal.senti_ma.ui.settings.SettingsViewModel
+import com.unal.senti_ma.ui.shared.LocationTrackingPermissionHandler
+import com.unal.senti_ma.ui.location.LocationViewModel
 import java.util.UUID
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     profileViewModel: ProfileViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    locationViewModel: LocationViewModel = hiltViewModel()
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
-    val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+    val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
+    val isLocationTrackingEnabled by
+    locationViewModel.isLocationTrackingEnabled.collectAsState()
 
     val context = LocalContext.current
+
+    var requestLocationTrackingPermission by remember {
+        mutableStateOf(false)
+    }
 
     var showAddContactDialog by remember {
         mutableStateOf(false)
@@ -44,6 +53,17 @@ fun ProfileScreen(
     var editingContact by remember {
         mutableStateOf<EmergencyContact?>(null)
     }
+
+    LocationTrackingPermissionHandler(
+        request = requestLocationTrackingPermission,
+        onPermissionGranted = {
+            requestLocationTrackingPermission = false
+            locationViewModel.startTracking()
+        },
+        onPermissionDenied = {
+            requestLocationTrackingPermission = false
+        }
+    )
 
     LaunchedEffect(Unit) {
         profileViewModel.viewModelEvent.collect { event ->
@@ -89,13 +109,26 @@ fun ProfileScreen(
                 isUpdating = profileViewModel.isUpdating,
                 userUpdate = profileViewModel.userUpdate,
                 isDarkTheme = isDarkTheme,
-                onToggleTheme = {
-                    themeViewModel.setDarkTheme(it)
+                isLocationTrackingEnabled = isLocationTrackingEnabled,
+
+                onToggleTheme = { enabled ->
+                    settingsViewModel.setDarkTheme(enabled)
                 },
+
+                onToggleLocationTracking = { enabled ->
+                    if (enabled) {
+                        requestLocationTrackingPermission = true
+                    } else {
+                        locationViewModel.stopTracking()
+                    }
+                },
+
                 onEvent = profileViewModel::onEvent,
+
                 onAddContact = {
                     showAddContactDialog = true
                 },
+
                 onEditContact = {
                     editingContact = it
                 }

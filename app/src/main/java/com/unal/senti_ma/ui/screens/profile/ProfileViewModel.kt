@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
+import com.unal.senti_ma.data.mappers.toUserUpdate
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.User
 import com.unal.senti_ma.domain.model.UserUpdate
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val authUseCases: AuthUseCases,
-    private val userUseCases: UserUseCases
+    private val userUseCases: UserUseCases,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Idle)
@@ -251,13 +252,5 @@ class ProfileViewModel @Inject constructor(
             )
         }
     }
-}
 
-private fun User.toUserUpdate(): UserUpdate {
-    return UserUpdate(
-        displayName = displayName.orEmpty(),
-        bloodTypeLetter = bloodTypeLetter,
-        bloodTypeRh = bloodTypeRh,
-        eps = eps.orEmpty()
-    )
 }

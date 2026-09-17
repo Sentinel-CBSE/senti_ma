@@ -11,16 +11,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ThemeViewModel @Inject constructor(
+class SettingsViewModel @Inject constructor(
     private val settingsUseCases: SettingsUseCases
 ) : ViewModel() {
 
-    val isDarkTheme: StateFlow<Boolean?> = settingsUseCases.observeDarkTheme()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null
-        )
+    val isDarkTheme: StateFlow<Boolean?> =
+        settingsUseCases.observeDarkTheme()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = null
+            )
 
     fun setDarkTheme(enabled: Boolean) {
         viewModelScope.launch {

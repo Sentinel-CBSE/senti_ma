@@ -2,11 +2,13 @@ package com.unal.senti_ma.di
 
 import com.unal.senti_ma.data.repository.AuthRepositoryImpl
 import com.unal.senti_ma.data.repository.GeocodingRepositoryImpl
+import com.unal.senti_ma.data.repository.LocationRepositoryImpl
 import com.unal.senti_ma.data.repository.RobberyRepositoryImpl
 import com.unal.senti_ma.data.repository.SettingsRepositoryImpl
 import com.unal.senti_ma.data.repository.UserRepositoryImpl
 import com.unal.senti_ma.domain.repository.AuthRepository
 import com.unal.senti_ma.domain.repository.GeocodingRepository
+import com.unal.senti_ma.domain.repository.LocationRepository
 import com.unal.senti_ma.domain.repository.RobberyRepository
 import com.unal.senti_ma.domain.repository.SettingsRepository
 import com.unal.senti_ma.domain.repository.UserRepository
@@ -48,5 +50,11 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         impl: UserRepositoryImpl
     ): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLocationRepository(
+        impl: LocationRepositoryImpl
+    ): LocationRepository
 
 }

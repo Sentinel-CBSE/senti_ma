@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -35,16 +36,20 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.BloodTypeLetter
 import com.unal.senti_ma.domain.enums.BloodTypeRh
 import com.unal.senti_ma.domain.model.EmergencyContact
+import com.unal.senti_ma.domain.model.User
+import com.unal.senti_ma.domain.model.UserUpdate
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 
 @Composable
 fun ProfileContent(
-    user: com.unal.senti_ma.domain.model.User,
+    user: User,
     isEditing: Boolean,
     isUpdating: Boolean,
-    userUpdate: com.unal.senti_ma.domain.model.UserUpdate?,
+    userUpdate: UserUpdate?,
     isDarkTheme: Boolean?,
+    isLocationTrackingEnabled: Boolean,
     onToggleTheme: (Boolean) -> Unit,
+    onToggleLocationTracking: (Boolean) -> Unit,
     onEvent: (ProfileUiEvent) -> Unit,
     onAddContact: () -> Unit,
     onEditContact: (EmergencyContact) -> Unit
@@ -94,6 +99,46 @@ fun ProfileContent(
                         )
                     )
                 }
+            }
+        }
+
+        item {
+            TextButton(
+                onClick = {
+                    onToggleLocationTracking(
+                        !isLocationTrackingEnabled
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isUpdating
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = stringResource(
+                        R.string.description_icon_location_tracking
+                    )
+                )
+
+                Text(
+                    text = stringResource(
+                        R.string.text_location_tracking
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 16.dp)
+                )
+
+                Switch(
+                    checked = isLocationTrackingEnabled,
+                    onCheckedChange = onToggleLocationTracking,
+                    enabled = !isUpdating,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor =
+                            MaterialTheme.colorScheme.primary,
+                        checkedTrackColor =
+                            MaterialTheme.colorScheme.primaryContainer
+                    )
+                )
             }
         }
 
@@ -183,10 +228,14 @@ fun ProfileContent(
                                 )
                             },
                             enabled = !isUpdating,
-                            colors = if (userUpdate.bloodTypeLetter == bloodType) {
+                            colors = if (
+                                userUpdate.bloodTypeLetter == bloodType
+                            ) {
                                 ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                    containerColor =
+                                        MaterialTheme.colorScheme.primary,
+                                    contentColor =
+                                        MaterialTheme.colorScheme.onPrimary
                                 )
                             } else {
                                 ButtonDefaults.outlinedButtonColors()
@@ -224,10 +273,14 @@ fun ProfileContent(
                                 )
                             },
                             enabled = !isUpdating,
-                            colors = if (userUpdate.bloodTypeRh == rh) {
+                            colors = if (
+                                userUpdate.bloodTypeRh == rh
+                            ) {
                                 ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                    containerColor =
+                                        MaterialTheme.colorScheme.primary,
+                                    contentColor =
+                                        MaterialTheme.colorScheme.onPrimary
                                 )
                             } else {
                                 ButtonDefaults.outlinedButtonColors()

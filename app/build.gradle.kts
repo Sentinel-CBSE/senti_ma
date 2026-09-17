@@ -81,6 +81,8 @@ dependencies {
         exclude(group = "com.android.support", module = "support-v4")
     }
 
+    implementation(libs.play.services.location)
+
     implementation(composeBom)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)

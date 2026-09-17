@@ -25,7 +25,7 @@ import com.unal.senti_ma.navigation.Robbery
 import com.unal.senti_ma.navigation.tabBarScreens
 import com.unal.senti_ma.ui.auth.AuthState
 import com.unal.senti_ma.ui.auth.AuthViewModel
-import com.unal.senti_ma.ui.settings.ThemeViewModel
+import com.unal.senti_ma.ui.settings.SettingsViewModel
 import com.unal.senti_ma.ui.shared.AppBottomBar
 import com.unal.senti_ma.ui.shared.AppTopBar
 import com.unal.senti_ma.ui.theme.Senti_maTheme
@@ -52,8 +52,8 @@ class MainActivity : ComponentActivity() {
             "Senti-MA/1.0 (com.unal.senti_ma, contact: dbustos@unal.edu.co)"
 
         setContent {
-            val themeViewModel: ThemeViewModel = hiltViewModel()
-            val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
 
             isDarkTheme?.let { darkTheme ->
                 Senti_maTheme(darkTheme = darkTheme) {
