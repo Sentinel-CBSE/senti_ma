@@ -419,6 +419,34 @@
 
 
     <!-- ============================================================
+         LOCATION TRACKING
+         ============================================================ -->
+
+    <!-- Status / Errors -->
+    <string name="text_error_send_location">
+        No se pudo enviar la ubicación
+    </string>
+
+    <string name="text_location_tracking">
+        Seguimiento de ubicación
+    </string>
+
+    <!-- Foreground service notification -->
+    <string name="notification_location_tracking">
+        Seguimiento de ubicación activo
+    </string>
+
+    <string name="notification_location_channel">
+        Seguimiento de ubicación
+    </string>
+
+    <!-- Descriptions -->
+    <string name="description_icon_location_tracking">
+        Seguimiento de ubicación
+    </string>
+
+
+    <!-- ============================================================
          GENERAL / SHARED UI
          ============================================================ -->
 
@@ -441,17 +469,5 @@
     <string name="description_home_icon">
         Icono de inicio
     </string>
-
-
-    <string name="text_error_send_location">
-    No se pudo enviar la ubicación
-</string>
-
-    <string name="notification_location_tracking">Seguimiento de ubicación activo</string>
-
-    <string name="notification_location_channel">Location tracking</string>
-
-    <string name="text_location_tracking">Location tracking</string>
-    <string name="description_icon_location_tracking">Location tracking</string>
 
 </resources>

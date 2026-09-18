@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.Coordinates
+import com.unal.senti_ma.domain.usecase.LocationUseCases
 import com.unal.senti_ma.domain.usecase.RobberyUseCases
 import com.unal.senti_ma.ui.screens.report.events.ReportUiEvent
 import com.unal.senti_ma.ui.screens.report.events.ReportViewModelEvent
@@ -24,7 +25,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class ReportViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val robberyUseCases: RobberyUseCases
+    private val robberyUseCases: RobberyUseCases,
+    private val locationUseCases: LocationUseCases
 ) : ViewModel() {
 
     companion object {
@@ -32,14 +34,10 @@ class ReportViewModel @Inject constructor(
         private const val CONFIRMATION_DURATION_MILLIS = 3_000L
     }
 
-    private val _uiState =
-        MutableStateFlow<ReportUiState>(ReportUiState.Idle)
-
+    private val _uiState = MutableStateFlow<ReportUiState>(ReportUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
-    private val _viewModelEvent =
-        MutableSharedFlow<ReportViewModelEvent>()
-
+    private val _viewModelEvent = MutableSharedFlow<ReportViewModelEvent>()
     val viewModelEvent = _viewModelEvent.asSharedFlow()
 
     private var currentLocation: Coordinates? = null
@@ -48,51 +46,46 @@ class ReportViewModel @Inject constructor(
 
     fun onEvent(event: ReportUiEvent) {
         when (event) {
-            is ReportUiEvent.UpdateLocation -> {
-                updateLocation(event)
-            }
+            is ReportUiEvent.StartHolding -> startHolding(event)
+            is ReportUiEvent.StopHolding -> stopHolding()
+            is ReportUiEvent.UpdateLocation -> updateLocation()
+            is ReportUiEvent.CancelReport -> cancelReport()
+        }
+    }
 
-            is ReportUiEvent.StartHolding -> {
-                startHolding(event.type)
-            }
-
-            ReportUiEvent.StopHolding -> {
-                stopHolding()
-            }
-
-            ReportUiEvent.CancelReport -> {
-                cancelReport()
+    private fun updateLocation() {
+        viewModelScope.launch {
+            val coordinates = locationUseCases.getCurrentLocation()
+            if (coordinates != null) {
+                currentLocation = coordinates
             }
         }
     }
 
-    private fun updateLocation(
-        event: ReportUiEvent.UpdateLocation
-    ) {
-        currentLocation = event.coordinates
-    }
-
-    private fun startHolding(type: String) {
-        if (_uiState.value !is ReportUiState.Idle) {
+    private fun startHolding(event: ReportUiEvent.StartHolding) {
+        if (_uiState.value !is ReportUiState.Idle &&
+            _uiState.value !is ReportUiState.Error
+        ) {
             return
         }
 
         timerJob?.cancel()
 
         _uiState.value = ReportUiState.Holding(
-            type = type
+            type = event.type
         )
+
+        updateLocation()
 
         timerJob = viewModelScope.launch {
             delay(HOLD_DURATION_MILLIS.milliseconds)
 
             _uiState.value = ReportUiState.Confirming(
-                type = type
+                type = event.type
             )
 
             delay(CONFIRMATION_DURATION_MILLIS.milliseconds)
-
-            createReport(type)
+            createReport(event.type)
         }
     }
 
@@ -127,7 +120,6 @@ class ReportViewModel @Inject constructor(
         }
 
         _uiState.value = ReportUiState.Creating
-
         viewModelScope.launch {
             when (
                 val result = robberyUseCases.createRobberyReport(
@@ -138,7 +130,6 @@ class ReportViewModel @Inject constructor(
             ) {
                 is AppResult.Success -> {
                     _uiState.value = ReportUiState.Idle
-
                     _viewModelEvent.emit(
                         ReportViewModelEvent.ReportCreated(
                             message = context.getString(

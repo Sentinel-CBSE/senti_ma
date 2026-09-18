@@ -32,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +48,6 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.model.MapBounds
-import com.unal.senti_ma.ui.shared.LocationPermissionHandler
 import com.unal.senti_ma.ui.screens.robbery.components.RobberyDateRangeDialog
 import com.unal.senti_ma.ui.screens.robbery.components.RobberyFilters
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyUiEvent
@@ -55,17 +55,13 @@ import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
 import com.unal.senti_ma.ui.screens.robbery.map.HeatmapOverlay
 import com.unal.senti_ma.ui.screens.robbery.map.RobberyPointMarkers
 import com.unal.senti_ma.ui.screens.robbery.map.rememberMapViewWithLifecycle
+import com.unal.senti_ma.ui.shared.LocationPermissionHandler
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-
-private class LocationOverlayRef {
-    var overlay: MyLocationNewOverlay? = null
-}
+import org.osmdroid.views.overlay.Marker
 
 @Composable
 fun RobberyScreen(
@@ -75,10 +71,43 @@ fun RobberyScreen(
 ) {
     val robberyUiState by robberyViewModel.uiState.collectAsStateWithLifecycle()
 
+    val currentLocation by robberyViewModel
+        .currentLocation
+        .collectAsStateWithLifecycle()
+
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle(context)
+
     val heatmapOverlay = remember {
         HeatmapOverlay()
+    }
+
+    val userLocationMarker = remember(mapView, context) {
+        Marker(mapView).apply {
+            setAnchor(
+                Marker.ANCHOR_CENTER,
+                Marker.ANCHOR_CENTER
+            )
+
+            icon = androidx.core.content.ContextCompat.getDrawable(
+                context,
+                org.osmdroid.library.R.drawable.person
+            )
+
+            setOnMarkerClickListener { _, _ ->
+                true
+            }
+        }
+    }
+
+    val currentOnRobberyClick by rememberUpdatedState(onRobberyClick)
+    val pointMarkers = remember(mapView) {
+        RobberyPointMarkers(
+            mapView = mapView,
+            onRobberyClick = { id ->
+                currentOnRobberyClick(id)
+            }
+        )
     }
 
     var showDateDialog by remember {
@@ -95,17 +124,6 @@ fun RobberyScreen(
 
     var hasCenteredOnLocation by remember {
         mutableStateOf(false)
-    }
-
-    val locationOverlayRef = remember {
-        LocationOverlayRef()
-    }
-
-    val pointMarkers = remember(mapView) {
-        RobberyPointMarkers(
-            mapView = mapView,
-            onRobberyClick = onRobberyClick
-        )
     }
 
     fun updateMapPosition() {
@@ -144,6 +162,94 @@ fun RobberyScreen(
         }
     )
 
+    DisposableEffect(hasLocationPermission) {
+        if (hasLocationPermission) {
+            robberyViewModel.startLocationUpdates()
+        }
+
+        onDispose {
+            robberyViewModel.stopLocationUpdates()
+        }
+    }
+
+    DisposableEffect(mapView) {
+        val listener = object : MapListener {
+
+            override fun onScroll(
+                event: ScrollEvent?
+            ): Boolean {
+                updateMapPosition()
+                return true
+            }
+
+            override fun onZoom(
+                event: ZoomEvent?
+            ): Boolean {
+                updateMapPosition()
+                return true
+            }
+        }
+
+        mapView.addMapListener(listener)
+
+        onDispose {
+            mapView.removeMapListener(listener)
+        }
+    }
+
+    DisposableEffect(
+        mapView,
+        userLocationMarker
+    ) {
+        onDispose {
+            mapView.overlays.remove(
+                userLocationMarker
+            )
+
+            mapView.invalidate()
+        }
+    }
+
+    DisposableEffect(mapView) {
+        onDispose {
+            pointMarkers.clear()
+        }
+    }
+
+    LaunchedEffect(currentLocation) {
+        val location = currentLocation
+            ?: return@LaunchedEffect
+
+        val geoPoint = GeoPoint(
+            location.latitude,
+            location.longitude
+        )
+
+        userLocationMarker.position = geoPoint
+
+        if (!mapView.overlays.contains(userLocationMarker)) {
+            mapView.overlays.add(
+                userLocationMarker
+            )
+        }
+
+        mapView.invalidate()
+
+        if (!hasCenteredOnLocation) {
+            hasCenteredOnLocation = true
+
+            mapView.post {
+                mapView.controller.setZoom(15.0)
+
+                mapView.controller.animateTo(
+                    geoPoint
+                )
+
+                updateMapPosition()
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         robberyViewModel.viewModelEvent.collect { event ->
             when (event) {
@@ -173,98 +279,34 @@ fun RobberyScreen(
         }
     }
 
-    LaunchedEffect(robberyUiState) {
+    LaunchedEffect(
+        robberyUiState,
+        robberyViewModel.displayMode
+    ) {
         val state = robberyUiState
 
         if (state is RobberyUiState.Success) {
             val data = state.robberyMapData
 
+            val isHeatmap =
+                robberyViewModel.displayMode ==
+                        RobberyDisplayMode.HEATMAP
+
             heatmapOverlay.updatePoints(
                 data.heatmapPoints
             )
+
+            heatmapOverlay.isVisible = isHeatmap
 
             pointMarkers.updatePoints(
                 data.robberyPoints
             )
 
             pointMarkers.setVisible(
-                robberyViewModel.displayMode ==
-                        RobberyDisplayMode.POINTS
+                !isHeatmap
             )
 
             mapView.invalidate()
-        }
-    }
-
-    LaunchedEffect(robberyViewModel.displayMode) {
-        val isHeatmap =
-            robberyViewModel.displayMode ==
-                    RobberyDisplayMode.HEATMAP
-
-        heatmapOverlay.isVisible = isHeatmap
-
-        pointMarkers.setVisible(
-            !isHeatmap
-        )
-
-        mapView.invalidate()
-    }
-
-    DisposableEffect(
-        mapView,
-        hasLocationPermission
-    ) {
-        if (hasLocationPermission) {
-            val overlay = MyLocationNewOverlay(
-                GpsMyLocationProvider(context),
-                mapView
-            ).apply {
-                enableMyLocation()
-                isDrawAccuracyEnabled = true
-            }
-
-            locationOverlayRef.overlay = overlay
-
-            mapView.overlays.add(overlay)
-
-            overlay.runOnFirstFix {
-                val location = overlay.myLocation
-                    ?: return@runOnFirstFix
-
-                mapView.post {
-                    if (!hasCenteredOnLocation) {
-                        hasCenteredOnLocation = true
-
-                        mapView.controller.setZoom(15.0)
-
-                        mapView.controller.animateTo(
-                            location
-                        )
-
-                        updateMapPosition()
-                    }
-                }
-            }
-
-            mapView.invalidate()
-        }
-
-        onDispose {
-            locationOverlayRef.overlay?.disableMyLocation()
-
-            locationOverlayRef.overlay?.let { overlay ->
-                mapView.overlays.remove(overlay)
-            }
-
-            locationOverlayRef.overlay = null
-
-            mapView.invalidate()
-        }
-    }
-
-    DisposableEffect(mapView) {
-        onDispose {
-            pointMarkers.clear()
         }
     }
 
@@ -339,7 +381,8 @@ fun RobberyScreen(
                 singleLine = true,
                 trailingIcon = {
                     if (
-                        robberyViewModel.selectedAddress.isNotEmpty()
+                        robberyViewModel.selectedAddress
+                            .isNotEmpty()
                     ) {
                         IconButton(
                             onClick = {
@@ -372,7 +415,8 @@ fun RobberyScreen(
                     )
                 },
                 enabled =
-                    robberyViewModel.selectedAddress.isNotBlank()
+                    robberyViewModel.selectedAddress
+                        .isNotBlank()
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -388,14 +432,17 @@ fun RobberyScreen(
             onExpandedChange = {
                 filtersExpanded = it
             },
-            selectedType = robberyViewModel.selectedType,
+            selectedType =
+                robberyViewModel.selectedType,
             selectedFromTimestamp =
                 robberyViewModel.selectedFromTimestamp,
             selectedToTimestamp =
                 robberyViewModel.selectedToTimestamp,
             onTypeSelected = { type ->
                 robberyViewModel.onEvent(
-                    RobberyUiEvent.UpdateTypeFilter(type)
+                    RobberyUiEvent.UpdateTypeFilter(
+                        type
+                    )
                 )
             },
             onDateClick = {
@@ -440,27 +487,15 @@ fun RobberyScreen(
                             )
                         )
 
-                        overlays.add(
-                            heatmapOverlay
-                        )
-
-                        addMapListener(
-                            object : MapListener {
-                                override fun onScroll(
-                                    event: ScrollEvent?
-                                ): Boolean {
-                                    updateMapPosition()
-                                    return true
-                                }
-
-                                override fun onZoom(
-                                    event: ZoomEvent?
-                                ): Boolean {
-                                    updateMapPosition()
-                                    return true
-                                }
-                            }
-                        )
+                        if (
+                            !overlays.contains(
+                                heatmapOverlay
+                            )
+                        ) {
+                            overlays.add(
+                                heatmapOverlay
+                            )
+                        }
 
                         post {
                             updateMapPosition()
@@ -473,25 +508,20 @@ fun RobberyScreen(
                 update = {}
             )
 
-            Icon(
-                imageVector = Icons.Default.LocationOn,
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(42.dp),
-                tint = Color.Red
-            )
-
             FloatingActionButton(
                 onClick = {
-                    val location =
-                        locationOverlayRef.overlay?.myLocation
+                    val location = currentLocation
 
                     if (location != null) {
+                        val geoPoint = GeoPoint(
+                            location.latitude,
+                            location.longitude
+                        )
+
                         mapView.controller.setZoom(15.0)
 
                         mapView.controller.animateTo(
-                            location
+                            geoPoint
                         )
 
                         mapView.post {
@@ -512,19 +542,20 @@ fun RobberyScreen(
                         bottom = 88.dp
                     ),
                 containerColor = Color.White,
-                contentColor = MaterialTheme.colorScheme.primary,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 2.dp,
-                    pressedElevation = 4.dp,
-                    focusedElevation = 2.dp,
-                    hoveredElevation = 3.dp
-                )
+                contentColor =
+                    MaterialTheme.colorScheme.primary,
+                elevation =
+                    FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 2.dp,
+                        pressedElevation = 4.dp
+                    )
             ) {
                 Icon(
                     imageVector = Icons.Default.MyLocation,
-                    contentDescription = stringResource(
-                        R.string.description_robbery_my_location
-                    ),
+                    contentDescription =
+                        stringResource(
+                            R.string.description_robbery_my_location
+                        ),
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -559,7 +590,9 @@ fun RobberyScreen(
                 )
             }
 
-            if (robberyUiState is RobberyUiState.Loading) {
+            if (
+                robberyUiState is RobberyUiState.Loading
+            ) {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .align(Alignment.TopCenter)

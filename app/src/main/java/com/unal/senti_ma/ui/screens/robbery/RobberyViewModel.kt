@@ -6,10 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.domain.enums.RobberyDisplayMode
+import com.unal.senti_ma.domain.location.LocationSubscription
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.model.MapBounds
 import com.unal.senti_ma.domain.usecase.GeocodingUseCases
+import com.unal.senti_ma.domain.usecase.LocationUseCases
 import com.unal.senti_ma.domain.usecase.RobberyUseCases
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyUiEvent
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
@@ -18,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -27,7 +30,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class RobberyViewModel @Inject constructor(
     private val robberyUseCases: RobberyUseCases,
-    private val geocodingUseCases: GeocodingUseCases
+    private val geocodingUseCases: GeocodingUseCases,
+    private val locationUseCases: LocationUseCases
 ) : ViewModel() {
 
     companion object {
@@ -39,6 +43,9 @@ class RobberyViewModel @Inject constructor(
 
     private val _viewModelEvent = MutableSharedFlow<RobberyViewModelEvent>(replay = 0)
     val viewModelEvent = _viewModelEvent.asSharedFlow()
+
+    val currentLocation: StateFlow<Coordinates?> = locationUseCases.observeCurrentLocation()
+    private var locationSubscription: LocationSubscription? = null
 
     var selectedType by mutableStateOf<String?>(null)
         private set
@@ -62,6 +69,20 @@ class RobberyViewModel @Inject constructor(
     private var addressJob: Job? = null
 
     private var currentMapBounds: MapBounds? = null
+
+    fun startLocationUpdates() {
+        if (locationSubscription != null) {
+            return
+        }
+
+        locationSubscription =
+            locationUseCases.acquireLocationUpdates()
+    }
+
+    fun stopLocationUpdates() {
+        locationSubscription?.close()
+        locationSubscription = null
+    }
 
     fun onEvent(event: RobberyUiEvent) {
         when (event) {
@@ -210,6 +231,11 @@ class RobberyViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        locationSubscription?.close()
+        locationSubscription = null
     }
 
 }

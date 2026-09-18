@@ -1,8 +1,8 @@
 package com.unal.senti_ma.di
 
 import com.unal.senti_ma.data.location.AndroidLocationTracker
-import com.unal.senti_ma.domain.location.LocationClient
 import com.unal.senti_ma.data.location.LocationManager
+import com.unal.senti_ma.domain.location.LocationClient
 import com.unal.senti_ma.domain.location.LocationTracker
 import dagger.Binds
 import dagger.Module

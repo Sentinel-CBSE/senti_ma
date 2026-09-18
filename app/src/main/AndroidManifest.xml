@@ -20,6 +20,7 @@
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -44,7 +45,7 @@
             android:name=".data.location.LocationForegroundService"
             android:foregroundServiceType="location"
             android:exported="false"
-            android:enabled="true"/>
+            android:enabled="true" />
 
     </application>
 

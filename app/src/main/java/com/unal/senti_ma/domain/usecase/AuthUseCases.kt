@@ -50,4 +50,5 @@ class AuthUseCases @Inject constructor(
     suspend fun signInAnonymously(): AppResult<User> =
         authRepository.signInAnonymously()
 
+
 }

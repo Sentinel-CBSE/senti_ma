@@ -10,8 +10,10 @@ import com.unal.senti_ma.domain.repository.GeocodingRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 
+@Singleton
 class GeocodingRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val geocoder: Geocoder

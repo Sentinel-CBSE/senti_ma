@@ -7,8 +7,8 @@ interface LocationClient {
 
     val currentLocation: StateFlow<Coordinates?>
 
-    fun startLocationUpdates()
+    fun acquireLocationUpdates(): LocationSubscription
 
-    fun stopLocationUpdates()
+    suspend fun getCurrentLocation(): Coordinates?
 
 }

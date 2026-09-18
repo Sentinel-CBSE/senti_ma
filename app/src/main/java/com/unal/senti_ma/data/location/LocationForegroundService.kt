@@ -7,10 +7,12 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.location.LocationClient
+import com.unal.senti_ma.domain.location.LocationSubscription
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.repository.LocationRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,9 +37,10 @@ class LocationForegroundService : Service() {
     @Inject
     lateinit var locationRepository: LocationRepository
 
-    private val serviceScope = CoroutineScope(
-        SupervisorJob() + Dispatchers.IO
-    )
+    private var locationSubscription: LocationSubscription? = null
+
+    private val serviceScope =
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private var locationJob: Job? = null
     private var backendJob: Job? = null
@@ -49,12 +52,15 @@ class LocationForegroundService : Service() {
         private const val NOTIFICATION_ID = 1001
 
         private const val BACKEND_UPDATE_INTERVAL = 60_000L
+
+        private const val TAG = "LocationService"
     }
 
     override fun onCreate() {
         super.onCreate()
 
         createNotificationChannel()
+
         startForeground(
             NOTIFICATION_ID,
             createNotification(),
@@ -62,18 +68,30 @@ class LocationForegroundService : Service() {
         )
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (locationJob == null || locationJob?.isActive == false) {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int
+    ): Int {
+
+        if (locationJob?.isActive != true) {
             startLocationTracking()
         }
-        if (backendJob == null || backendJob?.isActive == false) {
+
+        if (backendJob?.isActive != true) {
             startBackendTracking()
         }
+
         return START_STICKY
     }
 
     private fun startLocationTracking() {
-        locationClient.startLocationUpdates()
+        if (locationSubscription != null) {
+            return
+        }
+
+        locationSubscription =
+            locationClient.acquireLocationUpdates()
 
         locationJob = serviceScope.launch {
             locationClient.currentLocation.collectLatest { location ->
@@ -88,16 +106,15 @@ class LocationForegroundService : Service() {
             while (isActive) {
                 delay(BACKEND_UPDATE_INTERVAL.milliseconds)
                 lastLocation?.let { location ->
-                    sendLocationToBackend(location)
+
+                    try {
+                        locationRepository.sendLocation(location)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error sending location", e)
+                    }
                 }
             }
         }
-    }
-
-    private suspend fun sendLocationToBackend(
-        location: Coordinates
-    ) {
-        locationRepository.sendLocation(location)
     }
 
     private fun createNotificationChannel() {
@@ -107,7 +124,9 @@ class LocationForegroundService : Service() {
             NotificationManager.IMPORTANCE_LOW
         )
 
-        val notificationManager = ContextCompat.getSystemService(this, NotificationManager::class.java)
+        val notificationManager =
+            ContextCompat.getSystemService(this, NotificationManager::class.java)
+
         notificationManager?.createNotificationChannel(channel)
     }
 
@@ -117,7 +136,9 @@ class LocationForegroundService : Service() {
             CHANNEL_ID
         )
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.notification_location_tracking))
+            .setContentText(
+                getString(R.string.notification_location_tracking)
+            )
             .setSmallIcon(R.drawable.ic_location)
             .setOngoing(true)
             .build()
@@ -127,14 +148,17 @@ class LocationForegroundService : Service() {
         locationJob?.cancel()
         backendJob?.cancel()
 
-        locationClient.stopLocationUpdates()
+        locationSubscription?.close()
+        locationSubscription = null
 
         serviceScope.cancel()
 
         super.onDestroy()
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(
+        intent: Intent?
+    ): IBinder? {
         return null
     }
 

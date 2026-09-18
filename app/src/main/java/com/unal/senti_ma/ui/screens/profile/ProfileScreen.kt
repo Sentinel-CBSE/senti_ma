@@ -19,13 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.EmergencyContact
+import com.unal.senti_ma.ui.location.LocationViewModel
 import com.unal.senti_ma.ui.screens.profile.components.EmergencyContactDialog
 import com.unal.senti_ma.ui.screens.profile.components.ProfileContent
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 import com.unal.senti_ma.ui.screens.profile.events.ProfileViewModelEvent
 import com.unal.senti_ma.ui.settings.SettingsViewModel
 import com.unal.senti_ma.ui.shared.LocationTrackingPermissionHandler
-import com.unal.senti_ma.ui.location.LocationViewModel
 import java.util.UUID
 
 @Composable

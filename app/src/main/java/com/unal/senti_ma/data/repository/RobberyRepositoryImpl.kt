@@ -1,6 +1,7 @@
 package com.unal.senti_ma.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.unal.senti_ma.R
 import com.unal.senti_ma.data.remote.api.SentinelApi
 import com.unal.senti_ma.domain.model.AppResult
@@ -32,7 +33,7 @@ class RobberyRepositoryImpl @Inject constructor(
         return try {
             val points = withContext(Dispatchers.IO) {
                 // TODO: reemplazar por la llamada real cuando el backend esté listo:
-                // sentinelApi.getRobberyPoints(bounds.northLat, bounds.southLat, bounds.eastLon, bounds.westLon, type, fromTimestamp, toTimestamp).map { it.toDomain() }
+                // sentinelApi.getRobberyPoints(bounds.northLat, bounds.southLat, bounds.eastLon, bounds.westLon, fromTimestamp, toTimestamp, type).map { it.toDomain() }
                 generateFakePoints(mapBounds, fromTimestamp, toTimestamp, type)
             }
             AppResult.Success(points)
@@ -74,6 +75,14 @@ class RobberyRepositoryImpl @Inject constructor(
                 // TODO: reemplazar por la llamada real:
                 // sentinelApi.createRobberyReport(type = type, latitude = latitude, longitude = longitude, timestamp = timestamp)
                 delay(500.milliseconds)
+
+                Log.d(
+                    "RobberyRepository",
+                    "Sending report: " +
+                            "latitude=${latitude}, " +
+                            "longitude=${longitude}"
+                )
+
             }
 
             AppResult.Success(Unit)

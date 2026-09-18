@@ -103,7 +103,12 @@ class AuthRepositoryImpl @Inject constructor(
                 )
                 .await()
 
-            val firebaseUser = result.user!!
+            val firebaseUser = result.user
+                ?: return AppResult.Error(
+                    context.getString(
+                        R.string.text_error_sign_up
+                    )
+                )
 
             firebaseUser.updateProfile(
                 UserProfileChangeRequest.Builder()
@@ -124,18 +129,15 @@ class AuthRepositoryImpl @Inject constructor(
                     request
                 ) as CreatePasswordResponse
 
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Log.d(
-                    "Dev",
-                    context.getString(
+                    "Dev", context.getString(
                         R.string.text_error_smart_lock
-                    ) + "${e.message}"
+                    )
                 )
             }
 
-            AppResult.Success(
-                firebaseUser.toDomain()
-            )
+            AppResult.Success(firebaseUser.toDomain())
 
         } catch (_: FirebaseAuthUserCollisionException) {
             AppResult.Error(
@@ -145,11 +147,7 @@ class AuthRepositoryImpl @Inject constructor(
             )
 
         } catch (_: Exception) {
-            AppResult.Error(
-                context.getString(
-                    R.string.text_error_sign_up
-                )
-            )
+            AppResult.Error(context.getString(R.string.text_error_sign_up))
         }
     }
 
@@ -211,12 +209,11 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (_: GetCredentialCancellationException) {
             AppResult.Cancelled
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Error(
-                e.message
-                    ?: context.getString(
-                        R.string.text_error_sign_in
-                    )
+                context.getString(
+                    R.string.text_error_sign_in
+                )
             )
         }
     }
@@ -237,12 +234,11 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (_: GetCredentialCancellationException) {
             AppResult.Cancelled
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             AppResult.Error(
-                e.message
-                    ?: context.getString(
-                        R.string.text_error_sign_in
-                    )
+                context.getString(
+                    R.string.text_error_sign_in
+                )
             )
         }
     }
@@ -253,7 +249,12 @@ class AuthRepositoryImpl @Inject constructor(
                 .signInAnonymously()
                 .await()
 
-            val firebaseUser = result.user!!
+            val firebaseUser = result.user
+                ?: return AppResult.Error(
+                    context.getString(
+                        R.string.text_error_sign_in
+                    )
+                )
 
             AppResult.Success(
                 firebaseUser.toDomain()
@@ -274,9 +275,7 @@ class AuthRepositoryImpl @Inject constructor(
         val getGoogleIdOption =
             GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(true)
-                .setServerClientId(
-                    "18125175753-rrju41lblttrndipuqa7gea1cp9gmv5g.apps.googleusercontent.com"
-                )
+                .setServerClientId(context.getString(R.string.default_web_client_id))
                 .setAutoSelectEnabled(true)
                 .setNonce(UUID.randomUUID().toString())
                 .build()
@@ -291,9 +290,7 @@ class AuthRepositoryImpl @Inject constructor(
         val signInRequestOptions =
             GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
-                .setServerClientId(
-                    "18125175753-rrju41lblttrndipuqa7gea1cp9gmv5g.apps.googleusercontent.com"
-                )
+                .setServerClientId(context.getString(R.string.default_web_client_id))
                 .setAutoSelectEnabled(false)
                 .setNonce(UUID.randomUUID().toString())
                 .build()
@@ -325,14 +322,19 @@ class AuthRepositoryImpl @Inject constructor(
                                 null
                             )
 
-                        val firebaseResult =
+                        val result =
                             firebaseAuth
                                 .signInWithCredential(
                                     googleCredentials
                                 )
                                 .await()
 
-                        val firebaseUser = firebaseResult.user!!
+                        val firebaseUser = result.user
+                            ?: return AppResult.Error(
+                                context.getString(
+                                    R.string.text_error_sign_in
+                                )
+                            )
 
                         AppResult.Success(
                             firebaseUser.toDomain()
@@ -363,13 +365,8 @@ class AuthRepositoryImpl @Inject constructor(
                 }
             }
 
-        } catch (e: Exception) {
-            AppResult.Error(
-                e.message
-                    ?: context.getString(
-                        R.string.text_error_sign_in
-                    )
-            )
+        } catch (_: Exception) {
+            AppResult.Error(context.getString(R.string.text_error_sign_in))
         }
     }
 }

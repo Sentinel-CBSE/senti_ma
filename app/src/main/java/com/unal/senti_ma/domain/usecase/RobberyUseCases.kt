@@ -56,8 +56,7 @@ class RobberyUseCases @Inject constructor(
             }
 
             is AppResult.Error -> result
-
-            AppResult.Cancelled -> AppResult.Cancelled
+            is AppResult.Cancelled -> result
         }
     }
 

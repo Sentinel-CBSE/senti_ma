@@ -52,7 +52,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRobberyApi(retrofit: Retrofit): SentinelApi {
+    fun provideSentinelApi(retrofit: Retrofit): SentinelApi {
         return retrofit.create(SentinelApi::class.java)
     }
 
