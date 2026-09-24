@@ -1,4 +1,4 @@
-package com.unal.senti_ma.ui.shared
+package com.unal.senti_ma.ui.shared.permissions
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -11,12 +11,13 @@ import androidx.core.content.ContextCompat
 
 @Composable
 fun LocationPermissionHandler(
+    request: Boolean,
     onPermissionGranted: () -> Unit,
     onPermissionDenied: () -> Unit
 ) {
     val context = LocalContext.current
 
-    val foregroundPermissionLauncher =
+    val permissionLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
@@ -34,21 +35,30 @@ fun LocationPermissionHandler(
             }
         }
 
-    LaunchedEffect(Unit) {
-        val fineGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+    LaunchedEffect(request) {
 
-        val coarseGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        if (!request) {
+            return@LaunchedEffect
+        }
 
-        if (fineGranted || coarseGranted) {
+        val fineGranted =
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseGranted =
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+        val foregroundGranted = fineGranted || coarseGranted
+
+        if (foregroundGranted) {
             onPermissionGranted()
         } else {
-            foregroundPermissionLauncher.launch(
+            permissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION

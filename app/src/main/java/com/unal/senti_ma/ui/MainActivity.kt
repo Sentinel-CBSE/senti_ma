@@ -28,6 +28,7 @@ import com.unal.senti_ma.ui.auth.AuthViewModel
 import com.unal.senti_ma.ui.settings.SettingsViewModel
 import com.unal.senti_ma.ui.shared.AppBottomBar
 import com.unal.senti_ma.ui.shared.AppTopBar
+import com.unal.senti_ma.ui.shared.permissions.NotificationPermissionHandler
 import com.unal.senti_ma.ui.theme.Senti_maTheme
 import com.unal.senti_ma.utils.navigateSingleTopTo
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,6 +76,12 @@ class MainActivity : ComponentActivity() {
                         }
 
                         is AuthState.Authenticated -> {
+                            NotificationPermissionHandler(
+                                request = true,
+                                onPermissionGranted = {},
+                                onPermissionDenied = {}
+                            )
+
                             val navController = rememberNavController()
 
                             Scaffold(

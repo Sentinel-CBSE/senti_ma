@@ -7,7 +7,6 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.unal.senti_ma.data.notification.NotificationHelper
 import com.unal.senti_ma.domain.usecase.auth.ObserveAuthStateUseCase
-import com.unal.senti_ma.domain.usecase.notification.RegisterDeviceTokenUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,9 +25,6 @@ class MainApplication : Application() {
 
     @Inject
     lateinit var observeAuthStateUseCase: ObserveAuthStateUseCase
-
-    @Inject
-    lateinit var registerDeviceTokenUseCase: RegisterDeviceTokenUseCase
 
     private val applicationScope =
         CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -52,26 +48,27 @@ class MainApplication : Application() {
             }
         }
 
-        observeAndRegisterDeviceToken()
+        observeAndRegisterInstallation()
     }
 
-    private fun observeAndRegisterDeviceToken() {
+    private fun observeAndRegisterInstallation() {
         applicationScope.launch {
             observeAuthStateUseCase()
                 .filterNotNull()
                 .distinctUntilChangedBy { user -> user.uid }
                 .collect {
-                    registerCurrentFcmToken()
+                    registerCurrentInstallation()
                 }
         }
     }
 
-    private suspend fun registerCurrentFcmToken() {
+    private suspend fun registerCurrentInstallation() {
         try {
-            val token = FirebaseMessaging.getInstance().token.await()
-            registerDeviceTokenUseCase(token)
+            FirebaseMessaging.getInstance()
+                .register()
+                .await()
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching/registering FCM token", e)
+            Log.e(TAG, "Error registering FCM installation", e)
         }
     }
 

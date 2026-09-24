@@ -1,4 +1,4 @@
-package com.unal.senti_ma.ui.shared
+package com.unal.senti_ma.ui.shared.permissions
 
 import android.Manifest
 import android.content.pm.PackageManager

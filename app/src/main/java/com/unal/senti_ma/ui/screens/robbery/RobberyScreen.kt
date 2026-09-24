@@ -55,7 +55,7 @@ import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
 import com.unal.senti_ma.ui.screens.robbery.map.HeatmapOverlay
 import com.unal.senti_ma.ui.screens.robbery.map.RobberyPointMarkers
 import com.unal.senti_ma.ui.screens.robbery.map.rememberMapViewWithLifecycle
-import com.unal.senti_ma.ui.shared.LocationPermissionHandler
+import com.unal.senti_ma.ui.shared.permissions.LocationPermissionHandler
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
@@ -147,6 +147,7 @@ fun RobberyScreen(
     }
 
     LocationPermissionHandler(
+        request = true,
         onPermissionGranted = {
             hasLocationPermission = true
         },

@@ -463,8 +463,8 @@
     </string>
 
     <!-- Errors -->
-    <string name="text_error_register_token">
-        No se pudo registrar el token de notificaciones
+    <string name="text_error_register_installation_id">
+        No se pudo registrar el id de instalación de notificaciones
     </string>
 
     <!-- Logs -->

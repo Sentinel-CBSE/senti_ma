@@ -4,14 +4,14 @@ import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.repository.NotificationRepository
 import javax.inject.Inject
 
-class RegisterDeviceTokenUseCase @Inject constructor(
+class RegisterInstallationIdUseCase @Inject constructor(
     private val notificationRepository: NotificationRepository
 ) {
 
     suspend operator fun invoke(
-        token: String
+        installationId: String
     ): AppResult<Unit> {
-        return notificationRepository.registerDeviceToken(token)
+        return notificationRepository.registerInstallationId(installationId)
     }
 
 }

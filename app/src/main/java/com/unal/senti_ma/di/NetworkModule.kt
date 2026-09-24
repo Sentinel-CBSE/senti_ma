@@ -1,6 +1,5 @@
 package com.unal.senti_ma.di
 
-import com.google.firebase.auth.FirebaseAuth
 import com.unal.senti_ma.BuildConfig
 import com.unal.senti_ma.data.remote.api.SentinelApi
 import com.unal.senti_ma.data.remote.interceptor.FirebaseAuthInterceptor
@@ -17,12 +16,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    @Provides
-    @Singleton
-    fun provideFirebaseAuth(): FirebaseAuth {
-        return FirebaseAuth.getInstance()
-    }
 
     @Provides
     @Singleton

@@ -1,6 +1,6 @@
 package com.unal.senti_ma.data.remote.api
 
-import com.unal.senti_ma.data.remote.dto.DeviceTokenRequestDto
+import com.unal.senti_ma.data.remote.dto.InstallationIdRequestDto
 import com.unal.senti_ma.data.remote.dto.RobberyPointDto
 import retrofit2.Response
 import retrofit2.http.Body
@@ -42,7 +42,7 @@ interface SentinelApi {
     @POST("api/devices/register")
     suspend fun registerDeviceToken(
         @Header("ngrok-skip-browser-warning") skipWarning: String = "true",
-        @Body request: DeviceTokenRequestDto
+        @Body request: InstallationIdRequestDto
     ): Response<Unit>
 
 }

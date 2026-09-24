@@ -11,7 +11,7 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.ui.screens.report.components.ReportScreenContent
 import com.unal.senti_ma.ui.screens.report.events.ReportUiEvent
 import com.unal.senti_ma.ui.screens.report.events.ReportViewModelEvent
-import com.unal.senti_ma.ui.shared.LocationPermissionHandler
+import com.unal.senti_ma.ui.shared.permissions.LocationPermissionHandler
 
 @Composable
 fun ReportScreen(
@@ -21,6 +21,7 @@ fun ReportScreen(
     val context = LocalContext.current
 
     LocationPermissionHandler(
+        request = true,
         onPermissionGranted = {
             reportViewModel.onEvent(
                 ReportUiEvent.UpdateLocation

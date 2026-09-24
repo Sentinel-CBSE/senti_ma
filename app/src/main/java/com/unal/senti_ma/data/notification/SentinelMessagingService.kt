@@ -3,7 +3,7 @@ package com.unal.senti_ma.data.notification
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.unal.senti_ma.domain.usecase.notification.RegisterDeviceTokenUseCase
+import com.unal.senti_ma.domain.usecase.notification.RegisterInstallationIdUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class SentinelMessagingService : FirebaseMessagingService() {
 
     @Inject
-    lateinit var registerDeviceTokenUseCase: RegisterDeviceTokenUseCase
+    lateinit var registerInstallationIdUseCase: RegisterInstallationIdUseCase
 
     @Inject
     lateinit var notificationHelper: NotificationHelper
@@ -28,13 +28,13 @@ class SentinelMessagingService : FirebaseMessagingService() {
         private const val TAG = "SentinelMessaging"
     }
 
-    override fun onNewToken(token: String) {
-        super.onNewToken(token)
+    override fun onRegistered(installationId: String) {
+        super.onRegistered(installationId)
 
-        Log.d(TAG, "New FCM token received")
+        Log.d(TAG, "Registered installation ID")
 
         serviceScope.launch {
-            registerDeviceTokenUseCase(token)
+            registerInstallationIdUseCase(installationId)
         }
     }
 

@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.unal.senti_ma.R
 import com.unal.senti_ma.data.remote.api.SentinelApi
-import com.unal.senti_ma.data.remote.dto.DeviceTokenRequestDto
+import com.unal.senti_ma.data.remote.dto.InstallationIdRequestDto
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.repository.NotificationRepository
 import com.unal.senti_ma.utils.logIfError
@@ -18,29 +18,29 @@ class NotificationRepositoryImpl @Inject constructor(
     private val sentinelApi: SentinelApi
 ) : NotificationRepository {
 
-    override suspend fun registerDeviceToken(
-        token: String
+    override suspend fun registerInstallationId(
+        installationId: String
     ): AppResult<Unit> {
 
         Log.d(
             "NotificationRepository",
-            "Registering device token"
+            "Registering installationId"
         )
 
         return try {
             val response = sentinelApi.registerDeviceToken(
-                request = DeviceTokenRequestDto(fcmToken = token)
+                request = InstallationIdRequestDto(installationId = installationId)
             )
 
-            if (response.logIfError("NotificationRepository", "Register device token")) {
+            if (response.logIfError("NotificationRepository", "Register installationId")) {
                 Log.d(
                     "NotificationRepository",
-                    "Device token registered successfully"
+                    "InstallationId registered successfully"
                 )
                 AppResult.Success(Unit)
             } else {
                 AppResult.Error(
-                    context.getString(R.string.text_error_register_token)
+                    context.getString(R.string.text_error_register_installation_id)
                 )
             }
 
@@ -48,13 +48,13 @@ class NotificationRepositoryImpl @Inject constructor(
 
             Log.e(
                 "NotificationRepository",
-                "Error registering device token",
+                "Error registering installation id",
                 exception
             )
 
             AppResult.Error(
                 context.getString(
-                    R.string.text_error_register_token
+                    R.string.text_error_register_installation_id
                 )
             )
         }
