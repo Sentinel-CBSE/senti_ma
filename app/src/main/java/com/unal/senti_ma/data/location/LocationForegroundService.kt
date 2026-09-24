@@ -14,7 +14,7 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.location.LocationClient
 import com.unal.senti_ma.domain.location.LocationSubscription
 import com.unal.senti_ma.domain.model.Coordinates
-import com.unal.senti_ma.domain.repository.LocationRepository
+import com.unal.senti_ma.domain.usecase.location.SendLocationUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class LocationForegroundService : Service() {
     lateinit var locationClient: LocationClient
 
     @Inject
-    lateinit var locationRepository: LocationRepository
+    lateinit var sendLocationUseCase: SendLocationUseCase
 
     private var locationSubscription: LocationSubscription? = null
 
@@ -108,7 +108,7 @@ class LocationForegroundService : Service() {
                 lastLocation?.let { location ->
 
                     try {
-                        locationRepository.sendLocation(location)
+                        sendLocationUseCase(location)
                     } catch (e: Exception) {
                         Log.e(TAG, "Error sending location", e)
                     }

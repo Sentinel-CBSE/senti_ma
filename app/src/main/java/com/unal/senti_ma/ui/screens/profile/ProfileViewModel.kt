@@ -11,8 +11,12 @@ import com.unal.senti_ma.data.mappers.toUserUpdate
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.User
 import com.unal.senti_ma.domain.model.UserUpdate
-import com.unal.senti_ma.domain.usecase.AuthUseCases
-import com.unal.senti_ma.domain.usecase.UserUseCases
+import com.unal.senti_ma.domain.usecase.auth.ObserveAuthStateUseCase
+import com.unal.senti_ma.domain.usecase.auth.SignOutUseCase
+import com.unal.senti_ma.domain.usecase.user.AddEmergencyContactUseCase
+import com.unal.senti_ma.domain.usecase.user.DeleteEmergencyContactUseCase
+import com.unal.senti_ma.domain.usecase.user.UpdateEmergencyContactUseCase
+import com.unal.senti_ma.domain.usecase.user.UpdateProfileUseCase
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 import com.unal.senti_ma.ui.screens.profile.events.ProfileViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,8 +33,12 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val authUseCases: AuthUseCases,
-    private val userUseCases: UserUseCases,
+    private val observeAuthStateUseCase: ObserveAuthStateUseCase,
+    private val addEmergencyContactUseCase: AddEmergencyContactUseCase,
+    private val updateEmergencyContactUseCase: UpdateEmergencyContactUseCase,
+    private val deleteEmergencyContactUseCase: DeleteEmergencyContactUseCase,
+    private val updateProfileUseCase: UpdateProfileUseCase,
+    private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Idle)
@@ -55,7 +63,7 @@ class ProfileViewModel @Inject constructor(
     private fun loadUser() {
         _uiState.value = ProfileUiState.Loading
         viewModelScope.launch {
-            val user = authUseCases.authState
+            val user = observeAuthStateUseCase()
                 .filterNotNull()
                 .first()
 
@@ -103,7 +111,7 @@ class ProfileViewModel @Inject constructor(
         isUpdating = true
 
         viewModelScope.launch {
-            when (val result = userUseCases.updateProfile(update)) {
+            when (val result = updateProfileUseCase(update)) {
 
                 is AppResult.Success -> {
                     updateUser(result.data)
@@ -134,7 +142,7 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (
-                val result = userUseCases.addEmergencyContact(
+                val result = addEmergencyContactUseCase(
                     event.contact
                 )
             ) {
@@ -167,7 +175,7 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (
-                val result = userUseCases.updateEmergencyContact(
+                val result = updateEmergencyContactUseCase(
                     event.contact
                 )
             ) {
@@ -200,7 +208,7 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (
-                val result = userUseCases.deleteEmergencyContact(
+                val result = deleteEmergencyContactUseCase(
                     event.contactUid
                 )
             ) {
@@ -228,7 +236,7 @@ class ProfileViewModel @Inject constructor(
 
     private fun signOut() {
         viewModelScope.launch {
-            authUseCases.signOut()
+            signOutUseCase()
         }
     }
 

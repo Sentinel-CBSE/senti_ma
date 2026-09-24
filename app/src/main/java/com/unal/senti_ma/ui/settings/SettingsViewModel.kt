@@ -2,7 +2,8 @@ package com.unal.senti_ma.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.unal.senti_ma.domain.usecase.SettingsUseCases
+import com.unal.senti_ma.domain.usecase.settings.ObserveDarkThemeUseCase
+import com.unal.senti_ma.domain.usecase.settings.SetDarkThemeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,11 +13,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsUseCases: SettingsUseCases
+    observeDarkThemeUseCase: ObserveDarkThemeUseCase,
+    private val setDarkThemeUseCase: SetDarkThemeUseCase
 ) : ViewModel() {
 
     val isDarkTheme: StateFlow<Boolean?> =
-        settingsUseCases.observeDarkTheme()
+        observeDarkThemeUseCase()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -25,7 +27,7 @@ class SettingsViewModel @Inject constructor(
 
     fun setDarkTheme(enabled: Boolean) {
         viewModelScope.launch {
-            settingsUseCases.setDarkTheme(enabled)
+            setDarkThemeUseCase(enabled)
         }
     }
 

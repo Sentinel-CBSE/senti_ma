@@ -7,6 +7,7 @@ import com.unal.senti_ma.data.remote.api.SentinelApi
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.repository.LocationRepository
+import com.unal.senti_ma.utils.logIfError
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,17 +30,20 @@ class LocationRepositoryImpl @Inject constructor(
         )
 
         return try {
-            /*sentinelApi.sendLocation(
+            val response = sentinelApi.sendLocation(
                 latitude = coordinates.latitude,
                 longitude = coordinates.longitude
-            )*/
-
-            Log.d(
-                "LocationRepository",
-                "Location sent successfully"
             )
 
-            AppResult.Success(Unit)
+            if (response.logIfError("LocationRepository", "Send location")) {
+                Log.d(
+                    "LocationRepository",
+                    "Location sent successfully"
+                )
+                AppResult.Success(Unit)
+            } else {
+                AppResult.Error(context.getString(R.string.text_error_send_location))
+            }
 
         } catch (exception: Exception) {
 

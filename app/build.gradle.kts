@@ -19,6 +19,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "SENTI_BACK_BASE_URL",
+            "\"${System.getenv("SENTI_BACK_BASE_URL") ?: "https://retiring-chastise-pencil.ngrok-free.dev/"}\""
+        )
     }
 
     buildTypes {
@@ -94,8 +100,9 @@ dependencies {
     implementation(platform(libs.com.firebase.bom))
     implementation(libs.com.firebase.firestore)
     implementation(libs.com.firebase.analytics)
-    implementation(libs.com.firebase.auth)
+    implementation(libs.com.firebase.messaging)
     implementation(libs.com.firebase.storage)
+    implementation(libs.com.firebase.auth)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

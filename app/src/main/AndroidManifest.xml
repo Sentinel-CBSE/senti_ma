@@ -41,11 +41,26 @@
             </intent-filter>
         </activity>
 
+        <!-- Location Foreground Service -->
         <service
             android:name=".data.location.LocationForegroundService"
             android:foregroundServiceType="location"
             android:exported="false"
             android:enabled="true" />
+
+        <!-- Firebase Cloud Messaging -->
+        <service
+            android:name=".data.notification.SentinelMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Default notification channel for Firebase -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
 
     </application>
 

@@ -10,9 +10,10 @@ import com.unal.senti_ma.domain.location.LocationSubscription
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.model.MapBounds
-import com.unal.senti_ma.domain.usecase.GeocodingUseCases
-import com.unal.senti_ma.domain.usecase.LocationUseCases
-import com.unal.senti_ma.domain.usecase.RobberyUseCases
+import com.unal.senti_ma.domain.usecase.geocoding.GetCoordinatesFromAddressUseCase
+import com.unal.senti_ma.domain.usecase.location.AcquireLocationUpdatesUseCase
+import com.unal.senti_ma.domain.usecase.location.ObserveCurrentLocationUseCase
+import com.unal.senti_ma.domain.usecase.robbery.GetRobberyMapDataUseCase
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyUiEvent
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,9 +30,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class RobberyViewModel @Inject constructor(
-    private val robberyUseCases: RobberyUseCases,
-    private val geocodingUseCases: GeocodingUseCases,
-    private val locationUseCases: LocationUseCases
+    private val getRobberyMapDataUseCase: GetRobberyMapDataUseCase,
+    private val getCoordinatesFromAddressUseCase: GetCoordinatesFromAddressUseCase,
+    private val acquireLocationUpdatesUseCase: AcquireLocationUpdatesUseCase,
+    observeCurrentLocationUseCase: ObserveCurrentLocationUseCase
 ) : ViewModel() {
 
     companion object {
@@ -44,7 +46,7 @@ class RobberyViewModel @Inject constructor(
     private val _viewModelEvent = MutableSharedFlow<RobberyViewModelEvent>(replay = 0)
     val viewModelEvent = _viewModelEvent.asSharedFlow()
 
-    val currentLocation: StateFlow<Coordinates?> = locationUseCases.observeCurrentLocation()
+    val currentLocation: StateFlow<Coordinates?> = observeCurrentLocationUseCase()
     private var locationSubscription: LocationSubscription? = null
 
     var selectedType by mutableStateOf<String?>(null)
@@ -75,8 +77,7 @@ class RobberyViewModel @Inject constructor(
             return
         }
 
-        locationSubscription =
-            locationUseCases.acquireLocationUpdates()
+        locationSubscription = acquireLocationUpdatesUseCase()
     }
 
     fun stopLocationUpdates() {
@@ -153,7 +154,7 @@ class RobberyViewModel @Inject constructor(
         addressJob = viewModelScope.launch {
             when (
                 val result =
-                    geocodingUseCases.getCoordinatesFromAddress(
+                    getCoordinatesFromAddressUseCase(
                         selectedAddress
                     )
             ) {
@@ -202,7 +203,7 @@ class RobberyViewModel @Inject constructor(
 
             when (
                 val result =
-                    robberyUseCases.getRobberyMapData(
+                    getRobberyMapDataUseCase(
                         mapBounds = mapBounds,
                         fromTimestamp = selectedFromTimestamp,
                         toTimestamp = selectedToTimestamp,

@@ -8,7 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.AppResult
-import com.unal.senti_ma.domain.usecase.AuthUseCases
+import com.unal.senti_ma.domain.usecase.auth.SignInAnonymouslyUseCase
+import com.unal.senti_ma.domain.usecase.auth.SignInWithEmailAndPasswordUseCase
+import com.unal.senti_ma.domain.usecase.auth.SignInWithGoogleUseCase
+import com.unal.senti_ma.domain.usecase.auth.SignInWithSavedCredentialsUseCase
 import com.unal.senti_ma.ui.screens.login.events.LoginUiEvent
 import com.unal.senti_ma.ui.screens.login.events.LoginViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +26,10 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val authUseCases: AuthUseCases
+    private val signInWithSavedCredentialsUseCase: SignInWithSavedCredentialsUseCase,
+    private val signInWithEmailAndPasswordUseCase: SignInWithEmailAndPasswordUseCase,
+    private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -59,7 +65,7 @@ class LoginViewModel @Inject constructor(
     private fun onSignInAnonymously() {
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
-            when (val result = authUseCases.signInAnonymously()) {
+            when (val result = signInAnonymouslyUseCase()) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
                     _viewModelEvent.emit(LoginViewModelEvent.Success)
@@ -73,7 +79,7 @@ class LoginViewModel @Inject constructor(
 
     private fun onSignInWithSavedCredentials(event: LoginUiEvent.SignInWithSavedCredentials) {
         viewModelScope.launch {
-            when (val result = authUseCases.signInWithSavedCredentials(event.activity)) {
+            when (val result = signInWithSavedCredentialsUseCase(event.activity)) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
                     _viewModelEvent.emit(LoginViewModelEvent.Success)
@@ -87,7 +93,7 @@ class LoginViewModel @Inject constructor(
 
     private fun onSignInWithGoogle(event: LoginUiEvent.SignInWithGoogle) {
         viewModelScope.launch {
-            when (val result = authUseCases.signInWithGoogle(event.activity)) {
+            when (val result = signInWithGoogleUseCase(event.activity)) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
                     _viewModelEvent.emit(LoginViewModelEvent.Success)
@@ -107,7 +113,7 @@ class LoginViewModel @Inject constructor(
 
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
-            when (val result = authUseCases.signInWithEmailAndPassword(userEmail, userPassword)) {
+            when (val result = signInWithEmailAndPasswordUseCase(userEmail, userPassword)) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
                     _viewModelEvent.emit(LoginViewModelEvent.Success)

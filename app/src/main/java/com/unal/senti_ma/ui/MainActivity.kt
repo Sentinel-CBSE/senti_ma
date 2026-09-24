@@ -107,7 +107,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             ) { innerPadding ->
                                 MainNavGraph(
-                                    user = state.user,
                                     navController = navController,
                                     modifier = Modifier.padding(innerPadding)
                                 )

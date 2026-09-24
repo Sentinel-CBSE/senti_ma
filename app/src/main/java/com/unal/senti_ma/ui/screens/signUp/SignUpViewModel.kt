@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.AppResult
-import com.unal.senti_ma.domain.usecase.AuthUseCases
+import com.unal.senti_ma.domain.usecase.auth.CreateUserWithEmailAndPasswordUseCase
 import com.unal.senti_ma.ui.screens.signUp.events.SignUpUiEvent
 import com.unal.senti_ma.ui.screens.signUp.events.SignUpViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    private val authUseCases: AuthUseCases
+    private val createUserWithEmailAndPasswordUseCase: CreateUserWithEmailAndPasswordUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SignUpUiState>(SignUpUiState.Idle)
@@ -104,7 +104,7 @@ class SignUpViewModel @Inject constructor(
 
         viewModelScope.launch {
             when (
-                val result = authUseCases.createUserWithEmailAndPassword(
+                val result = createUserWithEmailAndPasswordUseCase(
                     userName,
                     userEmail,
                     userPassword,

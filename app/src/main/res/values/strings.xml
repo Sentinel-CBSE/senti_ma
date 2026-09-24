@@ -447,6 +447,33 @@
 
 
     <!-- ============================================================
+         NOTIFICATIONS
+         ============================================================ -->
+
+    <string name="default_notification_channel_id">
+        sentinel_notifications
+    </string>
+
+    <string name="notification_channel_name">
+        Eventos cercanos
+    </string>
+
+    <string name="notification_channel_description">
+        Notificaciones de eventos reportados cerca de tu ubicación
+    </string>
+
+    <!-- Errors -->
+    <string name="text_error_register_token">
+        No se pudo registrar el token de notificaciones
+    </string>
+
+    <!-- Logs -->
+    <string name="log_notification_permission_not_granted">
+        POST_NOTIFICATIONS no concedido, notificación omitida
+    </string>
+
+
+    <!-- ============================================================
          GENERAL / SHARED UI
          ============================================================ -->
 

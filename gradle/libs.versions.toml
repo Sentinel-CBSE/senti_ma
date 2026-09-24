@@ -1,16 +1,16 @@
 [versions]
 
 # Build tools
-agp = "9.4.0"
+agp = "9.4.1"
 kotlin = "2.4.20"
 ksp = "2.3.6"
 
 # AndroidX core
-coreKtx = "1.19.0"
+coreKtx = "1.19.1"
 activityCompose = "1.13.0"
 lifecycleRuntimeKtx = "2.11.0"
 lifecycleViewModelCompose = "2.11.0"
-navigationCompose = "2.10.1"
+navigationCompose = "2.10.2"
 datastorePreferences = "1.2.1"
 
 # compose
@@ -25,10 +25,10 @@ googleid = "1.2.1"
 credentials = "1.6.0"
 credentialsPlayServicesAuth = "1.6.0"
 playServicesAuth = "22.0.0"
-playServicesBase = "18.10.1"
+playServicesBase = "18.11.0"
 
 # Image
-coil = "3.6.2"
+coil = "3.6.3"
 
 # Networking
 retrofit = "3.0.0"
@@ -102,8 +102,9 @@ androidx-foundation = { group = "androidx.compose.foundation", name = "foundatio
 com-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 com-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 com-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
-com-firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+com-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 com-firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
+com-firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }

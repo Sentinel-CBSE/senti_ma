@@ -1,7 +1,9 @@
 package com.unal.senti_ma.di
 
+import com.google.firebase.auth.FirebaseAuth
 import com.unal.senti_ma.BuildConfig
 import com.unal.senti_ma.data.remote.api.SentinelApi
+import com.unal.senti_ma.data.remote.interceptor.FirebaseAuthInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,12 +18,18 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val SENTI_BACK_BASE_URL = "https://TODO-senti-back.example.com/"
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
+    }
 
     @Provides
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
+            redactHeader("Authorization")
+
             level = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BODY
             } else {
@@ -33,9 +41,11 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor
+        loggingInterceptor: HttpLoggingInterceptor,
+        firebaseAuthInterceptor: FirebaseAuthInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(firebaseAuthInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
     }
@@ -44,7 +54,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(SENTI_BACK_BASE_URL)
+            .baseUrl(BuildConfig.SENTI_BACK_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

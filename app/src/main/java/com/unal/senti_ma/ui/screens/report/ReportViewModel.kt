@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.Coordinates
-import com.unal.senti_ma.domain.usecase.LocationUseCases
-import com.unal.senti_ma.domain.usecase.RobberyUseCases
+import com.unal.senti_ma.domain.usecase.location.GetCurrentLocationUseCase
+import com.unal.senti_ma.domain.usecase.robbery.CreateRobberyReportUseCase
 import com.unal.senti_ma.ui.screens.report.events.ReportUiEvent
 import com.unal.senti_ma.ui.screens.report.events.ReportViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +25,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class ReportViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val robberyUseCases: RobberyUseCases,
-    private val locationUseCases: LocationUseCases
+    private val createRobberyReportUseCase: CreateRobberyReportUseCase,
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase
 ) : ViewModel() {
 
     companion object {
@@ -55,7 +55,7 @@ class ReportViewModel @Inject constructor(
 
     private fun updateLocation() {
         viewModelScope.launch {
-            val coordinates = locationUseCases.getCurrentLocation()
+            val coordinates = getCurrentLocationUseCase()
             if (coordinates != null) {
                 currentLocation = coordinates
             }
@@ -122,7 +122,7 @@ class ReportViewModel @Inject constructor(
         _uiState.value = ReportUiState.Creating
         viewModelScope.launch {
             when (
-                val result = robberyUseCases.createRobberyReport(
+                val result = createRobberyReportUseCase(
                     type = type,
                     latitude = location.latitude,
                     longitude = location.longitude

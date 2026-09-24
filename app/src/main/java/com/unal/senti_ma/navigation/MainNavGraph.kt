@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.unal.senti_ma.domain.model.User
 import com.unal.senti_ma.ui.screens.profile.ProfileScreen
 import com.unal.senti_ma.ui.screens.report.ReportScreen
 import com.unal.senti_ma.ui.screens.robbery.RobberyScreen
@@ -14,7 +13,6 @@ import com.unal.senti_ma.utils.navigateSingleTopTo
 
 @Composable
 fun MainNavGraph(
-    user: User,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {

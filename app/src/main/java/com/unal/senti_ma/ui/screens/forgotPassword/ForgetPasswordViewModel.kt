@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.AppResult
-import com.unal.senti_ma.domain.usecase.AuthUseCases
+import com.unal.senti_ma.domain.usecase.auth.SendPasswordResetEmailUseCase
 import com.unal.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordUiEvent
 import com.unal.senti_ma.ui.screens.forgotPassword.events.ForgotPasswordViewModelEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ForgetPasswordViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    private val authUseCases: AuthUseCases
+    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ForgotPasswordUiState>(ForgotPasswordUiState.Idle)
@@ -57,7 +57,7 @@ class ForgetPasswordViewModel @Inject constructor(
 
         _uiState.value = ForgotPasswordUiState.Loading
         viewModelScope.launch {
-            when (val result = authUseCases.sendPasswordResetEmail(userEmail)) {
+            when (val result = sendPasswordResetEmailUseCase(userEmail)) {
                 is AppResult.Success -> {
                     _uiState.value = ForgotPasswordUiState.Idle
                     _viewModelEvent.emit(

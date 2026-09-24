@@ -31,11 +31,27 @@ class RobberyRepositoryImpl @Inject constructor(
         type: String?
     ): AppResult<List<RobberyPoint>> {
         return try {
+            // TODO: reemplazar por la llamada real cuando el backend esté listo:
+            // val response = withContext(Dispatchers.IO) {
+            //     sentinelApi.getRobberyPoints(
+            //         mapBounds.northLat, mapBounds.southLat,
+            //         mapBounds.eastLon, mapBounds.westLon,
+            //         fromTimestamp, toTimestamp, type
+            //     )
+            // }
+            //
+            // if (!response.logIfError("RobberyRepository", "Get robbery points")) {
+            //     return AppResult.Error(context.getString(R.string.text_error_get_heatmap))
+            // }
+            //
+            // val points = response.body()
+            //     ?.map { it.toDomain() }
+            //     ?: emptyList()
+
             val points = withContext(Dispatchers.IO) {
-                // TODO: reemplazar por la llamada real cuando el backend esté listo:
-                // sentinelApi.getRobberyPoints(bounds.northLat, bounds.southLat, bounds.eastLon, bounds.westLon, fromTimestamp, toTimestamp, type).map { it.toDomain() }
                 generateFakePoints(mapBounds, fromTimestamp, toTimestamp, type)
             }
+
             AppResult.Success(points)
         } catch (_: Exception) {
             AppResult.Error(context.getString(R.string.text_error_get_heatmap))
@@ -71,9 +87,19 @@ class RobberyRepositoryImpl @Inject constructor(
         timestamp: Long
     ): AppResult<Unit> {
         return try {
+            // TODO: reemplazar por la llamada real cuando el backend esté listo:
+            // val response = withContext(Dispatchers.IO) {
+            //     sentinelApi.createRobberyReport(
+            //         type = type, latitude = latitude,
+            //         longitude = longitude, timestamp = timestamp
+            //     )
+            // }
+            //
+            // if (!response.logIfError("RobberyRepository", "Create robbery report")) {
+            //     return AppResult.Error(context.getString(R.string.text_error_create_robbery))
+            // }
+
             withContext(Dispatchers.IO) {
-                // TODO: reemplazar por la llamada real:
-                // sentinelApi.createRobberyReport(type = type, latitude = latitude, longitude = longitude, timestamp = timestamp)
                 delay(500.milliseconds)
 
                 Log.d(
@@ -82,7 +108,6 @@ class RobberyRepositoryImpl @Inject constructor(
                             "latitude=${latitude}, " +
                             "longitude=${longitude}"
                 )
-
             }
 
             AppResult.Success(Unit)
