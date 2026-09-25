@@ -12,13 +12,17 @@ import com.unal.senti_ma.domain.enums.PermissionStatus
 import com.unal.senti_ma.ui.screens.report.components.ReportContent
 import com.unal.senti_ma.ui.screens.report.events.ReportUiEvent
 import com.unal.senti_ma.ui.screens.report.events.ReportViewModelEvent
+import com.unal.senti_ma.ui.shared.permissions.PermissionViewModel
 
 @Composable
 fun ReportScreen(
-    reportViewModel: ReportViewModel = hiltViewModel()
+    reportViewModel: ReportViewModel = hiltViewModel(),
+    permissionViewModel: PermissionViewModel = hiltViewModel()
 ) {
-    val reportUiState by reportViewModel.uiState.collectAsStateWithLifecycle()
-    val locationPermissionStatus by reportViewModel.locationPermissionStatus.collectAsStateWithLifecycle()
+    val uiState by reportViewModel.uiState.collectAsStateWithLifecycle()
+
+    val locationPermissionStatus by permissionViewModel.locationPermissionStatus.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
 
     LaunchedEffect(locationPermissionStatus) {
@@ -54,7 +58,7 @@ fun ReportScreen(
     }
 
     ReportContent(
-        uiState = reportUiState,
+        uiState = uiState,
         onEvent = reportViewModel::onEvent
     )
 }

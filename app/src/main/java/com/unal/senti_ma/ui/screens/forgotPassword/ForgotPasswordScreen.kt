@@ -19,7 +19,9 @@ fun ForgotPasswordScreen(
     onBackPressed: () -> Unit,
     onSignUpClick: () -> Unit
 ) {
-    val forgotPasswordUiState by forgetPasswordViewModel.uiState.collectAsState()
+    val uiState by forgetPasswordViewModel.uiState.collectAsState()
+    val formState by forgetPasswordViewModel.formState.collectAsState()
+
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -46,8 +48,8 @@ fun ForgotPasswordScreen(
 
     ForgotPasswordContent(
         modifier = modifier,
-        uiState = forgotPasswordUiState,
-        userEmail = forgetPasswordViewModel.userEmail,
+        uiState = uiState,
+        userEmail = formState.userEmail,
         onEvent = forgetPasswordViewModel::onEvent,
         onBackPressed = {
             forgetPasswordViewModel.onEvent(

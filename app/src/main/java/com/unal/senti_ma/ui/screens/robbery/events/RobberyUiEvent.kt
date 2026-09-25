@@ -7,8 +7,6 @@ sealed interface RobberyUiEvent {
 
     data object ClearState : RobberyUiEvent
 
-    data object ToggleDisplayMode : RobberyUiEvent
-
     data class UpdateTypeFilter(
         val type: String?
     ) : RobberyUiEvent

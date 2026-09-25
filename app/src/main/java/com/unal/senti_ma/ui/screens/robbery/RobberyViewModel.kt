@@ -1,12 +1,7 @@
 package com.unal.senti_ma.ui.screens.robbery
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.unal.senti_ma.domain.enums.PermissionStatus
-import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.domain.location.LocationSubscription
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.Coordinates
@@ -14,7 +9,6 @@ import com.unal.senti_ma.domain.model.MapBounds
 import com.unal.senti_ma.domain.usecase.geocoding.GetCoordinatesFromAddressUseCase
 import com.unal.senti_ma.domain.usecase.location.AcquireLocationUpdatesUseCase
 import com.unal.senti_ma.domain.usecase.location.ObserveCurrentLocationUseCase
-import com.unal.senti_ma.domain.usecase.permissions.ObserveLocationPermissionUseCase
 import com.unal.senti_ma.domain.usecase.robbery.GetRobberyMapDataUseCase
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyUiEvent
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
@@ -26,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -35,7 +30,6 @@ class RobberyViewModel @Inject constructor(
     private val getRobberyMapDataUseCase: GetRobberyMapDataUseCase,
     private val getCoordinatesFromAddressUseCase: GetCoordinatesFromAddressUseCase,
     private val acquireLocationUpdatesUseCase: AcquireLocationUpdatesUseCase,
-    observeLocationPermissionUseCase: ObserveLocationPermissionUseCase,
     observeCurrentLocationUseCase: ObserveCurrentLocationUseCase
 ) : ViewModel() {
 
@@ -46,44 +40,23 @@ class RobberyViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<RobberyUiState>(RobberyUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
+    private val _formState = MutableStateFlow(RobberyFormState())
+    val formState = _formState.asStateFlow()
+
     private val _viewModelEvent = MutableSharedFlow<RobberyViewModelEvent>(replay = 0)
     val viewModelEvent = _viewModelEvent.asSharedFlow()
 
     val currentLocation: StateFlow<Coordinates?> = observeCurrentLocationUseCase()
 
-    val locationPermissionStatus: StateFlow<PermissionStatus> =
-        observeLocationPermissionUseCase()
-
     private var locationSubscription: LocationSubscription? = null
 
-    var selectedType by mutableStateOf<String?>(null)
-        private set
-
-    var selectedFromTimestamp by mutableStateOf<Long?>(null)
-        private set
-
-    var selectedToTimestamp by mutableStateOf<Long?>(null)
-        private set
-
-    var selectedAddress by mutableStateOf("")
-        private set
-
-    var selectedLocation by mutableStateOf<Coordinates?>(null)
-        private set
-
-    var displayMode by mutableStateOf(RobberyDisplayMode.HEATMAP)
-        private set
+    private var currentMapBounds: MapBounds? = null
 
     private var reloadJob: Job? = null
     private var addressJob: Job? = null
 
-    private var currentMapBounds: MapBounds? = null
-
     fun startLocationUpdates() {
-        if (locationSubscription != null) {
-            return
-        }
-
+        if (locationSubscription != null) return
         locationSubscription = acquireLocationUpdatesUseCase()
     }
 
@@ -95,7 +68,6 @@ class RobberyViewModel @Inject constructor(
     fun onEvent(event: RobberyUiEvent) {
         when (event) {
             is RobberyUiEvent.ClearState -> clearState()
-            is RobberyUiEvent.ToggleDisplayMode -> toggleDisplayMode()
             is RobberyUiEvent.UpdateTypeFilter -> updateTypeFilter(event)
             is RobberyUiEvent.UpdateDateRangeFilter -> updateDateRangeFilter(event)
             is RobberyUiEvent.UpdateAddressSearch -> updateAddressSearch(event)
@@ -109,64 +81,61 @@ class RobberyViewModel @Inject constructor(
         addressJob?.cancel()
 
         _uiState.value = RobberyUiState.Idle
-
-        selectedType = null
-        selectedFromTimestamp = null
-        selectedToTimestamp = null
-        selectedAddress = ""
-        selectedLocation = null
-        displayMode = RobberyDisplayMode.HEATMAP
+        _formState.value = RobberyFormState()
         currentMapBounds = null
-    }
-
-    private fun toggleDisplayMode() {
-        displayMode =
-            when (displayMode) {
-                RobberyDisplayMode.HEATMAP ->
-                    RobberyDisplayMode.POINTS
-
-                RobberyDisplayMode.POINTS ->
-                    RobberyDisplayMode.HEATMAP
-            }
     }
 
     private fun updateTypeFilter(
         event: RobberyUiEvent.UpdateTypeFilter
     ) {
-        selectedType = event.type
+        _formState.update {
+            it.copy(
+                type = event.type
+            )
+        }
+
         reload()
     }
 
     private fun updateDateRangeFilter(
         event: RobberyUiEvent.UpdateDateRangeFilter
     ) {
-        selectedFromTimestamp = event.fromTimestamp
-        selectedToTimestamp = event.toTimestamp
+        _formState.update {
+            it.copy(
+                fromTimestamp = event.fromTimestamp,
+                toTimestamp = event.toTimestamp
+            )
+        }
+
         reload()
     }
 
     private fun updateAddressSearch(
         event: RobberyUiEvent.UpdateAddressSearch
     ) {
-        selectedAddress = event.address
+        _formState.update {
+            it.copy(
+                address = event.address
+            )
+        }
     }
 
     private fun updateMapToPosition() {
-        if (selectedAddress.isBlank()) {
-            return
-        }
+        val address = _formState.value.address
+        if (address.isBlank()) return
 
         addressJob?.cancel()
 
         addressJob = viewModelScope.launch {
             when (
-                val result =
-                    getCoordinatesFromAddressUseCase(
-                        selectedAddress
-                    )
+                val result = getCoordinatesFromAddressUseCase(address)
             ) {
                 is AppResult.Success -> {
-                    selectedLocation = result.data
+                    _formState.update {
+                        it.copy(
+                            location = result.data
+                        )
+                    }
 
                     _viewModelEvent.emit(
                         RobberyViewModelEvent.MoveMapToLocation(
@@ -192,7 +161,12 @@ class RobberyViewModel @Inject constructor(
         event: RobberyUiEvent.UpdateMapPosition
     ) {
         currentMapBounds = event.mapBounds
-        selectedLocation = event.center
+
+        _formState.update {
+            it.copy(
+                location = event.center
+            )
+        }
 
         reload()
     }
@@ -201,6 +175,7 @@ class RobberyViewModel @Inject constructor(
         val mapBounds = currentMapBounds
             ?: return
 
+        val formState = _formState.value
         reloadJob?.cancel()
 
         reloadJob = viewModelScope.launch {
@@ -212,16 +187,15 @@ class RobberyViewModel @Inject constructor(
                 val result =
                     getRobberyMapDataUseCase(
                         mapBounds = mapBounds,
-                        fromTimestamp = selectedFromTimestamp,
-                        toTimestamp = selectedToTimestamp,
-                        type = selectedType
+                        fromTimestamp = formState.fromTimestamp,
+                        toTimestamp = formState.toTimestamp,
+                        type = formState.type
                     )
             ) {
                 is AppResult.Success -> {
-                    _uiState.value =
-                        RobberyUiState.Success(
-                            robberyMapData = result.data
-                        )
+                    _uiState.value = RobberyUiState.Success(
+                        robberyMapData = result.data
+                    )
                 }
 
                 is AppResult.Error -> {

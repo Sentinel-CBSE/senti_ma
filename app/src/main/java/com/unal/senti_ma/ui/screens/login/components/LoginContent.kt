@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.unal.senti_ma.R
+import com.unal.senti_ma.ui.screens.login.LoginFormState
 import com.unal.senti_ma.ui.screens.login.LoginUiState
 import com.unal.senti_ma.ui.screens.login.events.LoginUiEvent
 import com.unal.senti_ma.ui.shared.AnnotatedTextBox
@@ -44,8 +45,7 @@ import com.unal.senti_ma.ui.theme.white_google
 fun LoginContent(
     modifier: Modifier = Modifier,
     uiState: LoginUiState,
-    userEmail: String,
-    userPassword: String,
+    formState: LoginFormState,
     isUserPasswordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     onEvent: (LoginUiEvent) -> Unit,
@@ -97,7 +97,7 @@ fun LoginContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             TextField(
-                value = userEmail,
+                value = formState.userEmail,
                 isError = uiState is LoginUiState.Error,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email
@@ -127,7 +127,7 @@ fun LoginContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
-                value = userPassword,
+                value = formState.userPassword,
                 isError = uiState is LoginUiState.Error,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password

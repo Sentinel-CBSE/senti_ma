@@ -1,9 +1,6 @@
 package com.unal.senti_ma.ui.screens.signUp
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
@@ -18,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,20 +28,11 @@ class SignUpViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SignUpUiState>(SignUpUiState.Idle)
     val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
 
+    private val _formState = MutableStateFlow(SignUpFormState())
+    val formState: StateFlow<SignUpFormState> = _formState.asStateFlow()
+
     private val _viewModelEvent = MutableSharedFlow<SignUpViewModelEvent>(replay = 0)
     val viewModelEvent = _viewModelEvent.asSharedFlow()
-
-    var userName by mutableStateOf("")
-        private set
-
-    var userEmail by mutableStateOf("")
-        private set
-
-    var userPassword by mutableStateOf("")
-        private set
-
-    var userPasswordConfirmation by mutableStateOf("")
-        private set
 
     fun onEvent(event: SignUpUiEvent) {
         when (event) {
@@ -58,21 +47,19 @@ class SignUpViewModel @Inject constructor(
 
     private fun clearState() {
         _uiState.value = SignUpUiState.Idle
-
-        userPasswordConfirmation = ""
-        userPassword = ""
-        userEmail = ""
-        userName = ""
+        _formState.value = SignUpFormState()
     }
 
     private fun createUserWithEmailAndPassword(
         event: SignUpUiEvent.CreateUserWithEmailAndPassword
     ) {
+        val formState = _formState.value
+
         if (
-            userName.isBlank() ||
-            userEmail.isBlank() ||
-            userPassword.isBlank() ||
-            userPasswordConfirmation.isBlank()
+            formState.userName.isBlank() ||
+            formState.userEmail.isBlank() ||
+            formState.userPassword.isBlank() ||
+            formState.userPasswordConfirmation.isBlank()
         ) {
             showError(
                 context.getString(
@@ -82,7 +69,7 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
-        if (userPassword != userPasswordConfirmation) {
+        if (formState.userPassword != formState.userPasswordConfirmation) {
             showError(
                 context.getString(
                     R.string.text_error_passwords_fields_not_match
@@ -91,7 +78,7 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
-        if (userPassword.length < 8) {
+        if (formState.userPassword.length < 8) {
             showError(
                 context.getString(
                     R.string.text_error_invalid_password_length
@@ -105,9 +92,9 @@ class SignUpViewModel @Inject constructor(
         viewModelScope.launch {
             when (
                 val result = createUserWithEmailAndPasswordUseCase(
-                    userName,
-                    userEmail,
-                    userPassword,
+                    formState.userName,
+                    formState.userEmail,
+                    formState.userPassword,
                     event.activity
                 )
             ) {
@@ -122,8 +109,12 @@ class SignUpViewModel @Inject constructor(
                 is AppResult.Error -> {
                     showError(result.errorMessage)
 
-                    userPassword = ""
-                    userEmail = ""
+                    _formState.update {
+                        it.copy(
+                            userPassword = "",
+                            userEmail = ""
+                        )
+                    }
                 }
 
                 is AppResult.Cancelled -> {}
@@ -135,28 +126,49 @@ class SignUpViewModel @Inject constructor(
         event: SignUpUiEvent.UpdateUserName
     ) {
         _uiState.value = SignUpUiState.Idle
-        userName = event.newUserName
+
+        _formState.update {
+            it.copy(
+                userName = event.newUserName
+            )
+        }
     }
 
     private fun updateUserEmail(
         event: SignUpUiEvent.UpdateUserEmail
     ) {
         _uiState.value = SignUpUiState.Idle
-        userEmail = event.newUserEmail
+
+        _formState.update {
+            it.copy(
+                userEmail = event.newUserEmail
+            )
+        }
     }
 
     private fun updateUserPassword(
         event: SignUpUiEvent.UpdateUserPassword
     ) {
         _uiState.value = SignUpUiState.Idle
-        userPassword = event.newUserPassword
+
+        _formState.update {
+            it.copy(
+                userPassword = event.newUserPassword
+            )
+        }
     }
 
     private fun updateUserPasswordConfirmation(
         event: SignUpUiEvent.UpdateUserPasswordConfirmation
     ) {
         _uiState.value = SignUpUiState.Idle
-        userPasswordConfirmation = event.newUserPasswordConfirmation
+
+        _formState.update {
+            it.copy(
+                userPasswordConfirmation =
+                    event.newUserPasswordConfirmation
+            )
+        }
     }
 
     private fun showError(message: String) {

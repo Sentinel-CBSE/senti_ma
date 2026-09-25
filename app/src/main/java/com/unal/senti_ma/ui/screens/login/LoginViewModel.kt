@@ -1,9 +1,6 @@
 package com.unal.senti_ma.ui.screens.login
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
@@ -18,8 +15,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,14 +34,11 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
+    private val _formState = MutableStateFlow(LoginFormState())
+    val formState: StateFlow<LoginFormState> = _formState.asStateFlow()
+
     private val _viewModelEvent = MutableSharedFlow<LoginViewModelEvent>(replay = 0)
     val viewModelEvent = _viewModelEvent.asSharedFlow()
-
-    var userEmail by mutableStateOf("")
-        private set
-
-    var userPassword by mutableStateOf("")
-        private set
 
     fun onEvent(event: LoginUiEvent) {
         when (event) {
@@ -58,91 +54,138 @@ class LoginViewModel @Inject constructor(
 
     private fun clearState() {
         _uiState.value = LoginUiState.Idle
-        userPassword = ""
-        userEmail = ""
+        _formState.value = LoginFormState()
     }
 
     private fun onSignInAnonymously() {
         _uiState.value = LoginUiState.Loading
+
         viewModelScope.launch {
             when (val result = signInAnonymouslyUseCase()) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
-                    _viewModelEvent.emit(LoginViewModelEvent.Success)
+                    _viewModelEvent.emit(
+                        LoginViewModelEvent.Success
+                    )
                 }
 
                 is AppResult.Error -> showError(result.errorMessage)
-                is AppResult.Cancelled -> {}
+
+                is AppResult.Cancelled -> Unit
             }
         }
     }
 
-    private fun onSignInWithSavedCredentials(event: LoginUiEvent.SignInWithSavedCredentials) {
+    private fun onSignInWithSavedCredentials(
+        event: LoginUiEvent.SignInWithSavedCredentials
+    ) {
         viewModelScope.launch {
-            when (val result = signInWithSavedCredentialsUseCase(event.activity)) {
+            when (
+                val result = signInWithSavedCredentialsUseCase(
+                    event.activity
+                )
+            ) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
-                    _viewModelEvent.emit(LoginViewModelEvent.Success)
+                    _viewModelEvent.emit(
+                        LoginViewModelEvent.Success
+                    )
                 }
 
                 is AppResult.Error -> showError(result.errorMessage)
-                is AppResult.Cancelled -> {}
+
+                is AppResult.Cancelled -> Unit
             }
         }
     }
 
-    private fun onSignInWithGoogle(event: LoginUiEvent.SignInWithGoogle) {
+    private fun onSignInWithGoogle(
+        event: LoginUiEvent.SignInWithGoogle
+    ) {
         viewModelScope.launch {
-            when (val result = signInWithGoogleUseCase(event.activity)) {
+            when (
+                val result = signInWithGoogleUseCase(
+                    event.activity
+                )
+            ) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
-                    _viewModelEvent.emit(LoginViewModelEvent.Success)
+                    _viewModelEvent.emit(
+                        LoginViewModelEvent.Success
+                    )
                 }
 
                 is AppResult.Error -> showError(result.errorMessage)
-                is AppResult.Cancelled -> {}
+
+                is AppResult.Cancelled -> Unit
             }
         }
     }
 
     private fun onSignInWithEmailAndPassword() {
-        if (userEmail.isBlank() || userPassword.isBlank()) {
+        val formState = _formState.value
+
+        if (formState.userEmail.isBlank() ||
+            formState.userPassword.isBlank()
+        ) {
             showError(context.getString(R.string.text_error_required_fields_are_null))
             return
         }
 
         _uiState.value = LoginUiState.Loading
+
         viewModelScope.launch {
-            when (val result = signInWithEmailAndPasswordUseCase(userEmail, userPassword)) {
+            when (
+                val result = signInWithEmailAndPasswordUseCase(
+                    formState.userEmail,
+                    formState.userPassword
+                )
+            ) {
                 is AppResult.Success -> {
                     _uiState.value = LoginUiState.Idle
-                    _viewModelEvent.emit(LoginViewModelEvent.Success)
+                    _viewModelEvent.emit(
+                        LoginViewModelEvent.Success
+                    )
                 }
 
                 is AppResult.Error -> {
                     showError(result.errorMessage)
-                    userPassword = ""
-                    userEmail = ""
+                    _formState.value = LoginFormState()
                 }
 
-                is AppResult.Cancelled -> {}
+                is AppResult.Cancelled -> Unit
             }
         }
     }
 
     private fun updateUserEmail(event: LoginUiEvent.UpdateUserEmail) {
         _uiState.value = LoginUiState.Idle
-        userEmail = event.newUserEmail
+
+        _formState.update {
+            it.copy(
+                userEmail = event.newUserEmail
+            )
+        }
     }
 
     private fun updateUserPassword(event: LoginUiEvent.UpdateUserPassword) {
         _uiState.value = LoginUiState.Idle
-        userPassword = event.newUserPassword
+
+        _formState.update {
+            it.copy(
+                userPassword = event.newUserPassword
+            )
+        }
     }
 
     private fun showError(message: String) {
         _uiState.value = LoginUiState.Error(message)
-        viewModelScope.launch { _viewModelEvent.emit(LoginViewModelEvent.Error(message)) }
+
+        viewModelScope.launch {
+            _viewModelEvent.emit(
+                LoginViewModelEvent.Error(message)
+            )
+        }
     }
 
 }

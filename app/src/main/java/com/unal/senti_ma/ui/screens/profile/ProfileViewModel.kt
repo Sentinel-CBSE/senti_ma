@@ -1,16 +1,12 @@
 package com.unal.senti_ma.ui.screens.profile
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
 import com.unal.senti_ma.data.mappers.toUserUpdate
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.User
-import com.unal.senti_ma.domain.model.UserUpdate
 import com.unal.senti_ma.domain.usecase.auth.ObserveAuthStateUseCase
 import com.unal.senti_ma.domain.usecase.auth.SignOutUseCase
 import com.unal.senti_ma.domain.usecase.user.AddEmergencyContactUseCase
@@ -23,10 +19,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,17 +42,11 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
+    private val _formState = MutableStateFlow(ProfileFormState())
+    val formState: StateFlow<ProfileFormState> = _formState.asStateFlow()
+
     private val _viewModelEvent = MutableSharedFlow<ProfileViewModelEvent>(replay = 0)
     val viewModelEvent = _viewModelEvent.asSharedFlow()
-
-    var userUpdate by mutableStateOf<UserUpdate?>(null)
-        private set
-
-    var isEditing by mutableStateOf(false)
-        private set
-
-    var isUpdating by mutableStateOf(false)
-        private set
 
     init {
         loadUser()
@@ -86,37 +78,45 @@ class ProfileViewModel @Inject constructor(
 
     private fun startEditing() {
         val state = _uiState.value
+
         if (state is ProfileUiState.Success) {
-            userUpdate = state.user.toUserUpdate()
-            isEditing = true
+            _formState.value = ProfileFormState(
+                userUpdate = state.user.toUserUpdate()
+            )
         }
     }
 
     private fun cancelEditing() {
         val state = _uiState.value
+
         if (state is ProfileUiState.Success) {
-            userUpdate = state.user.toUserUpdate()
-            isEditing = false
+            _formState.value = ProfileFormState(
+                userUpdate = state.user.toUserUpdate()
+            )
         }
     }
 
     private fun updateProfileDraft(
         event: ProfileUiEvent.UpdateProfileDraft
     ) {
-        userUpdate = event.userUpdate
+        _formState.update {
+            it.copy(
+                userUpdate = event.userUpdate
+            )
+        }
     }
 
     private fun saveProfile() {
-        val update = userUpdate ?: return
-        isUpdating = true
+        val update = _formState.value.userUpdate
+            ?: return
 
         viewModelScope.launch {
-            when (val result = updateProfileUseCase(update)) {
+            when (
+                val result = updateProfileUseCase(update)
+            ) {
 
                 is AppResult.Success -> {
                     updateUser(result.data)
-                    isEditing = false
-                    isUpdating = false
 
                     emitSuccess(
                         context.getString(
@@ -126,11 +126,10 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is AppResult.Error -> {
-                    isUpdating = false
                     emitError(result.errorMessage)
                 }
 
-                is AppResult.Cancelled -> {}
+                is AppResult.Cancelled -> Unit
             }
         }
     }
@@ -138,8 +137,6 @@ class ProfileViewModel @Inject constructor(
     private fun addEmergencyContact(
         event: ProfileUiEvent.AddEmergencyContact
     ) {
-        isUpdating = true
-
         viewModelScope.launch {
             when (
                 val result = addEmergencyContactUseCase(
@@ -149,7 +146,6 @@ class ProfileViewModel @Inject constructor(
 
                 is AppResult.Success -> {
                     updateUser(result.data)
-                    isUpdating = false
 
                     emitSuccess(
                         context.getString(
@@ -159,11 +155,10 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is AppResult.Error -> {
-                    isUpdating = false
                     emitError(result.errorMessage)
                 }
 
-                is AppResult.Cancelled -> {}
+                is AppResult.Cancelled -> Unit
             }
         }
     }
@@ -171,8 +166,6 @@ class ProfileViewModel @Inject constructor(
     private fun updateEmergencyContact(
         event: ProfileUiEvent.UpdateEmergencyContact
     ) {
-        isUpdating = true
-
         viewModelScope.launch {
             when (
                 val result = updateEmergencyContactUseCase(
@@ -182,7 +175,6 @@ class ProfileViewModel @Inject constructor(
 
                 is AppResult.Success -> {
                     updateUser(result.data)
-                    isUpdating = false
 
                     emitSuccess(
                         context.getString(
@@ -192,11 +184,10 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is AppResult.Error -> {
-                    isUpdating = false
                     emitError(result.errorMessage)
                 }
 
-                is AppResult.Cancelled -> {}
+                is AppResult.Cancelled -> Unit
             }
         }
     }
@@ -204,8 +195,6 @@ class ProfileViewModel @Inject constructor(
     private fun deleteEmergencyContact(
         event: ProfileUiEvent.DeleteEmergencyContact
     ) {
-        isUpdating = true
-
         viewModelScope.launch {
             when (
                 val result = deleteEmergencyContactUseCase(
@@ -215,7 +204,6 @@ class ProfileViewModel @Inject constructor(
 
                 is AppResult.Success -> {
                     updateUser(result.data)
-                    isUpdating = false
 
                     emitSuccess(
                         context.getString(
@@ -225,11 +213,10 @@ class ProfileViewModel @Inject constructor(
                 }
 
                 is AppResult.Error -> {
-                    isUpdating = false
                     emitError(result.errorMessage)
                 }
 
-                is AppResult.Cancelled -> {}
+                is AppResult.Cancelled -> Unit
             }
         }
     }
@@ -241,7 +228,10 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun updateUser(user: User) {
-        userUpdate = user.toUserUpdate()
+        _formState.value = ProfileFormState(
+            userUpdate = user.toUserUpdate()
+        )
+
         _uiState.value = ProfileUiState.Success(user)
     }
 

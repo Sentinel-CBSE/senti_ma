@@ -47,6 +47,7 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.model.MapBounds
+import com.unal.senti_ma.ui.screens.robbery.RobberyFormState
 import com.unal.senti_ma.ui.screens.robbery.RobberyUiState
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
 import com.unal.senti_ma.ui.screens.robbery.map.HeatmapOverlay
@@ -65,12 +66,9 @@ import org.osmdroid.views.overlay.Marker
 fun RobberyContent(
     modifier: Modifier = Modifier,
     uiState: RobberyUiState,
+    formState: RobberyFormState,
     currentLocation: Coordinates?,
     displayMode: RobberyDisplayMode,
-    selectedAddress: String,
-    selectedType: String?,
-    selectedFromTimestamp: Long?,
-    selectedToTimestamp: Long?,
     showDateDialog: Boolean,
     filtersExpanded: Boolean,
     viewModelEvent: Flow<RobberyViewModelEvent>,
@@ -276,10 +274,8 @@ fun RobberyContent(
 
     if (showDateDialog) {
         RobberyDateRangeDialog(
-            initialStartDateMillis =
-                selectedFromTimestamp,
-            initialEndDateMillis =
-                selectedToTimestamp,
+            initialStartDateMillis = formState.fromTimestamp,
+            initialEndDateMillis = formState.toTimestamp,
             onConfirm = onDateRangeConfirm,
             onDismiss = {
                 onDateDialogChange(false)
@@ -302,7 +298,7 @@ fun RobberyContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
-                value = selectedAddress,
+                value = formState.address,
                 onValueChange = onAddressChange,
                 label = {
                     Text(
@@ -320,7 +316,7 @@ fun RobberyContent(
                 },
                 singleLine = true,
                 trailingIcon = {
-                    if (selectedAddress.isNotEmpty()) {
+                    if (formState.address.isNotEmpty()) {
                         IconButton(
                             onClick = {
                                 onAddressChange("")
@@ -343,7 +339,7 @@ fun RobberyContent(
 
             IconButton(
                 onClick = onSearchAddress,
-                enabled = selectedAddress.isNotBlank()
+                enabled = formState.address.isNotBlank()
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -357,11 +353,9 @@ fun RobberyContent(
         RobberyFilters(
             expanded = filtersExpanded,
             onExpandedChange = onFiltersExpandedChange,
-            selectedType = selectedType,
-            selectedFromTimestamp =
-                selectedFromTimestamp,
-            selectedToTimestamp =
-                selectedToTimestamp,
+            selectedType = formState.type,
+            selectedFromTimestamp = formState.fromTimestamp,
+            selectedToTimestamp = formState.toTimestamp,
             onTypeSelected = onTypeSelected,
             onDateClick = {
                 onDateDialogChange(true)

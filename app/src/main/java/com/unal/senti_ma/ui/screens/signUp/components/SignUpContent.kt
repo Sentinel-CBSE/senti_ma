@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.unal.senti_ma.R
+import com.unal.senti_ma.ui.screens.signUp.SignUpFormState
 import com.unal.senti_ma.ui.screens.signUp.SignUpUiState
 import com.unal.senti_ma.ui.screens.signUp.events.SignUpUiEvent
 import com.unal.senti_ma.ui.shared.AuthTopBar
@@ -49,10 +50,7 @@ import com.unal.senti_ma.ui.shared.IconImage
 fun SignUpContent(
     modifier: Modifier = Modifier,
     uiState: SignUpUiState,
-    userName: String,
-    userEmail: String,
-    userPassword: String,
-    userPasswordConfirmation: String,
+    formState: SignUpFormState,
     onEvent: (SignUpUiEvent) -> Unit,
     onBackPressed: () -> Unit,
     onCreateUser: () -> Unit
@@ -101,7 +99,7 @@ fun SignUpContent(
                 )
 
                 TextField(
-                    value = userName,
+                    value = formState.userName,
                     isError = uiState is SignUpUiState.Error,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text
@@ -133,7 +131,7 @@ fun SignUpContent(
                 )
 
                 TextField(
-                    value = userEmail,
+                    value = formState.userEmail,
                     isError = uiState is SignUpUiState.Error,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
@@ -165,7 +163,7 @@ fun SignUpContent(
                 )
 
                 TextField(
-                    value = userPassword,
+                    value = formState.userPassword,
                     isError = uiState is SignUpUiState.Error,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password
@@ -223,7 +221,7 @@ fun SignUpContent(
                 )
 
                 TextField(
-                    value = userPasswordConfirmation,
+                    value = formState.userPasswordConfirmation,
                     isError = uiState is SignUpUiState.Error,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password

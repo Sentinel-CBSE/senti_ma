@@ -23,11 +23,15 @@ fun LoginScreen(
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit
 ) {
-    val loginUiState by loginViewModel.uiState.collectAsState()
-    var isUserPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    val uiState by loginViewModel.uiState.collectAsState()
+    val formState by loginViewModel.formState.collectAsState()
 
     val context = LocalContext.current
     val activity = context as? Activity
+
+    var isUserPasswordVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(Unit) {
         loginViewModel.viewModelEvent.collect { event ->
@@ -55,9 +59,8 @@ fun LoginScreen(
 
     LoginContent(
         modifier = modifier,
-        uiState = loginUiState,
-        userEmail = loginViewModel.userEmail,
-        userPassword = loginViewModel.userPassword,
+        uiState = uiState,
+        formState = formState,
         isUserPasswordVisible = isUserPasswordVisible,
         onPasswordVisibilityChange = {
             isUserPasswordVisible = !isUserPasswordVisible

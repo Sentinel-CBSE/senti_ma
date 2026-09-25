@@ -7,6 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,17 +32,26 @@ fun ProfileScreen(
     locationViewModel: LocationViewModel = hiltViewModel()
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
+    val profileFormState by profileViewModel.formState.collectAsState()
+
     val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
+    val isLocationTrackingEnabled by locationViewModel.isLocationTrackingEnabled.collectAsState()
+
     val context = LocalContext.current
 
-    val isLocationTrackingEnabled by
-    locationViewModel.isLocationTrackingEnabled.collectAsState()
-
-    var requestLocationTrackingPermission by remember {
+    var isEditing by rememberSaveable {
         mutableStateOf(false)
     }
 
-    var showAddContactDialog by remember {
+    var isUpdating by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var requestLocationTrackingPermission by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var showAddContactDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -63,8 +73,10 @@ fun ProfileScreen(
     LaunchedEffect(Unit) {
         profileViewModel.viewModelEvent.collect { event ->
             when (event) {
-
                 is ProfileViewModelEvent.Success -> {
+                    isUpdating = false
+                    isEditing = false
+
                     Toast.makeText(
                         context,
                         event.message,
@@ -73,6 +85,8 @@ fun ProfileScreen(
                 }
 
                 is ProfileViewModelEvent.Error -> {
+                    isUpdating = false
+
                     Toast.makeText(
                         context,
                         event.message,
@@ -86,9 +100,9 @@ fun ProfileScreen(
     ProfileContent(
         modifier = modifier,
         uiState = profileUiState,
-        isEditing = profileViewModel.isEditing,
-        isUpdating = profileViewModel.isUpdating,
-        userUpdate = profileViewModel.userUpdate,
+        formState = profileFormState,
+        isEditing = isEditing,
+        isUpdating = isUpdating,
         isDarkTheme = isDarkTheme,
         isLocationTrackingEnabled = isLocationTrackingEnabled,
 
@@ -104,7 +118,47 @@ fun ProfileScreen(
             }
         },
 
-        onEvent = profileViewModel::onEvent,
+        onEvent = { event ->
+            when (event) {
+                is ProfileUiEvent.StartEditing -> {
+                    isEditing = true
+                    profileViewModel.onEvent(event)
+                }
+
+                is ProfileUiEvent.CancelEditing -> {
+                    isEditing = false
+                    profileViewModel.onEvent(event)
+                }
+
+                is ProfileUiEvent.SaveProfile -> {
+                    isUpdating = true
+                    profileViewModel.onEvent(event)
+                }
+
+                is ProfileUiEvent.AddEmergencyContact -> {
+                    isUpdating = true
+                    profileViewModel.onEvent(event)
+                }
+
+                is ProfileUiEvent.UpdateEmergencyContact -> {
+                    isUpdating = true
+                    profileViewModel.onEvent(event)
+                }
+
+                is ProfileUiEvent.DeleteEmergencyContact -> {
+                    isUpdating = true
+                    profileViewModel.onEvent(event)
+                }
+
+                is ProfileUiEvent.UpdateProfileDraft -> {
+                    profileViewModel.onEvent(event)
+                }
+
+                is ProfileUiEvent.SignOut -> {
+                    profileViewModel.onEvent(event)
+                }
+            }
+        },
 
         onAddContact = {
             showAddContactDialog = true
@@ -124,6 +178,7 @@ fun ProfileScreen(
                 showAddContactDialog = false
             },
             onConfirm = { name, phone, relationship ->
+                isUpdating = true
 
                 profileViewModel.onEvent(
                     ProfileUiEvent.AddEmergencyContact(
@@ -153,6 +208,7 @@ fun ProfileScreen(
                 editingContact = null
             },
             onConfirm = { name, phone, relationship ->
+                isUpdating = true
 
                 profileViewModel.onEvent(
                     ProfileUiEvent.UpdateEmergencyContact(

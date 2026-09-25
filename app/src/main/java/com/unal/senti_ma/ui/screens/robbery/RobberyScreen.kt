@@ -6,7 +6,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -14,28 +14,37 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.PermissionStatus
+import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.ui.screens.robbery.components.RobberyContent
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyUiEvent
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
+import com.unal.senti_ma.ui.shared.permissions.PermissionViewModel
 
 @Composable
 fun RobberyScreen(
     modifier: Modifier = Modifier,
     robberyViewModel: RobberyViewModel = hiltViewModel(),
+    permissionViewModel: PermissionViewModel = hiltViewModel(),
     onRobberyClick: (String) -> Unit
 ) {
-    val robberyUiState by robberyViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by robberyViewModel.uiState.collectAsStateWithLifecycle()
+    val formState by robberyViewModel.formState.collectAsStateWithLifecycle()
+
     val currentLocation by robberyViewModel.currentLocation.collectAsStateWithLifecycle()
-    val locationPermissionStatus by robberyViewModel.locationPermissionStatus.collectAsStateWithLifecycle()
+    val locationPermissionStatus by permissionViewModel.locationPermissionStatus.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
-    var showDateDialog by remember {
+    var showDateDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
-    var filtersExpanded by remember {
+    var filtersExpanded by rememberSaveable {
         mutableStateOf(false)
+    }
+
+    var displayMode by rememberSaveable {
+        mutableStateOf(RobberyDisplayMode.HEATMAP)
     }
 
     DisposableEffect(locationPermissionStatus) {
@@ -72,15 +81,10 @@ fun RobberyScreen(
 
     RobberyContent(
         modifier = modifier,
-        uiState = robberyUiState,
+        uiState = uiState,
+        formState = formState,
         currentLocation = currentLocation,
-        displayMode = robberyViewModel.displayMode,
-        selectedAddress = robberyViewModel.selectedAddress,
-        selectedType = robberyViewModel.selectedType,
-        selectedFromTimestamp =
-            robberyViewModel.selectedFromTimestamp,
-        selectedToTimestamp =
-            robberyViewModel.selectedToTimestamp,
+        displayMode = displayMode,
         showDateDialog = showDateDialog,
         filtersExpanded = filtersExpanded,
         viewModelEvent = robberyViewModel.viewModelEvent,
@@ -134,9 +138,14 @@ fun RobberyScreen(
             )
         },
         onToggleDisplayMode = {
-            robberyViewModel.onEvent(
-                RobberyUiEvent.ToggleDisplayMode
-            )
+            displayMode =
+                when (displayMode) {
+                    RobberyDisplayMode.HEATMAP ->
+                        RobberyDisplayMode.POINTS
+
+                    RobberyDisplayMode.POINTS ->
+                        RobberyDisplayMode.HEATMAP
+                }
         },
         onRobberyClick = onRobberyClick
     )

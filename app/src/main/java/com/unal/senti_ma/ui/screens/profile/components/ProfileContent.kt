@@ -38,7 +38,7 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.BloodTypeLetter
 import com.unal.senti_ma.domain.enums.BloodTypeRh
 import com.unal.senti_ma.domain.model.EmergencyContact
-import com.unal.senti_ma.domain.model.UserUpdate
+import com.unal.senti_ma.ui.screens.profile.ProfileFormState
 import com.unal.senti_ma.ui.screens.profile.ProfileUiState
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 
@@ -46,9 +46,9 @@ import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 fun ProfileContent(
     modifier: Modifier = Modifier,
     uiState: ProfileUiState,
+    formState: ProfileFormState,
     isEditing: Boolean,
     isUpdating: Boolean,
-    userUpdate: UserUpdate?,
     isDarkTheme: Boolean?,
     isLocationTrackingEnabled: Boolean,
     onToggleTheme: (Boolean) -> Unit,
@@ -58,6 +58,7 @@ fun ProfileContent(
     onEditContact: (EmergencyContact) -> Unit
 ) {
     when (uiState) {
+
         is ProfileUiState.Idle -> {}
 
         is ProfileUiState.Loading -> {
@@ -72,6 +73,7 @@ fun ProfileContent(
 
         is ProfileUiState.Success -> {
             val user = uiState.user
+            val userUpdate = formState.userUpdate
 
             LazyColumn(
                 modifier = modifier
@@ -376,10 +378,9 @@ fun ProfileContent(
                         Text(
                             text = stringResource(
                                 R.string.text_profile_eps_value,
-                                user.eps
-                                    ?: stringResource(
-                                        R.string.text_not_registered
-                                    )
+                                user.eps ?: stringResource(
+                                    R.string.text_not_registered
+                                )
                             )
                         )
                     }

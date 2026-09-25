@@ -21,7 +21,8 @@ fun SignUpScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel(),
     handleLoginNavigation: () -> Unit
 ) {
-    val signUpUiState by signUpViewModel.uiState.collectAsState()
+    val uiState by signUpViewModel.uiState.collectAsState()
+    val formState by signUpViewModel.formState.collectAsState()
 
     val context = LocalContext.current
     val activity = context as? Activity
@@ -58,11 +59,8 @@ fun SignUpScreen(
 
     SignUpContent(
         modifier = modifier,
-        uiState = signUpUiState,
-        userName = signUpViewModel.userName,
-        userEmail = signUpViewModel.userEmail,
-        userPassword = signUpViewModel.userPassword,
-        userPasswordConfirmation = signUpViewModel.userPasswordConfirmation,
+        uiState = uiState,
+        formState = formState,
         onEvent = signUpViewModel::onEvent,
         onBackPressed = {
             signUpViewModel.onEvent(
