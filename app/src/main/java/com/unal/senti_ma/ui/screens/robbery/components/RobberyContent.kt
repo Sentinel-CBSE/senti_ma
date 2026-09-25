@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.domain.model.Coordinates
@@ -50,17 +49,14 @@ import com.unal.senti_ma.domain.model.MapBounds
 import com.unal.senti_ma.ui.screens.robbery.RobberyFormState
 import com.unal.senti_ma.ui.screens.robbery.RobberyUiState
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
-import com.unal.senti_ma.ui.screens.robbery.map.HeatmapOverlay
-import com.unal.senti_ma.ui.screens.robbery.map.RobberyPointMarkers
-import com.unal.senti_ma.ui.screens.robbery.map.rememberMapViewWithLifecycle
+import com.unal.senti_ma.ui.screens.robbery.map.RobberyMapController
 import kotlinx.coroutines.flow.Flow
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
-import org.osmdroid.library.R as OsmdroidR
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.MapView
 
 @Composable
 fun RobberyContent(
@@ -87,44 +83,17 @@ fun RobberyContent(
     onRobberyClick: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val mapView = rememberMapViewWithLifecycle(context)
-
-    val heatmapOverlay = remember {
-        HeatmapOverlay()
-    }
-
-    val userLocationMarker = remember(
-        mapView,
-        context
-    ) {
-        Marker(mapView).apply {
-            setAnchor(
-                Marker.ANCHOR_CENTER,
-                Marker.ANCHOR_CENTER
-            )
-
-            icon = ContextCompat.getDrawable(
-                context,
-                OsmdroidR.drawable.person
-            )
-
-            setOnMarkerClickListener { _, _ ->
-                true
-            }
-        }
-    }
 
     val currentOnRobberyClick by rememberUpdatedState(
         onRobberyClick
     )
 
-    val pointMarkers = remember(mapView) {
-        RobberyPointMarkers(
-            mapView = mapView,
-            onRobberyClick = { id ->
-                currentOnRobberyClick(id)
-            }
-        )
+    var mapView by remember {
+        mutableStateOf<MapView?>(null)
+    }
+
+    var mapController by remember {
+        mutableStateOf<RobberyMapController?>(null)
     }
 
     var hasCenteredOnLocation by remember {
@@ -132,8 +101,10 @@ fun RobberyContent(
     }
 
     fun updateMapPosition() {
-        val center = mapView.mapCenter as GeoPoint
-        val bounds = mapView.boundingBox
+        val map = mapView ?: return
+
+        val center = map.mapCenter as GeoPoint
+        val bounds = map.boundingBox
 
         onMapPositionChanged(
             MapBounds(
@@ -150,6 +121,9 @@ fun RobberyContent(
     }
 
     DisposableEffect(mapView) {
+        val map = mapView
+            ?: return@DisposableEffect onDispose {}
+
         val listener = object : MapListener {
 
             override fun onScroll(
@@ -167,33 +141,23 @@ fun RobberyContent(
             }
         }
 
-        mapView.addMapListener(listener)
+        map.addMapListener(listener)
 
         onDispose {
-            mapView.removeMapListener(listener)
+            map.removeMapListener(listener)
         }
     }
 
-    DisposableEffect(
-        mapView,
-        userLocationMarker
+    LaunchedEffect(
+        currentLocation,
+        mapController
     ) {
-        onDispose {
-            mapView.overlays.remove(
-                userLocationMarker
-            )
+        val map = mapView
+            ?: return@LaunchedEffect
 
-            mapView.invalidate()
-        }
-    }
+        val controller = mapController
+            ?: return@LaunchedEffect
 
-    DisposableEffect(mapView) {
-        onDispose {
-            pointMarkers.clear()
-        }
-    }
-
-    LaunchedEffect(currentLocation) {
         val location = currentLocation
             ?: return@LaunchedEffect
 
@@ -202,24 +166,29 @@ fun RobberyContent(
             location.longitude
         )
 
-        userLocationMarker.position = geoPoint
+        controller.userLocationMarker.position = geoPoint
 
-        if (!mapView.overlays.contains(userLocationMarker)) {
-            mapView.overlays.add(userLocationMarker)
+        if (!map.overlays.contains(
+                controller.userLocationMarker
+            )
+        ) {
+            map.overlays.add(
+                controller.userLocationMarker
+            )
         }
 
-        mapView.invalidate()
+        map.invalidate()
 
         if (!hasCenteredOnLocation) {
             hasCenteredOnLocation = true
 
-            mapView.post {
-                mapView.controller.setZoom(15.0)
+            map.controller.setZoom(15.0)
 
-                mapView.controller.animateTo(
-                    geoPoint
-                )
+            map.controller.animateTo(
+                geoPoint
+            )
 
+            map.post {
                 updateMapPosition()
             }
         }
@@ -228,16 +197,19 @@ fun RobberyContent(
     LaunchedEffect(Unit) {
         viewModelEvent.collect { event ->
             if (event is RobberyViewModelEvent.MoveMapToLocation) {
-                mapView.controller.setZoom(15.0)
+                val map = mapView
+                    ?: return@collect
 
-                mapView.controller.setCenter(
+                map.controller.setZoom(15.0)
+
+                map.controller.setCenter(
                     GeoPoint(
                         event.coordinates.latitude,
                         event.coordinates.longitude
                     )
                 )
 
-                mapView.post {
+                map.post {
                     updateMapPosition()
                 }
             }
@@ -246,29 +218,37 @@ fun RobberyContent(
 
     LaunchedEffect(
         uiState,
-        displayMode
+        displayMode,
+        mapController
     ) {
+        val map = mapView
+            ?: return@LaunchedEffect
+
+        val controller = mapController
+            ?: return@LaunchedEffect
+
         if (uiState is RobberyUiState.Success) {
             val data = uiState.robberyMapData
 
             val isHeatmap =
                 displayMode == RobberyDisplayMode.HEATMAP
 
-            heatmapOverlay.updatePoints(
+            controller.heatmapOverlay.updatePoints(
                 data.heatmapPoints
             )
 
-            heatmapOverlay.isVisible = isHeatmap
+            controller.heatmapOverlay.isVisible =
+                isHeatmap
 
-            pointMarkers.updatePoints(
+            controller.pointMarkers.updatePoints(
                 data.robberyPoints
             )
 
-            pointMarkers.setVisible(
+            controller.pointMarkers.setVisible(
                 !isHeatmap
             )
 
-            mapView.invalidate()
+            map.invalidate()
         }
     }
 
@@ -380,7 +360,9 @@ fun RobberyContent(
         ) {
             AndroidView(
                 factory = {
-                    mapView.apply {
+                    MapView(context).apply {
+                        id = R.id.map
+
                         setTileSource(
                             TileSourceFactory.MAPNIK
                         )
@@ -399,9 +381,21 @@ fun RobberyContent(
                             )
                         )
 
-                        if (!overlays.contains(heatmapOverlay)) {
-                            overlays.add(heatmapOverlay)
-                        }
+                        val controller =
+                            RobberyMapController(
+                                mapView = this,
+                                context = context,
+                                onRobberyClick = {
+                                    currentOnRobberyClick(it)
+                                }
+                            )
+
+                        overlays.add(
+                            controller.heatmapOverlay
+                        )
+
+                        mapView = this
+                        mapController = controller
 
                         post {
                             updateMapPosition()
@@ -411,24 +405,39 @@ fun RobberyContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .clipToBounds(),
-                update = {}
+                update = {},
+                onRelease = { map ->
+                    mapController?.clear()
+
+                    map.onPause()
+                    map.onDetach()
+
+                    if (mapView === map) {
+                        mapView = null
+                        mapController = null
+                    }
+
+                    hasCenteredOnLocation = false
+                }
             )
 
             FloatingActionButton(
                 onClick = {
-                    if (currentLocation != null) {
+                    val map = mapView
+
+                    if (map != null && currentLocation != null) {
                         val geoPoint = GeoPoint(
                             currentLocation.latitude,
                             currentLocation.longitude
                         )
 
-                        mapView.controller.setZoom(15.0)
+                        map.controller.setZoom(15.0)
 
-                        mapView.controller.animateTo(
+                        map.controller.animateTo(
                             geoPoint
                         )
 
-                        mapView.post {
+                        map.post {
                             updateMapPosition()
                         }
                     } else {
