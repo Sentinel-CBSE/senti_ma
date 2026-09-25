@@ -9,7 +9,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.PermissionStatus
-import com.unal.senti_ma.ui.screens.report.components.ReportScreenContent
+import com.unal.senti_ma.ui.screens.report.components.ReportContent
 import com.unal.senti_ma.ui.screens.report.events.ReportUiEvent
 import com.unal.senti_ma.ui.screens.report.events.ReportViewModelEvent
 
@@ -53,7 +53,7 @@ fun ReportScreen(
         }
     }
 
-    ReportScreenContent(
+    ReportContent(
         uiState = reportUiState,
         onEvent = reportViewModel::onEvent
     )

@@ -19,7 +19,7 @@ fun AnnotatedTextBox(
 ) {
     Box(modifier = modifier) {
         val annotatedText = buildAnnotatedString {
-            append(text)
+            append("$text ")
 
             val startIndex = length
             withStyle(style = SpanStyle(color = colorScheme.primary)) {

@@ -1,10 +1,6 @@
 package com.unal.senti_ma.ui.screens.profile
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -88,53 +83,37 @@ fun ProfileScreen(
         }
     }
 
-    when (val state = profileUiState) {
+    ProfileContent(
+        modifier = modifier,
+        uiState = profileUiState,
+        isEditing = profileViewModel.isEditing,
+        isUpdating = profileViewModel.isUpdating,
+        userUpdate = profileViewModel.userUpdate,
+        isDarkTheme = isDarkTheme,
+        isLocationTrackingEnabled = isLocationTrackingEnabled,
 
-        is ProfileUiState.Idle -> {}
+        onToggleTheme = { enabled ->
+            settingsViewModel.setDarkTheme(enabled)
+        },
 
-        is ProfileUiState.Loading -> {
-            Column(
-                modifier = modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator()
+        onToggleLocationTracking = { enabled ->
+            if (enabled) {
+                requestLocationTrackingPermission = true
+            } else {
+                locationViewModel.stopTracking()
             }
+        },
+
+        onEvent = profileViewModel::onEvent,
+
+        onAddContact = {
+            showAddContactDialog = true
+        },
+
+        onEditContact = {
+            editingContact = it
         }
-
-        is ProfileUiState.Success -> {
-            ProfileContent(
-                user = state.user,
-                isEditing = profileViewModel.isEditing,
-                isUpdating = profileViewModel.isUpdating,
-                userUpdate = profileViewModel.userUpdate,
-                isDarkTheme = isDarkTheme,
-                isLocationTrackingEnabled = isLocationTrackingEnabled,
-
-                onToggleTheme = { enabled ->
-                    settingsViewModel.setDarkTheme(enabled)
-                },
-
-                onToggleLocationTracking = { enabled ->
-                    if (enabled) {
-                        requestLocationTrackingPermission = true
-                    } else {
-                        locationViewModel.stopTracking()
-                    }
-                },
-
-                onEvent = profileViewModel::onEvent,
-
-                onAddContact = {
-                    showAddContactDialog = true
-                },
-
-                onEditContact = {
-                    editingContact = it
-                }
-            )
-        }
-    }
+    )
 
     if (showAddContactDialog) {
         EmergencyContactDialog(
@@ -163,7 +142,6 @@ fun ProfileScreen(
     }
 
     editingContact?.let { contact ->
-
         EmergencyContactDialog(
             title = stringResource(
                 R.string.title_edit_emergency_contact

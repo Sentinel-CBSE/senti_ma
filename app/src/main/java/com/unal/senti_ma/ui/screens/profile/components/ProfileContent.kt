@@ -1,6 +1,7 @@
 package com.unal.senti_ma.ui.screens.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,13 +38,14 @@ import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.enums.BloodTypeLetter
 import com.unal.senti_ma.domain.enums.BloodTypeRh
 import com.unal.senti_ma.domain.model.EmergencyContact
-import com.unal.senti_ma.domain.model.User
 import com.unal.senti_ma.domain.model.UserUpdate
+import com.unal.senti_ma.ui.screens.profile.ProfileUiState
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 
 @Composable
 fun ProfileContent(
-    user: User,
+    modifier: Modifier = Modifier,
+    uiState: ProfileUiState,
     isEditing: Boolean,
     isUpdating: Boolean,
     userUpdate: UserUpdate?,
@@ -54,465 +57,483 @@ fun ProfileContent(
     onAddContact: () -> Unit,
     onEditContact: (EmergencyContact) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    when (uiState) {
+        is ProfileUiState.Idle -> {}
 
-        item {
-            isDarkTheme?.let { darkTheme ->
-
-                TextButton(
-                    onClick = {
-                        onToggleTheme(!darkTheme)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isUpdating
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DarkMode,
-                        contentDescription = stringResource(
-                            R.string.description_icon_theme
-                        )
-                    )
-
-                    Text(
-                        text = stringResource(
-                            R.string.text_dark_theme
-                        ),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 16.dp)
-                    )
-
-                    Switch(
-                        checked = darkTheme,
-                        onCheckedChange = onToggleTheme,
-                        enabled = !isUpdating,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor =
-                                MaterialTheme.colorScheme.primary,
-                            checkedTrackColor =
-                                MaterialTheme.colorScheme.primaryContainer
-                        )
-                    )
-                }
-            }
-        }
-
-        item {
-            TextButton(
-                onClick = {
-                    onToggleLocationTracking(
-                        !isLocationTrackingEnabled
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isUpdating
+        is ProfileUiState.Loading -> {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = stringResource(
-                        R.string.description_icon_location_tracking
-                    )
-                )
-
-                Text(
-                    text = stringResource(
-                        R.string.text_location_tracking
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 16.dp)
-                )
-
-                Switch(
-                    checked = isLocationTrackingEnabled,
-                    onCheckedChange = onToggleLocationTracking,
-                    enabled = !isUpdating,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor =
-                            MaterialTheme.colorScheme.primary,
-                        checkedTrackColor =
-                            MaterialTheme.colorScheme.primaryContainer
-                    )
-                )
+                CircularProgressIndicator()
             }
         }
 
-        item {
-            HorizontalDivider()
-        }
+        is ProfileUiState.Success -> {
+            val user = uiState.user
 
-        item {
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-        }
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
 
-        if (isEditing && userUpdate != null) {
+                item {
+                    isDarkTheme?.let { darkTheme ->
 
-            item {
-                OutlinedTextField(
-                    value = userUpdate.displayName.orEmpty(),
-                    onValueChange = {
-                        onEvent(
-                            ProfileUiEvent.UpdateProfileDraft(
-                                userUpdate.copy(
-                                    displayName = it
-                                )
-                            )
-                        )
-                    },
-                    label = {
-                        Text(
-                            stringResource(
-                                R.string.text_field_profile_name
-                            )
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isUpdating
-                )
-            }
-
-            item {
-                OutlinedTextField(
-                    value = userUpdate.eps.orEmpty(),
-                    onValueChange = {
-                        onEvent(
-                            ProfileUiEvent.UpdateProfileDraft(
-                                userUpdate.copy(
-                                    eps = it
-                                )
-                            )
-                        )
-                    },
-                    label = {
-                        Text(
-                            stringResource(
-                                R.string.text_field_profile_eps
-                            )
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isUpdating
-                )
-            }
-
-            item {
-                Text(
-                    text = stringResource(
-                        R.string.text_profile_blood_type
-                    ),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            item {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    BloodTypeLetter.entries.forEach { bloodType ->
-
-                        OutlinedButton(
+                        TextButton(
                             onClick = {
-                                onEvent(
-                                    ProfileUiEvent.UpdateProfileDraft(
-                                        userUpdate.copy(
-                                            bloodTypeLetter = bloodType
-                                        )
-                                    )
-                                )
+                                onToggleTheme(!darkTheme)
                             },
-                            enabled = !isUpdating,
-                            colors = if (
-                                userUpdate.bloodTypeLetter == bloodType
-                            ) {
-                                ButtonDefaults.buttonColors(
-                                    containerColor =
-                                        MaterialTheme.colorScheme.primary,
-                                    contentColor =
-                                        MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isUpdating
                         ) {
-                            Text(bloodType.name)
-                        }
-                    }
-                }
-            }
-
-            item {
-                Text(
-                    text = stringResource(
-                        R.string.text_profile_rh
-                    ),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            item {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    BloodTypeRh.entries.forEach { rh ->
-
-                        OutlinedButton(
-                            onClick = {
-                                onEvent(
-                                    ProfileUiEvent.UpdateProfileDraft(
-                                        userUpdate.copy(
-                                            bloodTypeRh = rh
-                                        )
-                                    )
+                            Icon(
+                                imageVector = Icons.Default.DarkMode,
+                                contentDescription = stringResource(
+                                    R.string.description_icon_theme
                                 )
-                            },
-                            enabled = !isUpdating,
-                            colors = if (
-                                userUpdate.bloodTypeRh == rh
-                            ) {
-                                ButtonDefaults.buttonColors(
-                                    containerColor =
-                                        MaterialTheme.colorScheme.primary,
-                                    contentColor =
-                                        MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                ButtonDefaults.outlinedButtonColors()
-                            }
-                        ) {
+                            )
+
                             Text(
-                                if (rh == BloodTypeRh.POSITIVE) {
-                                    "+"
-                                } else {
-                                    "-"
-                                }
+                                text = stringResource(
+                                    R.string.text_dark_theme
+                                ),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 16.dp)
+                            )
+
+                            Switch(
+                                checked = darkTheme,
+                                onCheckedChange = onToggleTheme,
+                                enabled = !isUpdating,
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor =
+                                        MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor =
+                                        MaterialTheme.colorScheme.primaryContainer
+                                )
                             )
                         }
                     }
                 }
-            }
 
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-
-                    OutlinedButton(
+                item {
+                    TextButton(
                         onClick = {
-                            onEvent(
-                                ProfileUiEvent.CancelEditing
+                            onToggleLocationTracking(
+                                !isLocationTrackingEnabled
                             )
                         },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         enabled = !isUpdating
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = stringResource(
+                                R.string.description_icon_location_tracking
+                            )
+                        )
+
                         Text(
-                            stringResource(
-                                R.string.text_button_cancel
+                            text = stringResource(
+                                R.string.text_location_tracking
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 16.dp)
+                        )
+
+                        Switch(
+                            checked = isLocationTrackingEnabled,
+                            onCheckedChange = onToggleLocationTracking,
+                            enabled = !isUpdating,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor =
+                                    MaterialTheme.colorScheme.primary,
+                                checkedTrackColor =
+                                    MaterialTheme.colorScheme.primaryContainer
+                            )
+                        )
+                    }
+                }
+
+                item {
+                    HorizontalDivider()
+                }
+
+                item {
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+                }
+
+                if (isEditing && userUpdate != null) {
+
+                    item {
+                        OutlinedTextField(
+                            value = userUpdate.displayName.orEmpty(),
+                            onValueChange = {
+                                onEvent(
+                                    ProfileUiEvent.UpdateProfileDraft(
+                                        userUpdate.copy(
+                                            displayName = it
+                                        )
+                                    )
+                                )
+                            },
+                            label = {
+                                Text(
+                                    stringResource(
+                                        R.string.text_field_profile_name
+                                    )
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isUpdating
+                        )
+                    }
+
+                    item {
+                        OutlinedTextField(
+                            value = userUpdate.eps.orEmpty(),
+                            onValueChange = {
+                                onEvent(
+                                    ProfileUiEvent.UpdateProfileDraft(
+                                        userUpdate.copy(
+                                            eps = it
+                                        )
+                                    )
+                                )
+                            },
+                            label = {
+                                Text(
+                                    stringResource(
+                                        R.string.text_field_profile_eps
+                                    )
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isUpdating
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = stringResource(
+                                R.string.text_profile_blood_type
+                            ),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+
+                    item {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            BloodTypeLetter.entries.forEach { bloodType ->
+
+                                OutlinedButton(
+                                    onClick = {
+                                        onEvent(
+                                            ProfileUiEvent.UpdateProfileDraft(
+                                                userUpdate.copy(
+                                                    bloodTypeLetter = bloodType
+                                                )
+                                            )
+                                        )
+                                    },
+                                    enabled = !isUpdating,
+                                    colors = if (
+                                        userUpdate.bloodTypeLetter == bloodType
+                                    ) {
+                                        ButtonDefaults.buttonColors(
+                                            containerColor =
+                                                MaterialTheme.colorScheme.primary,
+                                            contentColor =
+                                                MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    } else {
+                                        ButtonDefaults.outlinedButtonColors()
+                                    }
+                                ) {
+                                    Text(bloodType.name)
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = stringResource(
+                                R.string.text_profile_rh
+                            ),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+
+                    item {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            BloodTypeRh.entries.forEach { rh ->
+
+                                OutlinedButton(
+                                    onClick = {
+                                        onEvent(
+                                            ProfileUiEvent.UpdateProfileDraft(
+                                                userUpdate.copy(
+                                                    bloodTypeRh = rh
+                                                )
+                                            )
+                                        )
+                                    },
+                                    enabled = !isUpdating,
+                                    colors = if (
+                                        userUpdate.bloodTypeRh == rh
+                                    ) {
+                                        ButtonDefaults.buttonColors(
+                                            containerColor =
+                                                MaterialTheme.colorScheme.primary,
+                                            contentColor =
+                                                MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    } else {
+                                        ButtonDefaults.outlinedButtonColors()
+                                    }
+                                ) {
+                                    Text(
+                                        if (rh == BloodTypeRh.POSITIVE) {
+                                            "+"
+                                        } else {
+                                            "-"
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+
+                            OutlinedButton(
+                                onClick = {
+                                    onEvent(
+                                        ProfileUiEvent.CancelEditing
+                                    )
+                                },
+                                modifier = Modifier.weight(1f),
+                                enabled = !isUpdating
+                            ) {
+                                Text(
+                                    stringResource(
+                                        R.string.text_button_cancel
+                                    )
+                                )
+                            }
+
+                            Button(
+                                onClick = {
+                                    onEvent(
+                                        ProfileUiEvent.SaveProfile
+                                    )
+                                },
+                                modifier = Modifier.weight(1f),
+                                enabled = !isUpdating
+                            ) {
+                                Text(
+                                    stringResource(
+                                        R.string.text_button_save
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                } else {
+
+                    item {
+                        Text(
+                            text = user.displayName.orEmpty(),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = user.email.orEmpty()
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = stringResource(
+                                R.string.text_profile_eps_value,
+                                user.eps
+                                    ?: stringResource(
+                                        R.string.text_not_registered
+                                    )
                             )
                         )
                     }
 
-                    Button(
+                    item {
+                        val bloodType =
+                            user.bloodTypeLetter?.name
+                                ?: stringResource(
+                                    R.string.text_not_registered
+                                )
+
+                        val rh = when (user.bloodTypeRh) {
+                            BloodTypeRh.POSITIVE -> "+"
+                            BloodTypeRh.NEGATIVE -> "-"
+                            null -> ""
+                        }
+
+                        Text(
+                            text = stringResource(
+                                R.string.text_profile_blood_type_value,
+                                bloodType + rh
+                            )
+                        )
+                    }
+
+                    item {
+                        Button(
+                            onClick = {
+                                onEvent(
+                                    ProfileUiEvent.StartEditing
+                                )
+                            },
+                            enabled = !isUpdating,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(
+                                    R.string.description_icon_edit
+                                )
+                            )
+
+                            Text(
+                                text = stringResource(
+                                    R.string.text_button_edit_profile
+                                ),
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    HorizontalDivider()
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.text_emergency_contacts
+                            ),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        IconButton(
+                            onClick = onAddContact,
+                            enabled = !isUpdating
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(
+                                    R.string.description_icon_add_contact
+                                )
+                            )
+                        }
+                    }
+                }
+
+                if (user.emergencyContacts.isEmpty()) {
+
+                    item {
+                        Text(
+                            text = stringResource(
+                                R.string.text_no_emergency_contacts
+                            )
+                        )
+                    }
+
+                } else {
+
+                    items(
+                        items = user.emergencyContacts,
+                        key = { it.uid }
+                    ) { contact ->
+
+                        EmergencyContactItem(
+                            contact = contact,
+                            enabled = !isUpdating,
+                            onEdit = {
+                                onEditContact(contact)
+                            },
+                            onDelete = {
+                                onEvent(
+                                    ProfileUiEvent.DeleteEmergencyContact(
+                                        contact.uid
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    TextButton(
                         onClick = {
-                            onEvent(
-                                ProfileUiEvent.SaveProfile
-                            )
+                            onEvent(ProfileUiEvent.SignOut)
                         },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         enabled = !isUpdating
                     ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = stringResource(
+                                R.string.description_icon_sign_out
+                            )
+                        )
+
                         Text(
-                            stringResource(
-                                R.string.text_button_save
-                            )
+                            text = stringResource(
+                                R.string.text_sign_out
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 16.dp)
                         )
                     }
                 }
-            }
-
-        } else {
-
-            item {
-                Text(
-                    text = user.displayName.orEmpty(),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            }
-
-            item {
-                Text(
-                    text = user.email.orEmpty()
-                )
-            }
-
-            item {
-                Text(
-                    text = stringResource(
-                        R.string.text_profile_eps_value,
-                        user.eps
-                            ?: stringResource(
-                                R.string.text_not_registered
-                            )
-                    )
-                )
-            }
-
-            item {
-                val bloodType =
-                    user.bloodTypeLetter?.name
-                        ?: stringResource(
-                            R.string.text_not_registered
-                        )
-
-                val rh = when (user.bloodTypeRh) {
-                    BloodTypeRh.POSITIVE -> "+"
-                    BloodTypeRh.NEGATIVE -> "-"
-                    null -> ""
-                }
-
-                Text(
-                    text = stringResource(
-                        R.string.text_profile_blood_type_value,
-                        bloodType + rh
-                    )
-                )
-            }
-
-            item {
-                Button(
-                    onClick = {
-                        onEvent(
-                            ProfileUiEvent.StartEditing
-                        )
-                    },
-                    enabled = !isUpdating,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(
-                            R.string.description_icon_edit
-                        )
-                    )
-
-                    Text(
-                        text = stringResource(
-                            R.string.text_button_edit_profile
-                        ),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-            }
-        }
-
-        item {
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            HorizontalDivider()
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-        }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(
-                        R.string.text_emergency_contacts
-                    ),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f)
-                )
-
-                IconButton(
-                    onClick = onAddContact,
-                    enabled = !isUpdating
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(
-                            R.string.description_icon_add_contact
-                        )
-                    )
-                }
-            }
-        }
-
-        if (user.emergencyContacts.isEmpty()) {
-
-            item {
-                Text(
-                    text = stringResource(
-                        R.string.text_no_emergency_contacts
-                    )
-                )
-            }
-
-        } else {
-
-            items(
-                items = user.emergencyContacts,
-                key = { it.uid }
-            ) { contact ->
-
-                EmergencyContactItem(
-                    contact = contact,
-                    enabled = !isUpdating,
-                    onEdit = {
-                        onEditContact(contact)
-                    },
-                    onDelete = {
-                        onEvent(
-                            ProfileUiEvent.DeleteEmergencyContact(
-                                contact.uid
-                            )
-                        )
-                    }
-                )
-            }
-        }
-
-        item {
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            TextButton(
-                onClick = {
-                    onEvent(ProfileUiEvent.SignOut)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isUpdating
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Logout,
-                    contentDescription = stringResource(
-                        R.string.description_icon_sign_out
-                    )
-                )
-
-                Text(
-                    text = stringResource(
-                        R.string.text_sign_out
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 16.dp)
-                )
             }
         }
     }

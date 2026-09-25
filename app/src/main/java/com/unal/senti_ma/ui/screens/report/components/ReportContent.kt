@@ -21,7 +21,7 @@ import com.unal.senti_ma.ui.screens.report.ReportUiState
 import com.unal.senti_ma.ui.screens.report.events.ReportUiEvent
 
 @Composable
-fun ReportScreenContent(
+fun ReportContent(
     uiState: ReportUiState,
     onEvent: (ReportUiEvent) -> Unit
 ) {
