@@ -45,6 +45,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.unal.senti_ma.R
+import com.unal.senti_ma.domain.enums.PermissionStatus
 import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.model.MapBounds
@@ -55,7 +56,6 @@ import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
 import com.unal.senti_ma.ui.screens.robbery.map.HeatmapOverlay
 import com.unal.senti_ma.ui.screens.robbery.map.RobberyPointMarkers
 import com.unal.senti_ma.ui.screens.robbery.map.rememberMapViewWithLifecycle
-import com.unal.senti_ma.ui.shared.permissions.LocationPermissionHandler
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
@@ -70,10 +70,8 @@ fun RobberyScreen(
     onRobberyClick: (String) -> Unit
 ) {
     val robberyUiState by robberyViewModel.uiState.collectAsStateWithLifecycle()
-
-    val currentLocation by robberyViewModel
-        .currentLocation
-        .collectAsStateWithLifecycle()
+    val currentLocation by robberyViewModel.currentLocation.collectAsStateWithLifecycle()
+    val locationPermissionStatus by robberyViewModel.locationPermissionStatus.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle(context)
@@ -118,10 +116,6 @@ fun RobberyScreen(
         mutableStateOf(false)
     }
 
-    var hasLocationPermission by remember {
-        mutableStateOf(false)
-    }
-
     var hasCenteredOnLocation by remember {
         mutableStateOf(false)
     }
@@ -146,13 +140,18 @@ fun RobberyScreen(
         )
     }
 
-    LocationPermissionHandler(
-        request = true,
-        onPermissionGranted = {
-            hasLocationPermission = true
-        },
-        onPermissionDenied = {
-            hasLocationPermission = false
+    DisposableEffect(locationPermissionStatus) {
+        if (locationPermissionStatus == PermissionStatus.GRANTED) {
+            robberyViewModel.startLocationUpdates()
+        }
+
+        onDispose {
+            robberyViewModel.stopLocationUpdates()
+        }
+    }
+
+    LaunchedEffect(locationPermissionStatus) {
+        if (locationPermissionStatus == PermissionStatus.DENIED) {
             hasCenteredOnLocation = false
 
             Toast.makeText(
@@ -160,16 +159,6 @@ fun RobberyScreen(
                 R.string.text_location_permission_denied,
                 Toast.LENGTH_SHORT
             ).show()
-        }
-    )
-
-    DisposableEffect(hasLocationPermission) {
-        if (hasLocationPermission) {
-            robberyViewModel.startLocationUpdates()
-        }
-
-        onDispose {
-            robberyViewModel.stopLocationUpdates()
         }
     }
 

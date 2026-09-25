@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.unal.senti_ma.domain.enums.PermissionStatus
 import com.unal.senti_ma.domain.enums.RobberyDisplayMode
 import com.unal.senti_ma.domain.location.LocationSubscription
 import com.unal.senti_ma.domain.model.AppResult
@@ -13,6 +14,7 @@ import com.unal.senti_ma.domain.model.MapBounds
 import com.unal.senti_ma.domain.usecase.geocoding.GetCoordinatesFromAddressUseCase
 import com.unal.senti_ma.domain.usecase.location.AcquireLocationUpdatesUseCase
 import com.unal.senti_ma.domain.usecase.location.ObserveCurrentLocationUseCase
+import com.unal.senti_ma.domain.usecase.permissions.ObserveLocationPermissionUseCase
 import com.unal.senti_ma.domain.usecase.robbery.GetRobberyMapDataUseCase
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyUiEvent
 import com.unal.senti_ma.ui.screens.robbery.events.RobberyViewModelEvent
@@ -33,6 +35,7 @@ class RobberyViewModel @Inject constructor(
     private val getRobberyMapDataUseCase: GetRobberyMapDataUseCase,
     private val getCoordinatesFromAddressUseCase: GetCoordinatesFromAddressUseCase,
     private val acquireLocationUpdatesUseCase: AcquireLocationUpdatesUseCase,
+    observeLocationPermissionUseCase: ObserveLocationPermissionUseCase,
     observeCurrentLocationUseCase: ObserveCurrentLocationUseCase
 ) : ViewModel() {
 
@@ -47,6 +50,10 @@ class RobberyViewModel @Inject constructor(
     val viewModelEvent = _viewModelEvent.asSharedFlow()
 
     val currentLocation: StateFlow<Coordinates?> = observeCurrentLocationUseCase()
+
+    val locationPermissionStatus: StateFlow<PermissionStatus> =
+        observeLocationPermissionUseCase()
+
     private var locationSubscription: LocationSubscription? = null
 
     var selectedType by mutableStateOf<String?>(null)

@@ -37,10 +37,10 @@ fun ProfileScreen(
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
     val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
+    val context = LocalContext.current
+
     val isLocationTrackingEnabled by
     locationViewModel.isLocationTrackingEnabled.collectAsState()
-
-    val context = LocalContext.current
 
     var requestLocationTrackingPermission by remember {
         mutableStateOf(false)

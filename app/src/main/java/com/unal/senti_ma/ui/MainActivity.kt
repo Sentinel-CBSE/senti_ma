@@ -10,11 +10,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.unal.senti_ma.R
@@ -28,7 +35,9 @@ import com.unal.senti_ma.ui.auth.AuthViewModel
 import com.unal.senti_ma.ui.settings.SettingsViewModel
 import com.unal.senti_ma.ui.shared.AppBottomBar
 import com.unal.senti_ma.ui.shared.AppTopBar
+import com.unal.senti_ma.ui.shared.permissions.LocationPermissionHandler
 import com.unal.senti_ma.ui.shared.permissions.NotificationPermissionHandler
+import com.unal.senti_ma.ui.shared.permissions.PermissionViewModel
 import com.unal.senti_ma.ui.theme.Senti_maTheme
 import com.unal.senti_ma.utils.navigateSingleTopTo
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,6 +58,7 @@ class MainActivity : ComponentActivity() {
                 MODE_PRIVATE
             )
         )
+
         osmConfig.userAgentValue =
             "Senti-MA/1.0 (com.unal.senti_ma, contact: dbustos@unal.edu.co)"
 
@@ -76,11 +86,45 @@ class MainActivity : ComponentActivity() {
                         }
 
                         is AuthState.Authenticated -> {
-                            NotificationPermissionHandler(
+                            val permissionViewModel: PermissionViewModel = hiltViewModel()
+
+                            var locationRequestCompleted by rememberSaveable {
+                                mutableStateOf(false)
+                            }
+
+                            LocationPermissionHandler(
                                 request = true,
+                                onPermissionGranted = {
+                                    permissionViewModel.onLocationPermissionResult(true)
+                                    locationRequestCompleted = true
+                                },
+                                onPermissionDenied = {
+                                    permissionViewModel.onLocationPermissionResult(false)
+                                    locationRequestCompleted = true
+                                }
+                            )
+
+                            NotificationPermissionHandler(
+                                request = locationRequestCompleted,
                                 onPermissionGranted = {},
                                 onPermissionDenied = {}
                             )
+
+                            val lifecycleOwner = LocalLifecycleOwner.current
+
+                            DisposableEffect(lifecycleOwner) {
+                                val observer = LifecycleEventObserver { _, event ->
+                                    if (event == Lifecycle.Event.ON_RESUME) {
+                                        permissionViewModel.refreshLocationPermission()
+                                    }
+                                }
+
+                                lifecycleOwner.lifecycle.addObserver(observer)
+
+                                onDispose {
+                                    lifecycleOwner.lifecycle.removeObserver(observer)
+                                }
+                            }
 
                             val navController = rememberNavController()
 
@@ -113,10 +157,21 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             ) { innerPadding ->
-                                MainNavGraph(
-                                    navController = navController,
-                                    modifier = Modifier.padding(innerPadding)
-                                )
+                                if (locationRequestCompleted) {
+                                    MainNavGraph(
+                                        navController = navController,
+                                        modifier = Modifier.padding(innerPadding)
+                                    )
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(innerPadding)
+                                            .fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
                             }
                         }
                     }

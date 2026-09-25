@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unal.senti_ma.R
+import com.unal.senti_ma.domain.enums.PermissionStatus
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.usecase.location.GetCurrentLocationUseCase
+import com.unal.senti_ma.domain.usecase.permissions.ObserveLocationPermissionUseCase
 import com.unal.senti_ma.domain.usecase.robbery.CreateRobberyReportUseCase
 import com.unal.senti_ma.ui.screens.report.events.ReportUiEvent
 import com.unal.senti_ma.ui.screens.report.events.ReportViewModelEvent
@@ -16,6 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -26,7 +29,8 @@ import kotlin.time.Duration.Companion.milliseconds
 class ReportViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val createRobberyReportUseCase: CreateRobberyReportUseCase,
-    private val getCurrentLocationUseCase: GetCurrentLocationUseCase
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    observeLocationPermissionUseCase: ObserveLocationPermissionUseCase
 ) : ViewModel() {
 
     companion object {
@@ -39,6 +43,9 @@ class ReportViewModel @Inject constructor(
 
     private val _viewModelEvent = MutableSharedFlow<ReportViewModelEvent>()
     val viewModelEvent = _viewModelEvent.asSharedFlow()
+
+    val locationPermissionStatus: StateFlow<PermissionStatus> =
+        observeLocationPermissionUseCase()
 
     private var currentLocation: Coordinates? = null
 
