@@ -2,9 +2,9 @@ package com.unal.senti_ma.ui.screens.robbery.map
 
 import android.content.Context
 import androidx.core.content.ContextCompat
-import org.osmdroid.library.R as OsmdroidR
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.library.R as OsmdroidR
 
 class RobberyMapController(
     private val mapView: MapView,

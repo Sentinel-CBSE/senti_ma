@@ -11,10 +11,14 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.unal.senti_ma.R
+import com.unal.senti_ma.domain.enums.PermissionStatus
 import com.unal.senti_ma.domain.location.LocationClient
 import com.unal.senti_ma.domain.location.LocationSubscription
 import com.unal.senti_ma.domain.model.Coordinates
 import com.unal.senti_ma.domain.usecase.location.SendLocationUseCase
+import com.unal.senti_ma.domain.usecase.permissions.ObserveBackgroundLocationPermissionUseCase
+import com.unal.senti_ma.domain.usecase.permissions.ObserveLocationPermissionUseCase
+import com.unal.senti_ma.domain.usecase.permissions.RefreshLocationPermissionUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +41,15 @@ class LocationForegroundService : Service() {
     @Inject
     lateinit var sendLocationUseCase: SendLocationUseCase
 
+    @Inject
+    lateinit var refreshLocationPermissionUseCase: RefreshLocationPermissionUseCase
+
+    @Inject
+    lateinit var observeLocationPermissionUseCase: ObserveLocationPermissionUseCase
+
+    @Inject
+    lateinit var observeBackgroundLocationPermissionUseCase: ObserveBackgroundLocationPermissionUseCase
+
     private var locationSubscription: LocationSubscription? = null
 
     private val serviceScope =
@@ -47,12 +60,12 @@ class LocationForegroundService : Service() {
 
     private var lastLocation: Coordinates? = null
 
+    private var isForegroundStarted = false
+
     companion object {
         private const val CHANNEL_ID = "location_tracking"
         private const val NOTIFICATION_ID = 1001
-
         private const val BACKEND_UPDATE_INTERVAL = 60_000L
-
         private const val TAG = "LocationService"
     }
 
@@ -61,11 +74,22 @@ class LocationForegroundService : Service() {
 
         createNotificationChannel()
 
+        if (!hasRequiredLocationPermissions()) {
+            Log.w(
+                TAG,
+                "Service created without required location permissions"
+            )
+            stopSelf()
+            return
+        }
+
         startForeground(
             NOTIFICATION_ID,
             createNotification(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
         )
+
+        isForegroundStarted = true
     }
 
     override fun onStartCommand(
@@ -73,6 +97,19 @@ class LocationForegroundService : Service() {
         flags: Int,
         startId: Int
     ): Int {
+
+        if (!isForegroundStarted) {
+            return START_NOT_STICKY
+        }
+
+        if (!hasRequiredLocationPermissions()) {
+            Log.w(
+                TAG,
+                "Location permissions revoked, stopping service"
+            )
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         if (locationJob?.isActive != true) {
             startLocationTracking()
@@ -83,6 +120,19 @@ class LocationForegroundService : Service() {
         }
 
         return START_STICKY
+    }
+
+    private fun hasRequiredLocationPermissions(): Boolean {
+        refreshLocationPermissionUseCase()
+
+        val foregroundGranted =
+            observeLocationPermissionUseCase().value ==
+                    PermissionStatus.GRANTED
+
+        val backgroundGranted =
+            observeBackgroundLocationPermissionUseCase().value
+
+        return foregroundGranted && backgroundGranted
     }
 
     private fun startLocationTracking() {
@@ -102,15 +152,18 @@ class LocationForegroundService : Service() {
 
     private fun startBackendTracking() {
         backendJob = serviceScope.launch {
-
             while (isActive) {
                 delay(BACKEND_UPDATE_INTERVAL.milliseconds)
-                lastLocation?.let { location ->
 
+                lastLocation?.let { location ->
                     try {
                         sendLocationUseCase(location)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error sending location", e)
+                        Log.e(
+                            TAG,
+                            "Error sending location",
+                            e
+                        )
                     }
                 }
             }
@@ -125,7 +178,10 @@ class LocationForegroundService : Service() {
         )
 
         val notificationManager =
-            ContextCompat.getSystemService(this, NotificationManager::class.java)
+            ContextCompat.getSystemService(
+                this,
+                NotificationManager::class.java
+            )
 
         notificationManager?.createNotificationChannel(channel)
     }
@@ -158,8 +214,6 @@ class LocationForegroundService : Service() {
 
     override fun onBind(
         intent: Intent?
-    ): IBinder? {
-        return null
-    }
+    ): IBinder? = null
 
 }

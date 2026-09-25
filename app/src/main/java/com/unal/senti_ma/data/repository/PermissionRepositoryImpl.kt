@@ -19,13 +19,23 @@ class PermissionRepositoryImpl @Inject constructor(
 ) : PermissionRepository {
 
     private val _locationPermissionStatus =
-        MutableStateFlow(checkCurrentStatus())
+        MutableStateFlow(checkLocationPermissionStatus())
 
     override val locationPermissionStatus: StateFlow<PermissionStatus> =
         _locationPermissionStatus.asStateFlow()
 
+    private val _backgroundLocationPermissionGranted =
+        MutableStateFlow(checkBackgroundLocationPermission())
+
+    override val backgroundLocationPermissionGranted: StateFlow<Boolean> =
+        _backgroundLocationPermissionGranted.asStateFlow()
+
     override fun refreshLocationPermission() {
-        _locationPermissionStatus.value = checkCurrentStatus()
+        _locationPermissionStatus.value =
+            checkLocationPermissionStatus()
+
+        _backgroundLocationPermissionGranted.value =
+            checkBackgroundLocationPermission()
     }
 
     override fun updateLocationPermissionResult(granted: Boolean) {
@@ -35,9 +45,12 @@ class PermissionRepositoryImpl @Inject constructor(
             } else {
                 PermissionStatus.DENIED
             }
+
+        _backgroundLocationPermissionGranted.value =
+            checkBackgroundLocationPermission()
     }
 
-    private fun checkCurrentStatus(): PermissionStatus {
+    private fun checkLocationPermissionStatus(): PermissionStatus {
         val fineGranted =
             ContextCompat.checkSelfPermission(
                 context,
@@ -56,5 +69,11 @@ class PermissionRepositoryImpl @Inject constructor(
             PermissionStatus.DENIED
         }
     }
+
+    private fun checkBackgroundLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
 
 }

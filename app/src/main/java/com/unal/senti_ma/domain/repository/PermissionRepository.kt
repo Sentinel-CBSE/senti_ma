@@ -7,6 +7,8 @@ interface PermissionRepository {
 
     val locationPermissionStatus: StateFlow<PermissionStatus>
 
+    val backgroundLocationPermissionGranted: StateFlow<Boolean>
+
     fun refreshLocationPermission()
 
     fun updateLocationPermissionResult(granted: Boolean)

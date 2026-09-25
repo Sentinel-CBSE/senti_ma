@@ -2,6 +2,7 @@ package com.unal.senti_ma.ui.screens.profile
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.unal.senti_ma.R
 import com.unal.senti_ma.domain.model.EmergencyContact
 import com.unal.senti_ma.ui.location.LocationViewModel
@@ -22,6 +26,7 @@ import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
 import com.unal.senti_ma.ui.screens.profile.events.ProfileViewModelEvent
 import com.unal.senti_ma.ui.settings.SettingsViewModel
 import com.unal.senti_ma.ui.shared.permissions.LocationTrackingPermissionHandler
+import com.unal.senti_ma.ui.shared.permissions.PermissionViewModel
 import java.util.UUID
 
 @Composable
@@ -29,15 +34,18 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     profileViewModel: ProfileViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    locationViewModel: LocationViewModel = hiltViewModel()
+    locationViewModel: LocationViewModel = hiltViewModel(),
+    permissionViewModel: PermissionViewModel = hiltViewModel()
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
     val profileFormState by profileViewModel.formState.collectAsState()
 
     val isDarkTheme by settingsViewModel.isDarkTheme.collectAsState()
-    val isLocationTrackingEnabled by locationViewModel.isLocationTrackingEnabled.collectAsState()
+    val isLocationTrackingEnabled by settingsViewModel.isLocationTrackingEnabled.collectAsState()
+    val backgroundLocationPermissionGranted by permissionViewModel.backgroundLocationPermissionGranted.collectAsState()
 
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     var isEditing by rememberSaveable {
         mutableStateOf(false)
@@ -59,10 +67,39 @@ fun ProfileScreen(
         mutableStateOf<EmergencyContact?>(null)
     }
 
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                permissionViewModel.refreshLocationPermission()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(
+        isLocationTrackingEnabled,
+        backgroundLocationPermissionGranted
+    ) {
+        if (
+            isLocationTrackingEnabled &&
+            !backgroundLocationPermissionGranted
+        ) {
+            locationViewModel.stopTracking()
+            settingsViewModel.setLocationTrackingEnabled(false)
+        }
+    }
+
     LocationTrackingPermissionHandler(
         request = requestLocationTrackingPermission,
         onPermissionGranted = {
             requestLocationTrackingPermission = false
+
+            settingsViewModel.setLocationTrackingEnabled(true)
             locationViewModel.startTracking()
         },
         onPermissionDenied = {
@@ -115,6 +152,7 @@ fun ProfileScreen(
                 requestLocationTrackingPermission = true
             } else {
                 locationViewModel.stopTracking()
+                settingsViewModel.setLocationTrackingEnabled(false)
             }
         },
 

@@ -15,6 +15,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private val darkThemeKey =
         booleanPreferencesKey("is_dark_theme")
+
     private val locationTrackingEnabledKey =
         booleanPreferencesKey("location_tracking_enabled")
 
