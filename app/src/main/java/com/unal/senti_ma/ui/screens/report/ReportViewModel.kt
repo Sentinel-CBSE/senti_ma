@@ -63,9 +63,7 @@ class ReportViewModel @Inject constructor(
     }
 
     private fun startHolding(event: ReportUiEvent.StartHolding) {
-        if (_uiState.value !is ReportUiState.Idle &&
-            _uiState.value !is ReportUiState.Error
-        ) {
+        if (_uiState.value !is ReportUiState.Idle) {
             return
         }
 
@@ -111,11 +109,17 @@ class ReportViewModel @Inject constructor(
         val location = currentLocation
 
         if (location == null) {
-            _uiState.value = ReportUiState.Error(
-                message = context.getString(
-                    R.string.text_location_unavailable
+            _uiState.value = ReportUiState.Idle
+            viewModelScope.launch {
+                _viewModelEvent.emit(
+                    ReportViewModelEvent.Error(
+                        message = context.getString(
+                            R.string.text_location_unavailable
+                        )
+                    )
                 )
-            )
+            }
+
             return
         }
 
@@ -140,8 +144,11 @@ class ReportViewModel @Inject constructor(
                 }
 
                 is AppResult.Error -> {
-                    _uiState.value = ReportUiState.Error(
-                        message = result.errorMessage
+                    _uiState.value = ReportUiState.Idle
+                    _viewModelEvent.emit(
+                        ReportViewModelEvent.Error(
+                            message = result.errorMessage
+                        )
                     )
                 }
 

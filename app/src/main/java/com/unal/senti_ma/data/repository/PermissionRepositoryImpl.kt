@@ -18,17 +18,11 @@ class PermissionRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : PermissionRepository {
 
-    private val _locationPermissionStatus =
-        MutableStateFlow(checkLocationPermissionStatus())
+    private val _locationPermissionStatus = MutableStateFlow(checkLocationPermissionStatus())
+    override val locationPermissionStatus: StateFlow<PermissionStatus> = _locationPermissionStatus.asStateFlow()
 
-    override val locationPermissionStatus: StateFlow<PermissionStatus> =
-        _locationPermissionStatus.asStateFlow()
-
-    private val _backgroundLocationPermissionGranted =
-        MutableStateFlow(checkBackgroundLocationPermission())
-
-    override val backgroundLocationPermissionGranted: StateFlow<Boolean> =
-        _backgroundLocationPermissionGranted.asStateFlow()
+    private val _backgroundLocationPermissionGranted = MutableStateFlow(checkBackgroundLocationPermission())
+    override val backgroundLocationPermissionGranted: StateFlow<Boolean> = _backgroundLocationPermissionGranted.asStateFlow()
 
     override fun refreshLocationPermission() {
         _locationPermissionStatus.value =

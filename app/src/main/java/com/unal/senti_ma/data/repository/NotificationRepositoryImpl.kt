@@ -28,8 +28,8 @@ class NotificationRepositoryImpl @Inject constructor(
         )
 
         return try {
-            val response = sentinelApi.registerDeviceToken(
-                request = InstallationIdRequestDto(installationId = installationId)
+            val response = sentinelApi.registerInstallationId(
+                installationId = InstallationIdRequestDto(installationId = installationId)
             )
 
             if (response.logIfError("NotificationRepository", "Register installationId")) {

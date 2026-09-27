@@ -165,12 +165,6 @@ fun ReportContent(
             ReportUiState.Creating -> {
                 ReportCreating()
             }
-
-            is ReportUiState.Error -> {
-                ReportError(
-                    message = uiState.message
-                )
-            }
         }
     }
 }

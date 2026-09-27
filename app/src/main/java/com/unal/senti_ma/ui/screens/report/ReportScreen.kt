@@ -53,6 +53,14 @@ fun ReportScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+
+                is ReportViewModelEvent.Error -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

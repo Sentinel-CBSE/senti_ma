@@ -27,7 +27,6 @@ import com.unal.senti_ma.ui.screens.profile.events.ProfileViewModelEvent
 import com.unal.senti_ma.ui.settings.SettingsViewModel
 import com.unal.senti_ma.ui.shared.permissions.LocationTrackingPermissionHandler
 import com.unal.senti_ma.ui.shared.permissions.PermissionViewModel
-import java.util.UUID
 
 @Composable
 fun ProfileScreen(
@@ -221,7 +220,7 @@ fun ProfileScreen(
                 profileViewModel.onEvent(
                     ProfileUiEvent.AddEmergencyContact(
                         EmergencyContact(
-                            uid = UUID.randomUUID().toString(),
+                            uid = "",
                             name = name,
                             phoneNumber = phone,
                             relationship = relationship

@@ -3,15 +3,16 @@ package com.unal.senti_ma.data.repository
 import android.content.Context
 import android.util.Log
 import com.unal.senti_ma.R
+import com.unal.senti_ma.data.mappers.toDomain
 import com.unal.senti_ma.data.remote.api.SentinelApi
+import com.unal.senti_ma.data.remote.dto.RobberyReportRequestDto
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.MapBounds
 import com.unal.senti_ma.domain.model.RobberyPoint
 import com.unal.senti_ma.domain.repository.RobberyRepository
+import com.unal.senti_ma.utils.logIfError
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,31 +31,60 @@ class RobberyRepositoryImpl @Inject constructor(
         toTimestamp: Long,
         type: String?
     ): AppResult<List<RobberyPoint>> {
-        return try {
-            // TODO: reemplazar por la llamada real cuando el backend esté listo:
-            // val response = withContext(Dispatchers.IO) {
-            //     sentinelApi.getRobberyPoints(
-            //         mapBounds.northLat, mapBounds.southLat,
-            //         mapBounds.eastLon, mapBounds.westLon,
-            //         fromTimestamp, toTimestamp, type
-            //     )
-            // }
-            //
-            // if (!response.logIfError("RobberyRepository", "Get robbery points")) {
-            //     return AppResult.Error(context.getString(R.string.text_error_get_heatmap))
-            // }
-            //
-            // val points = response.body()
-            //     ?.map { it.toDomain() }
-            //     ?: emptyList()
 
-            val points = withContext(Dispatchers.IO) {
-                generateFakePoints(mapBounds, fromTimestamp, toTimestamp, type)
+        Log.d(
+            "RobberyRepository",
+            "Getting robbery points"
+        )
+
+        return try {
+
+            val response = sentinelApi.getRobberyPoints(
+                northLat = mapBounds.northLat,
+                southLat = mapBounds.southLat,
+                eastLon = mapBounds.eastLon,
+                westLon = mapBounds.westLon,
+                fromTimestamp = fromTimestamp,
+                toTimestamp = toTimestamp,
+                type = type
+            )
+
+            if (response.logIfError(
+                    "RobberyRepository",
+                    "Get robbery points"
+                )
+            ) {
+
+                val points = response.body()
+                    ?.map { it.toDomain() }
+                    ?: emptyList()
+
+                Log.d(
+                    "RobberyRepository",
+                    "Retrieved ${points.size} robbery points"
+                )
+
+                AppResult.Success(points)
+
+            } else {
+                AppResult.Error(
+                    context.getString(
+                        R.string.text_error_get_heatmap
+                    )
+                )
             }
 
-            AppResult.Success(points)
-        } catch (_: Exception) {
-            AppResult.Error(context.getString(R.string.text_error_get_heatmap))
+        } catch (exception: Exception) {
+
+            Log.e(
+                "RobberyRepository",
+                "Error getting robbery points",
+                exception
+            )
+
+            AppResult.Error(
+                context.getString(R.string.text_error_get_heatmap)
+            )
         }
     }
 
@@ -86,32 +116,54 @@ class RobberyRepositoryImpl @Inject constructor(
         longitude: Double,
         timestamp: Long
     ): AppResult<Unit> {
-        return try {
-            // TODO: reemplazar por la llamada real cuando el backend esté listo:
-            // val response = withContext(Dispatchers.IO) {
-            //     sentinelApi.createRobberyReport(
-            //         type = type, latitude = latitude,
-            //         longitude = longitude, timestamp = timestamp
-            //     )
-            // }
-            //
-            // if (!response.logIfError("RobberyRepository", "Create robbery report")) {
-            //     return AppResult.Error(context.getString(R.string.text_error_create_robbery))
-            // }
 
-            withContext(Dispatchers.IO) {
-                delay(500.milliseconds)
+        Log.d(
+            "RobberyRepository",
+            "Creating robbery report: " +
+                    "latitude=$latitude, " +
+                    "longitude=$longitude, " +
+                    "type=$type"
+        )
+
+        return try {
+            val response = sentinelApi.createRobberyReport(
+                RobberyReportRequestDto(
+                    type = type,
+                    latitude = latitude,
+                    longitude = longitude,
+                    timestamp = timestamp
+                )
+            )
+
+            if (response.logIfError(
+                    "RobberyRepository",
+                    "Create robbery report"
+                )
+            ) {
 
                 Log.d(
                     "RobberyRepository",
-                    "Sending report: " +
-                            "latitude=${latitude}, " +
-                            "longitude=${longitude}"
+                    "Robbery report created successfully"
+                )
+
+                AppResult.Success(Unit)
+
+            } else {
+                AppResult.Error(
+                    context.getString(
+                        R.string.text_error_create_robbery
+                    )
                 )
             }
 
-            AppResult.Success(Unit)
-        } catch (_: Exception) {
+        } catch (exception: Exception) {
+
+            Log.e(
+                "RobberyRepository",
+                "Error creating robbery report",
+                exception
+            )
+
             AppResult.Error(
                 context.getString(
                     R.string.text_error_create_robbery

@@ -1,8 +1,12 @@
 package com.unal.senti_ma.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.unal.senti_ma.R
+import com.unal.senti_ma.data.mappers.toDomain
 import com.unal.senti_ma.data.remote.api.SentinelApi
+import com.unal.senti_ma.data.remote.dto.EmergencyContactRequestDto
+import com.unal.senti_ma.data.remote.dto.UserUpdateDto
 import com.unal.senti_ma.domain.enums.BloodTypeLetter
 import com.unal.senti_ma.domain.enums.BloodTypeRh
 import com.unal.senti_ma.domain.model.AppResult
@@ -10,11 +14,10 @@ import com.unal.senti_ma.domain.model.EmergencyContact
 import com.unal.senti_ma.domain.model.User
 import com.unal.senti_ma.domain.model.UserUpdate
 import com.unal.senti_ma.domain.repository.UserRepository
+import com.unal.senti_ma.utils.logIfError
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
 class UserRepositoryImpl @Inject constructor(
@@ -51,21 +54,62 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun updateProfile(
         update: UserUpdate
     ): AppResult<User> {
-        return try {
-            delay(500.milliseconds)
 
-            fakeUser = fakeUser.copy(
-                displayName = update.displayName ?: fakeUser.displayName,
-                bloodTypeLetter = update.bloodTypeLetter
-                    ?: fakeUser.bloodTypeLetter,
-                bloodTypeRh = update.bloodTypeRh
-                    ?: fakeUser.bloodTypeRh,
-                eps = update.eps ?: fakeUser.eps
+        Log.d(
+            "UserRepository",
+            "Updating user profile"
+        )
+
+        return try {
+
+            val response = sentinelApi.updateProfile(
+                UserUpdateDto(
+                    displayName = update.displayName,
+                    bloodTypeRh = update.bloodTypeRh,
+                    bloodTypeLetter = update.bloodTypeLetter,
+                    eps = update.eps
+                )
             )
 
-            AppResult.Success(fakeUser)
+            if (response.logIfError(
+                    "UserRepository",
+                    "Update profile"
+                )
+            ) {
 
-        } catch (_: Exception) {
+                val user = response.body()?.toDomain()
+
+                if (user != null) {
+                    Log.d(
+                        "UserRepository",
+                        "Profile updated successfully"
+                    )
+
+                    AppResult.Success(user)
+                } else {
+                    AppResult.Error(
+                        context.getString(
+                            R.string.text_error_update_profile
+                        )
+                    )
+                }
+
+            } else {
+                AppResult.Error(
+                    context.getString(
+                        R.string.text_error_update_profile
+                    )
+                )
+            }
+
+        } catch (exception: Exception) {
+
+            Log.e(
+                "UserRepository",
+                "Error updating profile",
+                exception
+            )
+
             AppResult.Error(
                 context.getString(R.string.text_error_update_profile)
             )
@@ -75,16 +119,61 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun addEmergencyContact(
         contact: EmergencyContact
     ): AppResult<User> {
-        return try {
-            delay(500.milliseconds)
 
-            fakeUser = fakeUser.copy(
-                emergencyContacts = fakeUser.emergencyContacts + contact
+        Log.d(
+            "UserRepository",
+            "Adding emergency contact: uid=${contact.uid}"
+        )
+
+        return try {
+
+            val response = sentinelApi.addEmergencyContact(
+                EmergencyContactRequestDto(
+                    name = contact.name,
+                    phoneNumber = contact.phoneNumber,
+                    relationship = contact.relationship
+                )
             )
 
-            AppResult.Success(fakeUser)
+            if (response.logIfError(
+                    "UserRepository",
+                    "Add emergency contact"
+                )
+            ) {
 
-        } catch (_: Exception) {
+                val user = response.body()?.toDomain()
+
+                if (user != null) {
+                    Log.d(
+                        "UserRepository",
+                        "Emergency contact added successfully"
+                    )
+
+                    AppResult.Success(user)
+                } else {
+                    AppResult.Error(
+                        context.getString(
+                            R.string.text_error_update_profile
+                        )
+                    )
+                }
+
+            } else {
+                AppResult.Error(
+                    context.getString(
+                        R.string.text_error_update_profile
+                    )
+                )
+            }
+
+        } catch (exception: Exception) {
+
+            Log.e(
+                "UserRepository",
+                "Error adding emergency contact",
+                exception
+            )
+
             AppResult.Error(
                 context.getString(R.string.text_error_update_profile)
             )
@@ -94,22 +183,61 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun updateEmergencyContact(
         contact: EmergencyContact
     ): AppResult<User> {
-        return try {
-            delay(500.milliseconds)
 
-            fakeUser = fakeUser.copy(
-                emergencyContacts = fakeUser.emergencyContacts.map {
-                    if (it.uid == contact.uid) {
-                        contact
-                    } else {
-                        it
-                    }
-                }
+        Log.d(
+            "UserRepository",
+            "Updating emergency contact: uid=${contact.uid}"
+        )
+
+        return try {
+            val response = sentinelApi.updateEmergencyContact(
+                uid = contact.uid,
+                contact = EmergencyContactRequestDto(
+                    name = contact.name,
+                    phoneNumber = contact.phoneNumber,
+                    relationship = contact.relationship
+                )
             )
 
-            AppResult.Success(fakeUser)
+            if (response.logIfError(
+                    "UserRepository",
+                    "Update emergency contact"
+                )
+            ) {
 
-        } catch (_: Exception) {
+                val user = response.body()?.toDomain()
+
+                if (user != null) {
+                    Log.d(
+                        "UserRepository",
+                        "Emergency contact updated successfully"
+                    )
+
+                    AppResult.Success(user)
+                } else {
+                    AppResult.Error(
+                        context.getString(
+                            R.string.text_error_update_profile
+                        )
+                    )
+                }
+
+            } else {
+                AppResult.Error(
+                    context.getString(
+                        R.string.text_error_update_profile
+                    )
+                )
+            }
+
+        } catch (exception: Exception) {
+
+            Log.e(
+                "UserRepository",
+                "Error updating emergency contact",
+                exception
+            )
+
             AppResult.Error(
                 context.getString(R.string.text_error_update_profile)
             )
@@ -119,18 +247,56 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun deleteEmergencyContact(
         contactUid: String
     ): AppResult<User> {
-        return try {
-            delay(500.milliseconds)
 
-            fakeUser = fakeUser.copy(
-                emergencyContacts = fakeUser.emergencyContacts.filterNot {
-                    it.uid == contactUid
-                }
+        Log.d(
+            "UserRepository",
+            "Deleting emergency contact: uid=$contactUid"
+        )
+
+        return try {
+            val response = sentinelApi.deleteEmergencyContact(
+                uid = contactUid
             )
 
-            AppResult.Success(fakeUser)
+            if (response.logIfError(
+                    "UserRepository",
+                    "Delete emergency contact"
+                )
+            ) {
 
-        } catch (_: Exception) {
+                val user = response.body()?.toDomain()
+
+                if (user != null) {
+                    Log.d(
+                        "UserRepository",
+                        "Emergency contact deleted successfully"
+                    )
+
+                    AppResult.Success(user)
+                } else {
+                    AppResult.Error(
+                        context.getString(
+                            R.string.text_error_update_profile
+                        )
+                    )
+                }
+
+            } else {
+                AppResult.Error(
+                    context.getString(
+                        R.string.text_error_update_profile
+                    )
+                )
+            }
+
+        } catch (exception: Exception) {
+
+            Log.e(
+                "UserRepository",
+                "Error deleting emergency contact",
+                exception
+            )
+
             AppResult.Error(
                 context.getString(R.string.text_error_update_profile)
             )
