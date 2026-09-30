@@ -40,14 +40,6 @@ class MainApplication : Application() {
 
         notificationHelper.createNotificationChannel()
 
-        applicationScope.launch {
-            try {
-                ProviderInstaller.installIfNeeded(this@MainApplication)
-            } catch (t: Throwable) {
-                Log.e(TAG, "Error installing security provider", t)
-            }
-        }
-
         observeAndRegisterInstallation()
     }
 
