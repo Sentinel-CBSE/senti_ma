@@ -23,7 +23,7 @@ android {
         buildConfigField(
             "String",
             "SENTI_BACK_BASE_URL",
-            "\"${System.getenv("SENTI_BACK_BASE_URL") ?: "https://retiring-chastise-pencil.ngrok-free.dev/"}\""
+            "\"${System.getenv("SENTI_BACK_BASE_URL") ?: "https://sentiapigateway.azure-api.net"}\""
         )
     }
 
