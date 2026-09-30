@@ -17,7 +17,7 @@ import retrofit2.http.Query
 
 interface SentinelApi {
 
-    @POST("robbery/create")
+    @POST("events/robbery/create")
     suspend fun createRobberyReport(
         @Body report: RobberyReportRequestDto
     ): Response<Unit>
