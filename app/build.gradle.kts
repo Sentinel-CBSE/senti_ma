@@ -25,6 +25,12 @@ android {
             "SENTI_BACK_BASE_URL",
             "\"${System.getenv("SENTI_BACK_BASE_URL") ?: "https://sentiapigateway.azure-api.net"}\""
         )
+
+        buildConfigField(
+            "String",
+            "SENTI_APIM_SUBSCRIPTION_KEY",
+            "\"${System.getenv("SENTI_APIM_SUBSCRIPTION_KEY") ?: "64e3f822fd0644659c7ff3f464fec097"}\""
+        )
     }
 
     buildTypes {
@@ -35,6 +41,10 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    lint {
+        disable += "CredManMissingDal"
     }
 
     compileOptions {

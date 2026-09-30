@@ -2,6 +2,7 @@ package com.unal.senti_ma.di
 
 import com.unal.senti_ma.BuildConfig
 import com.unal.senti_ma.data.remote.api.SentinelApi
+import com.unal.senti_ma.data.remote.interceptor.ApiManagementInterceptor
 import com.unal.senti_ma.data.remote.interceptor.FirebaseAuthInterceptor
 import dagger.Module
 import dagger.Provides
@@ -35,10 +36,12 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
-        firebaseAuthInterceptor: FirebaseAuthInterceptor
+        firebaseAuthInterceptor: FirebaseAuthInterceptor,
+        apiManagementInterceptor: ApiManagementInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(firebaseAuthInterceptor)
+            .addInterceptor(apiManagementInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
     }

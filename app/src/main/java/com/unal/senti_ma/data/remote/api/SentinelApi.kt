@@ -17,12 +17,12 @@ import retrofit2.http.Query
 
 interface SentinelApi {
 
-    @POST("api/robbery")
+    @POST("robbery/create")
     suspend fun createRobberyReport(
         @Body report: RobberyReportRequestDto
     ): Response<Unit>
 
-    @GET("api/robbery")
+    @GET("robbery/list")
     suspend fun getRobberyPoints(
         @Query("northLat") northLat: Double,
         @Query("southLat") southLat: Double,
@@ -33,34 +33,34 @@ interface SentinelApi {
         @Query("type") type: String?
     ): Response<List<RobberyPointDto>>
 
-    @POST("api/location")
+    @POST("location/send")
     suspend fun sendLocation(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double
     ): Response<Unit>
 
-    @POST("api/installationId/register")
+    @POST("notification/registerInstallationId")
     suspend fun registerInstallationId(
         @Body installationId: InstallationIdRequestDto
     ): Response<Unit>
 
-    @PUT("api/users/profile")
+    @PUT("profile/data")
     suspend fun updateProfile(
         @Body userUpdate: UserUpdateDto
     ): Response<UserDto>
 
-    @POST("api/users/emergency-contacts")
+    @POST("profile/emergency-contacts")
     suspend fun addEmergencyContact(
         @Body contact: EmergencyContactRequestDto
     ): Response<UserDto>
 
-    @PUT("api/users/emergency-contacts/{uid}")
+    @PUT("profile/emergency-contacts/{uid}")
     suspend fun updateEmergencyContact(
         @Path("uid") uid: String,
         @Body contact: EmergencyContactRequestDto
     ): Response<UserDto>
 
-    @DELETE("api/users/emergency-contacts/{uid}")
+    @DELETE("profile/emergency-contacts/{uid}")
     suspend fun deleteEmergencyContact(
         @Path("uid") uid: String
     ): Response<UserDto>
