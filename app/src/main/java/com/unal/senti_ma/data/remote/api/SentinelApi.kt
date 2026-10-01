@@ -17,7 +17,7 @@ import retrofit2.http.Query
 
 interface SentinelApi {
 
-    @POST("events/robbery/create")
+    @POST("robbery/create")
     suspend fun createRobberyReport(
         @Body report: RobberyReportRequestDto
     ): Response<Unit>
@@ -33,7 +33,7 @@ interface SentinelApi {
         @Query("type") type: String?
     ): Response<List<RobberyPointDto>>
 
-    @POST("location/send")
+    @POST("location/current")
     suspend fun sendLocation(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double
