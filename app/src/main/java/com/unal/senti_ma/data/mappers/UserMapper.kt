@@ -18,26 +18,26 @@ fun FirebaseUser.toDomain(): User = User(
     eps = null,
 )
 
+fun UserDto.toDomain(): User {
+    return User(
+        uid = uid,
+        email = null,
+        photoUrl = null,
+        displayName = null,
+        isAnonymous = false,
+        isEmailVerified = true,
+        emergencyContacts = emergencyContacts.map { it.toDomain() },
+        bloodTypeLetter = bloodTypeLetter,
+        bloodTypeRh = bloodTypeRh,
+        eps = eps
+    )
+}
+
 fun User.toUserUpdate(): UserUpdate {
     return UserUpdate(
         displayName = displayName.orEmpty(),
         bloodTypeLetter = bloodTypeLetter,
         bloodTypeRh = bloodTypeRh,
         eps = eps.orEmpty()
-    )
-}
-
-fun UserDto.toDomain(): User {
-    return User(
-        uid = uid,
-        email = email,
-        photoUrl = photoUrl,
-        displayName = displayName,
-        isAnonymous = isAnonymous,
-        isEmailVerified = isEmailVerified,
-        emergencyContacts = emergencyContacts.map { it.toDomain() },
-        bloodTypeLetter = bloodTypeLetter,
-        bloodTypeRh = bloodTypeRh,
-        eps = eps
     )
 }
