@@ -195,6 +195,9 @@
     <string name="text_error_update_profile">
         No se pudo actualizar el perfil.
     </string>
+    <string name="text_error_get_profile">
+        Error getting user profile
+    </string>
 
     <!-- Descriptions -->
     <string name="description_icon_theme">

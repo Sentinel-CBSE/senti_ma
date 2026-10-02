@@ -7,8 +7,6 @@ import com.unal.senti_ma.data.mappers.toDomain
 import com.unal.senti_ma.data.remote.api.SentinelApi
 import com.unal.senti_ma.data.remote.dto.EmergencyContactRequestDto
 import com.unal.senti_ma.data.remote.dto.UserUpdateDto
-import com.unal.senti_ma.domain.enums.BloodTypeLetter
-import com.unal.senti_ma.domain.enums.BloodTypeRh
 import com.unal.senti_ma.domain.model.AppResult
 import com.unal.senti_ma.domain.model.EmergencyContact
 import com.unal.senti_ma.domain.model.User
@@ -25,31 +23,58 @@ class UserRepositoryImpl @Inject constructor(
     private val sentinelApi: SentinelApi
 ) : UserRepository {
 
-    private var fakeUser = User(
-        uid = "fake-user",
-        email = "david@example.com",
-        photoUrl = null,
-        displayName = "David",
-        isAnonymous = false,
-        isEmailVerified = true,
-        bloodTypeRh = BloodTypeRh.POSITIVE,
-        bloodTypeLetter = BloodTypeLetter.O,
-        emergencyContacts = listOf(
-            EmergencyContact(
-                uid = "contact-1",
-                name = "Laura",
-                phoneNumber = "3001234567",
-                relationship = "Hermana"
-            ),
-            EmergencyContact(
-                uid = "contact-2",
-                name = "Carlos",
-                phoneNumber = "3109876543",
-                relationship = "Padre"
+    override suspend fun getProfile(): AppResult<User> {
+
+        Log.d(
+            "UserRepository",
+            "Getting user profile"
+        )
+
+        return try {
+
+            val response = sentinelApi.getProfile()
+
+            if (response.logIfError(
+                    "UserRepository",
+                    "Get profile"
+                )
+            ) {
+
+                val user = response.body()?.toDomain()
+
+                if (user != null) {
+                    Log.d(
+                        "UserRepository",
+                        "Profile retrieved successfully"
+                    )
+
+                    AppResult.Success(user)
+
+                } else {
+                    AppResult.Error(
+                        context.getString(R.string.text_error_get_profile)
+                    )
+                }
+
+            } else {
+                AppResult.Error(
+                    context.getString(R.string.text_error_get_profile)
+                )
+            }
+
+        } catch (exception: Exception) {
+
+            Log.e(
+                "UserRepository",
+                "Error getting user profile",
+                exception
             )
-        ),
-        eps = "SURA"
-    )
+
+            AppResult.Error(
+                context.getString(R.string.text_error_get_profile)
+            )
+        }
+    }
 
     override suspend fun updateProfile(
         update: UserUpdate

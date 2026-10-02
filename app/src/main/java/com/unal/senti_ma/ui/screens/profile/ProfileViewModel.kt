@@ -11,6 +11,7 @@ import com.unal.senti_ma.domain.usecase.auth.ObserveAuthStateUseCase
 import com.unal.senti_ma.domain.usecase.auth.SignOutUseCase
 import com.unal.senti_ma.domain.usecase.user.AddEmergencyContactUseCase
 import com.unal.senti_ma.domain.usecase.user.DeleteEmergencyContactUseCase
+import com.unal.senti_ma.domain.usecase.user.GetProfileUseCase
 import com.unal.senti_ma.domain.usecase.user.UpdateEmergencyContactUseCase
 import com.unal.senti_ma.domain.usecase.user.UpdateProfileUseCase
 import com.unal.senti_ma.ui.screens.profile.events.ProfileUiEvent
@@ -36,6 +37,7 @@ class ProfileViewModel @Inject constructor(
     private val updateEmergencyContactUseCase: UpdateEmergencyContactUseCase,
     private val deleteEmergencyContactUseCase: DeleteEmergencyContactUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val getProfileUseCase: GetProfileUseCase,
     private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
 
@@ -54,12 +56,20 @@ class ProfileViewModel @Inject constructor(
 
     private fun loadUser() {
         _uiState.value = ProfileUiState.Loading
-        viewModelScope.launch {
-            val user = observeAuthStateUseCase()
-                .filterNotNull()
-                .first()
 
-            updateUser(user)
+        viewModelScope.launch {
+            when (val result = getProfileUseCase()) {
+
+                is AppResult.Success -> {
+                    updateUserFromProfile(result.data)
+                }
+
+                is AppResult.Error -> {
+                    emitError(result.errorMessage)
+                }
+
+                is AppResult.Cancelled -> Unit
+            }
         }
     }
 
@@ -116,7 +126,7 @@ class ProfileViewModel @Inject constructor(
             ) {
 
                 is AppResult.Success -> {
-                    updateUser(result.data)
+                    updateUserFromProfile(result.data)
 
                     emitSuccess(
                         context.getString(
@@ -145,7 +155,7 @@ class ProfileViewModel @Inject constructor(
             ) {
 
                 is AppResult.Success -> {
-                    updateUser(result.data)
+                    updateUserFromProfile(result.data)
 
                     emitSuccess(
                         context.getString(
@@ -174,7 +184,7 @@ class ProfileViewModel @Inject constructor(
             ) {
 
                 is AppResult.Success -> {
-                    updateUser(result.data)
+                    updateUserFromProfile(result.data)
 
                     emitSuccess(
                         context.getString(
@@ -203,7 +213,7 @@ class ProfileViewModel @Inject constructor(
             ) {
 
                 is AppResult.Success -> {
-                    updateUser(result.data)
+                    updateUserFromProfile(result.data)
 
                     emitSuccess(
                         context.getString(
@@ -225,6 +235,25 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             signOutUseCase()
         }
+    }
+
+    private suspend fun updateUserFromProfile(
+        profileUser: User
+    ) {
+        val authUser = observeAuthStateUseCase()
+            .filterNotNull()
+            .first()
+
+        val user = profileUser.copy(
+            uid = authUser.uid,
+            email = authUser.email,
+            photoUrl = authUser.photoUrl,
+            displayName = authUser.displayName,
+            isAnonymous = authUser.isAnonymous,
+            isEmailVerified = authUser.isEmailVerified
+        )
+
+        updateUser(user)
     }
 
     private fun updateUser(user: User) {

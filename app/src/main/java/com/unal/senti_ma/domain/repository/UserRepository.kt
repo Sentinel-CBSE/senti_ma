@@ -7,6 +7,8 @@ import com.unal.senti_ma.domain.model.UserUpdate
 
 interface UserRepository {
 
+    suspend fun getProfile(): AppResult<User>
+
     suspend fun updateProfile(
         update: UserUpdate
     ): AppResult<User>

@@ -44,6 +44,9 @@ interface SentinelApi {
         @Body installationId: InstallationIdRequestDto
     ): Response<Unit>
 
+    @GET("profile/data")
+    suspend fun getProfile(): Response<UserDto>
+
     @PUT("profile/data")
     suspend fun updateProfile(
         @Body userUpdate: UserUpdateDto
