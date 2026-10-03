@@ -89,7 +89,6 @@ class UserRepositoryImpl @Inject constructor(
 
             val response = sentinelApi.updateProfile(
                 UserUpdateDto(
-                    displayName = update.displayName,
                     bloodTypeRh = update.bloodTypeRh,
                     bloodTypeLetter = update.bloodTypeLetter,
                     eps = update.eps

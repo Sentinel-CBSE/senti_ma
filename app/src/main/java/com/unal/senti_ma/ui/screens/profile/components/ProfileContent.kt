@@ -177,30 +177,6 @@ fun ProfileContent(
 
                     item {
                         OutlinedTextField(
-                            value = userUpdate.displayName.orEmpty(),
-                            onValueChange = {
-                                onEvent(
-                                    ProfileUiEvent.UpdateProfileDraft(
-                                        userUpdate.copy(
-                                            displayName = it
-                                        )
-                                    )
-                                )
-                            },
-                            label = {
-                                Text(
-                                    stringResource(
-                                        R.string.text_field_profile_name
-                                    )
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !isUpdating
-                        )
-                    }
-
-                    item {
-                        OutlinedTextField(
                             value = userUpdate.eps.orEmpty(),
                             onValueChange = {
                                 onEvent(

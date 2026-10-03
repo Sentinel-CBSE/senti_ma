@@ -35,7 +35,6 @@ fun UserDto.toDomain(): User {
 
 fun User.toUserUpdate(): UserUpdate {
     return UserUpdate(
-        displayName = displayName.orEmpty(),
         bloodTypeLetter = bloodTypeLetter,
         bloodTypeRh = bloodTypeRh,
         eps = eps.orEmpty()

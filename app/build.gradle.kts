@@ -23,13 +23,13 @@ android {
         buildConfigField(
             "String",
             "SENTI_BACK_BASE_URL",
-            "\"${System.getenv("SENTI_BACK_BASE_URL") ?: "https://sentiapigateway.azure-api.net"}\""
+            "\"${System.getenv("SENTI_BACK_BASE_URL") ?: "https://senti-ag.azure-api.net"}\""
         )
 
         buildConfigField(
             "String",
             "SENTI_APIM_SUBSCRIPTION_KEY",
-            "\"${System.getenv("SENTI_APIM_SUBSCRIPTION_KEY") ?: "64e3f822fd0644659c7ff3f464fec097"}\""
+            "\"${System.getenv("SENTI_APIM_SUBSCRIPTION_KEY") ?: "3182fed37a014294bd6c526d059ecca1"}\""
         )
     }
 
