@@ -2,7 +2,6 @@ package com.unal.senti_ma
 
 import android.app.Application
 import android.util.Log
-import com.google.android.gms.security.ProviderInstaller
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.unal.senti_ma.data.notification.NotificationHelper
