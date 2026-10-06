@@ -1,6 +1,5 @@
 package com.unal.senti_ma.data.remote.dto
 
-import android.net.Uri
 import com.unal.senti_ma.domain.enums.BloodTypeLetter
 import com.unal.senti_ma.domain.enums.BloodTypeRh
 

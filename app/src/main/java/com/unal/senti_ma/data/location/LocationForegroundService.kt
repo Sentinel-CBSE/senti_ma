@@ -152,21 +152,61 @@ class LocationForegroundService : Service() {
 
     private fun startBackendTracking() {
         backendJob = serviceScope.launch {
+
+            val initialLocation =
+                try {
+                    locationClient.getCurrentLocation()
+                } catch (e: Exception) {
+                    Log.e(
+                        TAG,
+                        "Error getting initial location",
+                        e
+                    )
+
+                    null
+                }
+
+            if (initialLocation != null) {
+                lastLocation = initialLocation
+
+                sendLocation(initialLocation)
+            } else {
+                Log.w(
+                    TAG,
+                    "Could not obtain initial location"
+                )
+            }
+
             while (isActive) {
                 delay(BACKEND_UPDATE_INTERVAL.milliseconds)
 
                 lastLocation?.let { location ->
-                    try {
-                        sendLocationUseCase(location)
-                    } catch (e: Exception) {
-                        Log.e(
-                            TAG,
-                            "Error sending location",
-                            e
-                        )
-                    }
+                    sendLocation(location)
                 }
             }
+        }
+    }
+
+    private suspend fun sendLocation(location: Coordinates) {
+        try {
+            Log.d(
+                TAG,
+                "Sending location to backend: $location"
+            )
+
+            sendLocationUseCase(location)
+
+            Log.d(
+                TAG,
+                "Location sent successfully"
+            )
+
+        } catch (e: Exception) {
+            Log.e(
+                TAG,
+                "Error sending location",
+                e
+            )
         }
     }
 
